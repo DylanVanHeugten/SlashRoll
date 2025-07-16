@@ -1,0 +1,1079 @@
+body {
+    font-family: Arial, sans-serif;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f5f5f5;
+}
+
+.container {
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.form-section {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 6px;
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+input[type="text"], input[type="email"], input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-right: 10px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.delete-btn {
+    background-color: #dc3545;
+    padding: 5px 10px;
+    font-size: 12px;
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+.players-list {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 6px;
+}
+
+.player-item {
+    background-color: white;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.player-info {
+    flex-grow: 1;
+}
+
+.player-name {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.player-email {
+    color: #666;
+    font-size: 14px;
+}
+
+.loading {
+    text-align: center;
+    color: #666;
+    padding: 20px;
+}
+
+.error {
+    color: #dc3545;
+    background-color: #f8d7da;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+/* Navigation */
+.navigation {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 15px;
+}
+
+/* Season Selector */
+.season-selector {
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+}
+
+.season-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.season-controls label {
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 0;
+}
+
+.season-controls select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: white;
+}
+
+.create-season-btn {
+    background-color: #28a745;
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+.create-season-btn:hover {
+    background-color: #218838;
+}
+
+.create-season-form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.create-season-form input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    width: 200px;
+}
+
+.create-season-form button {
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+.no-season {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    font-style: italic;
+}
+
+.navigation button {
+    background-color: #6c757d;
+    margin-right: 0;
+}
+
+.navigation button.active {
+    background-color: #007bff;
+}
+
+.navigation button:hover {
+    background-color: #5a6268;
+}
+
+.navigation button.active:hover {
+    background-color: #0056b3;
+}
+
+/* Main content layout */
+.main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.columns {
+    display: flex;
+    gap: 30px;
+}
+
+.columns > * {
+    flex: 1;
+}
+
+/* Player actions */
+.player-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.add-roster-btn {
+    background-color: #28a745;
+    padding: 5px 10px;
+    font-size: 12px;
+}
+
+.add-roster-btn:hover {
+    background-color: #218838;
+}
+
+.add-roster-btn:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+/* Active Roster */
+.active-roster {
+    background-color: #e9ecef;
+    padding: 20px;
+    border-radius: 6px;
+}
+
+.roster-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.roster-slot {
+    background-color: white;
+    border: 2px dashed #dee2e6;
+    border-radius: 6px;
+    padding: 10px;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.roster-slot.filled {
+    border: 2px solid #007bff;
+    background-color: #f8f9fa;
+}
+
+.roster-slot.empty {
+    border: 2px dashed #6c757d;
+}
+
+.roster-slot.drag-over {
+    border: 3px solid #007bff;
+    background-color: #e3f2fd;
+}
+
+.roster-slot.drag-over.filled {
+    border: 3px solid #28a745;
+    background-color: #e8f5e8;
+}
+
+.roster-slot.being-dragged {
+    opacity: 0.5;
+    transform: scale(0.95);
+    border: 2px solid #ffc107;
+}
+
+.slot-number {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: #007bff;
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.roster-player {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    cursor: move;
+}
+
+.roster-player .player-name {
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.roster-player .player-game-id {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.remove-btn {
+    background-color: #dc3545;
+    padding: 3px 6px;
+    font-size: 10px;
+    margin-top: auto;
+}
+
+.remove-btn:hover {
+    background-color: #c82333;
+}
+
+.empty-slot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    font-style: italic;
+    font-size: 14px;
+}
+
+/* Admin Dashboard */
+.admin-dashboard {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 6px;
+}
+
+.dashboard-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.dashboard-section {
+    background-color: white;
+    padding: 20px;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.dashboard-section h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #333;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 10px;
+}
+
+.seasons-admin {
+    margin-bottom: 0;
+}
+
+.seasons-table {
+    background-color: white;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #dee2e6;
+}
+
+.seasons-table .table-header {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    background-color: #28a745;
+    color: white;
+    padding: 15px;
+    font-weight: bold;
+    gap: 15px;
+}
+
+.seasons-table .table-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    padding: 15px;
+    border-bottom: 1px solid #dee2e6;
+    gap: 15px;
+    align-items: center;
+}
+
+.seasons-table .table-row:last-child {
+    border-bottom: none;
+}
+
+.seasons-table .table-row:hover {
+    background-color: #f8f9fa;
+}
+
+.season-name {
+    font-weight: bold;
+    color: #333;
+}
+
+.season-date {
+    color: #666;
+    font-size: 14px;
+}
+
+.season-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.players-admin {
+    margin-bottom: 0;
+}
+
+/* Player Management */
+.player-management {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 6px;
+}
+
+.players-table {
+    background-color: white;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.table-header {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 2fr 1fr 2fr;
+    background-color: #007bff;
+    color: white;
+    padding: 15px;
+    font-weight: bold;
+    gap: 15px;
+}
+
+.table-row {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 2fr 1fr 2fr;
+    padding: 15px;
+    border-bottom: 1px solid #dee2e6;
+    gap: 15px;
+    align-items: center;
+}
+
+.table-row:last-child {
+    border-bottom: none;
+}
+
+.table-row:hover {
+    background-color: #f8f9fa;
+}
+
+.player-status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.player-status.active {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.player-status.inactive {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.status-btn {
+    padding: 5px 10px;
+    font-size: 12px;
+    margin-right: 5px;
+}
+
+.status-btn.activate {
+    background-color: #28a745;
+}
+
+.status-btn.activate:hover {
+    background-color: #218838;
+}
+
+.status-btn.deactivate {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.status-btn.deactivate:hover {
+    background-color: #e0a800;
+}
+
+.player-game-id {
+    color: #666;
+    font-size: 14px;
+}
+
+.player-season {
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* GameID Styles */
+.game-id {
+    color: #6c757d;
+    font-size: 12px;
+    font-weight: normal;
+    opacity: 0.7;
+}
+
+.game-id-edit {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.game-id-edit input {
+    padding: 4px 8px;
+    font-size: 12px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    width: 100%;
+}
+
+.game-id-edit button {
+    padding: 3px 8px;
+    font-size: 11px;
+    margin-right: 5px;
+}
+
+.game-id-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.game-id-display span {
+    font-size: 14px;
+    color: #666;
+}
+
+.edit-btn {
+    background-color: #6c757d;
+    padding: 3px 8px;
+    font-size: 11px;
+    margin-right: 0;
+}
+
+.edit-btn:hover {
+    background-color: #5a6268;
+}
+
+.save-btn {
+    background-color: #28a745;
+    padding: 3px 8px;
+    font-size: 11px;
+}
+
+.save-btn:hover {
+    background-color: #218838;
+}
+
+.cancel-btn {
+    background-color: #6c757d;
+    padding: 3px 8px;
+    font-size: 11px;
+    margin-right: 0;
+}
+
+.cancel-btn:hover {
+    background-color: #5a6268;
+}
+
+/* Season display with tooltip */
+.seasons-display {
+    cursor: help;
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.seasons-display:hover {
+    color: #007bff;
+}
+
+.no-seasons {
+    color: #999;
+    font-style: italic;
+    font-size: 14px;
+}
+
+/* Battle Components */
+.battles-content {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.battle-info {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.participant-stats {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+}
+
+.participant-stats h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.player-stats {
+    background-color: white;
+    padding: 15px;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+}
+
+.player-stats h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.stat-inputs {
+    display: flex;
+    gap: 10px;
+}
+
+.stat-inputs .form-group {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.stat-inputs label {
+    font-size: 12px;
+    margin-bottom: 3px;
+}
+
+.stat-inputs input {
+    padding: 8px;
+    font-size: 14px;
+}
+
+.battles-table {
+    background-color: white;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.battles-table .table-header {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr 1fr 1fr 1fr 1fr;
+    background-color: #007bff;
+    color: white;
+    padding: 15px;
+    font-weight: bold;
+    gap: 15px;
+}
+
+.battles-table .table-row {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr 1fr 1fr 1fr 1fr;
+    padding: 15px;
+    border-bottom: 1px solid #dee2e6;
+    gap: 15px;
+    align-items: center;
+}
+
+.battle-result {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.battle-result.win {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.battle-result.loss {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.battle-result.tie {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.player-battle-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 5px 0;
+}
+
+.player-battle-stats .stat {
+    font-size: 11px;
+    color: #666;
+    background-color: #f8f9fa;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+.total-damage {
+    font-weight: bold;
+    color: #dc3545;
+    text-align: center;
+}
+
+.roster-slot.filled {
+    min-height: 120px;
+}
+
+.roster-player {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+}
+
+@media (max-width: 768px) {
+    .columns {
+        flex-direction: column;
+    }
+    
+    .roster-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .table-header,
+    .table-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .players-table .table-header,
+    .players-table .table-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .table-header > div,
+    .table-row > div {
+        padding: 5px 0;
+    }
+    
+    .battle-info {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-inputs {
+        flex-direction: column;
+    }
+    
+    .battles-table .table-header,
+    .battles-table .table-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .seasons-table .table-header,
+    .seasons-table .table-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .dashboard-section {
+        padding: 15px;
+    }
+    
+    .dashboard-sections {
+        gap: 20px;
+    }
+}
+
+/* Statistics Page */
+.statistics-content {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 6px;
+}
+
+.stats-dashboard {
+    margin-top: 20px;
+}
+
+.stat-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    background-color: white;
+    padding: 20px;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.stat-card h4 {
+    margin: 0 0 10px 0;
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+    display: block;
+}
+
+.stat-value.wins {
+    color: #28a745;
+}
+
+.stat-value.losses {
+    color: #dc3545;
+}
+
+
+.players-stats-table {
+    background-color: white;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #dee2e6;
+}
+
+.players-stats-table .table-header {
+    display: grid;
+    grid-template-columns: 60px 2fr 1.5fr 1.5fr 1fr 1.5fr;
+    background-color: #007bff;
+    color: white;
+    padding: 15px;
+    font-weight: bold;
+    gap: 15px;
+}
+
+.players-stats-table .table-row {
+    display: grid;
+    grid-template-columns: 60px 2fr 1.5fr 1.5fr 1fr 1.5fr;
+    padding: 15px;
+    border-bottom: 1px solid #dee2e6;
+    gap: 15px;
+    align-items: center;
+}
+
+.players-stats-table .table-row:hover {
+    background-color: #f8f9fa;
+}
+
+.rank {
+    font-weight: bold;
+    color: #007bff;
+    text-align: center;
+}
+
+.players-stats-table .table-row:nth-child(2) .rank {
+    color: #ffd700; /* Gold for #1 */
+}
+
+.players-stats-table .table-row:nth-child(3) .rank {
+    color: #c0c0c0; /* Silver for #2 */
+}
+
+.players-stats-table .table-row:nth-child(4) .rank {
+    color: #cd7f32; /* Bronze for #3 */
+}
+
+.season-stats {
+    margin-bottom: 20px;
+}
+
+.top-players {
+    margin-bottom: 20px;
+}
+
+.recent-battles {
+    margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+    .stat-cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    
+    .stat-card {
+        padding: 15px;
+    }
+    
+    .stat-value {
+        font-size: 22px;
+    }
+    
+    .players-stats-table .table-header,
+    .players-stats-table .table-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .players-stats-table .table-header > div,
+    .players-stats-table .table-row > div {
+        padding: 5px 0;
+    }
+}
+
+/* EXPERIMENTAL GRAPHS SECTION - CAN BE EASILY REMOVED */
+.experimental-graphs {
+    border: 2px dashed #007bff;
+    background-color: #f8f9ff;
+}
+
+.experimental-badge {
+    background-color: #007bff;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: normal;
+    margin-left: 10px;
+}
+
+.graphs-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.graph-card {
+    background-color: white;
+    padding: 20px;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.graph-card h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 16px;
+}
+
+.pie-chart-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.pie-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 2px;
+}
+
+.bar-chart-container {
+    display: flex;
+    justify-content: center;
+}
+
+.bar-chart-container svg {
+    max-width: 100%;
+    height: auto;
+}
+
+.line-chart-container {
+    display: flex;
+    justify-content: center;
+}
+
+.line-chart-container svg {
+    max-width: 100%;
+    height: auto;
+}
+
+@media (max-width: 768px) {
+    .graphs-container {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .graph-card {
+        padding: 15px;
+    }
+    
+    .pie-chart-container svg {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .bar-chart-container svg,
+    .line-chart-container svg {
+        width: 100%;
+        height: 150px;
+    }
+}
+/* END EXPERIMENTAL GRAPHS SECTION */
