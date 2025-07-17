@@ -163,6 +163,13 @@ button:hover {
     
     .player-info {
         text-align: center;
+        display: block; /* Override desktop flex layout */
+    }
+    
+    .player-info .player-name {
+        flex-direction: column;
+        gap: 4px;
+        margin-bottom: 5px;
     }
     
     .player-actions {
@@ -175,6 +182,10 @@ button:hover {
         padding: 10px;
         gap: 8px;
     }
+    
+    .player-info .player-name {
+        gap: 2px;
+    }
 }
 
 .player-info {
@@ -184,6 +195,42 @@ button:hover {
 .player-name {
     font-weight: bold;
     margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* For bigger screens, show game ID inline with player name */
+@media (min-width: 769px) {
+    .player-item {
+        align-items: center;
+    }
+    
+    .player-name {
+        margin-bottom: 0;
+    }
+    
+    .player-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-grow: 1;
+    }
+    
+    .player-info .player-name {
+        margin-bottom: 0;
+        flex-shrink: 0;
+        min-width: 0; /* Allow text to wrap if needed */
+    }
+    
+    .player-info .game-id {
+        flex-shrink: 0;
+        white-space: nowrap; /* Keep game ID on one line */
+    }
+    
+    .player-actions {
+        flex-shrink: 0;
+    }
 }
 
 .player-email {
@@ -606,6 +653,23 @@ button:hover {
     gap: 30px;
 }
 
+.dashboard-row {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+}
+
+.dashboard-row .dashboard-section {
+    flex: 1;
+}
+
+@media (max-width: 1024px) {
+    .dashboard-row {
+        flex-direction: column;
+        gap: 25px;
+    }
+}
+
 .dashboard-section {
     background-color: white;
     padding: 20px;
@@ -709,6 +773,62 @@ button:hover {
     border-bottom: 1px solid #dee2e6;
     gap: 15px;
     align-items: center;
+}
+
+/* For bigger screens, optimize the players table layout */
+@media (min-width: 769px) {
+    .players-table .table-header {
+        grid-template-columns: 3fr 2fr 2fr 1fr 2.5fr;
+    }
+    
+    .players-table .table-row {
+        grid-template-columns: 3fr 2fr 2fr 1fr 2.5fr;
+    }
+    
+    .players-table .table-row .player-game-id {
+        display: flex;
+        align-items: center;
+        min-height: 40px;
+    }
+    
+    .players-table .game-id-edit {
+        flex-direction: row;
+        gap: 8px;
+        align-items: center;
+        width: 100%;
+    }
+    
+    .players-table .game-id-edit input {
+        flex: 1;
+        min-width: 80px;
+    }
+    
+    .players-table .game-id-edit button {
+        flex-shrink: 0;
+        padding: 4px 8px;
+        font-size: 11px;
+        min-height: 28px;
+        min-width: 40px;
+    }
+    
+    .players-table .game-id-display {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .players-table .player-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
+    .players-table .player-actions button {
+        flex-shrink: 0;
+        padding: 6px 12px;
+        font-size: 12px;
+        min-height: 32px;
+    }
 }
 
 .table-row:last-child {
@@ -1097,6 +1217,11 @@ button:hover {
     }
     
     .dashboard-sections {
+        gap: 20px;
+    }
+    
+    .dashboard-row {
+        flex-direction: column;
         gap: 20px;
     }
     

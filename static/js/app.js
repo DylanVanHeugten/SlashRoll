@@ -33,6 +33,7 @@ function SeasonSelector({
   currentSeason,
   onSeasonChange,
   onCreateSeason,
+  showCreateButton = false,
 }) {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newSeasonName, setNewSeasonName] = useState("");
@@ -88,15 +89,17 @@ function SeasonSelector({
             </option>
           ))}
         </select>
-        <button
-          className="create-season-btn"
-          onClick={() => setShowCreateForm(!showCreateForm)}
-        >
-          {showCreateForm ? "Cancel" : "New Season"}
-        </button>
+        {showCreateButton && (
+          <button
+            className="create-season-btn"
+            onClick={() => setShowCreateForm(!showCreateForm)}
+          >
+            {showCreateForm ? "Cancel" : "New Season"}
+          </button>
+        )}
       </div>
 
-      {showCreateForm && (
+      {showCreateButton && showCreateForm && (
         <form onSubmit={handleCreateSeason} className="create-season-form">
           <input
             type="text"
@@ -1080,22 +1083,25 @@ function AdminDashboard({
       {error && <div className="error">{error}</div>}
 
       <div className="dashboard-sections">
-        <div className="dashboard-section">
-          <h3>Add New Player</h3>
-          <PlayerForm
-            onPlayerAdded={onPlayerAdded}
-            currentSeason={currentSeason}
-          />
-        </div>
+        <div className="dashboard-row">
+          <div className="dashboard-section">
+            <h3>Add New Player</h3>
+            <PlayerForm
+              onPlayerAdded={onPlayerAdded}
+              currentSeason={currentSeason}
+            />
+          </div>
 
-        <div className="dashboard-section">
-          <h3>Season Selection</h3>
-          <SeasonSelector
-            seasons={seasons}
-            currentSeason={currentSeason}
-            onSeasonChange={onSeasonChange}
-            onCreateSeason={onCreateSeason}
-          />
+          <div className="dashboard-section">
+            <h3>Season Selection</h3>
+            <SeasonSelector
+              seasons={seasons}
+              currentSeason={currentSeason}
+              onSeasonChange={onSeasonChange}
+              onCreateSeason={onCreateSeason}
+              showCreateButton={true}
+            />
+          </div>
         </div>
         <div className="dashboard-section">
           <h3>Season Management</h3>
