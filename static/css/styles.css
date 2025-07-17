@@ -6,11 +6,33 @@ body {
     background-color: #f5f5f5;
 }
 
+/* Mobile-first approach */
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+}
+
 .container {
     background-color: white;
     padding: 30px;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+        border-radius: 4px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 10px;
+        border-radius: 0;
+        box-shadow: none;
+    }
 }
 
 h1 {
@@ -46,6 +68,20 @@ input[type="text"], input[type="email"], input[type="number"] {
     font-size: 14px;
 }
 
+@media (max-width: 768px) {
+    input[type="text"], input[type="email"], input[type="number"] {
+        padding: 12px;
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+}
+
+@media (max-width: 480px) {
+    input[type="text"], input[type="email"], input[type="number"] {
+        padding: 14px;
+        font-size: 16px;
+    }
+}
+
 input[type="number"] {
     -moz-appearance: textfield;
 }
@@ -65,6 +101,25 @@ button {
     cursor: pointer;
     font-size: 14px;
     margin-right: 10px;
+    /* Better touch targets */
+    min-height: 44px;
+    min-width: 44px;
+}
+
+@media (max-width: 768px) {
+    button {
+        padding: 12px 16px;
+        font-size: 16px;
+        margin-right: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    button {
+        padding: 14px 18px;
+        margin-right: 5px;
+        margin-bottom: 5px;
+    }
 }
 
 button:hover {
@@ -96,6 +151,30 @@ button:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+@media (max-width: 768px) {
+    .player-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 12px;
+    }
+    
+    .player-info {
+        text-align: center;
+    }
+    
+    .player-actions {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .player-item {
+        padding: 10px;
+        gap: 8px;
+    }
 }
 
 .player-info {
@@ -133,6 +212,34 @@ button:hover {
     margin-bottom: 20px;
     border-bottom: 1px solid #dee2e6;
     padding-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .navigation {
+        gap: 8px;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+    }
+    
+    .navigation button {
+        flex: 1;
+        min-width: 0;
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .navigation {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .navigation button {
+        width: 100%;
+        text-align: center;
+    }
 }
 
 /* Season Selector */
@@ -149,6 +256,27 @@ button:hover {
     align-items: center;
     gap: 15px;
     margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .season-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    
+    .season-controls select {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .season-controls {
+        gap: 8px;
+    }
 }
 
 .season-controls label {
@@ -179,6 +307,21 @@ button:hover {
     display: flex;
     gap: 10px;
     align-items: center;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .create-season-form {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+    
+    .create-season-form input {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+    }
 }
 
 .create-season-form input {
@@ -239,6 +382,26 @@ button:hover {
     display: flex;
     gap: 10px;
     align-items: center;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .player-actions {
+        gap: 8px;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .player-actions {
+        gap: 6px;
+        flex-direction: column;
+    }
+    
+    .player-actions button {
+        width: 100%;
+        margin-right: 0;
+    }
 }
 
 .add-roster-btn {
@@ -270,6 +433,26 @@ button:hover {
     margin-top: 15px;
 }
 
+@media (max-width: 1024px) {
+    .roster-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .roster-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .roster-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+    }
+}
+
 .roster-slot {
     background-color: white;
     border: 2px dashed #dee2e6;
@@ -279,6 +462,21 @@ button:hover {
     display: flex;
     flex-direction: column;
     position: relative;
+}
+
+@media (max-width: 768px) {
+    .roster-slot {
+        padding: 8px;
+        min-height: 100px;
+    }
+}
+
+@media (max-width: 480px) {
+    .roster-slot {
+        padding: 6px;
+        min-height: 120px;
+        border-radius: 4px;
+    }
 }
 
 .roster-slot.filled {
@@ -322,6 +520,22 @@ button:hover {
     font-weight: bold;
 }
 
+@media (max-width: 768px) {
+    .slot-number {
+        width: 24px;
+        height: 24px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .slot-number {
+        width: 28px;
+        height: 28px;
+        font-size: 16px;
+    }
+}
+
 .roster-player {
     flex-grow: 1;
     display: flex;
@@ -346,6 +560,24 @@ button:hover {
     padding: 3px 6px;
     font-size: 10px;
     margin-top: auto;
+    min-height: 24px;
+}
+
+@media (max-width: 768px) {
+    .remove-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+        min-height: 32px;
+    }
+}
+
+@media (max-width: 480px) {
+    .remove-btn {
+        padding: 8px 16px;
+        font-size: 14px;
+        min-height: 36px;
+        width: 100%;
+    }
 }
 
 .remove-btn:hover {
@@ -642,6 +874,19 @@ button:hover {
     margin-bottom: 20px;
 }
 
+@media (max-width: 768px) {
+    .battle-info {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .battle-info {
+        gap: 8px;
+    }
+}
+
 .participant-stats {
     margin-top: 20px;
     padding: 20px;
@@ -778,31 +1023,52 @@ button:hover {
 @media (max-width: 768px) {
     .columns {
         flex-direction: column;
-    }
-    
-    .roster-grid {
-        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
     }
     
     .table-header,
     .table-row {
-        grid-template-columns: 1fr;
-        gap: 10px;
+        display: block;
+        padding: 10px;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .table-header {
+        display: none; /* Hide table headers on mobile */
+    }
+    
+    .table-row {
+        margin-bottom: 10px;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+    }
+    
+    .table-row > div {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .table-row > div:last-child {
+        border-bottom: none;
+    }
+    
+    .table-row > div:before {
+        content: attr(data-label);
+        font-weight: bold;
+        color: #333;
+        width: 40%;
+        display: inline-block;
     }
     
     .players-table .table-header,
     .players-table .table-row {
-        grid-template-columns: 1fr;
-        gap: 10px;
+        display: block;
     }
     
-    .table-header > div,
-    .table-row > div {
-        padding: 5px 0;
-    }
-    
-    .battle-info {
-        grid-template-columns: 1fr;
+    .players-table .table-header {
+        display: none;
     }
     
     .stats-grid {
@@ -811,18 +1077,19 @@ button:hover {
     
     .stat-inputs {
         flex-direction: column;
+        gap: 8px;
     }
     
     .battles-table .table-header,
-    .battles-table .table-row {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-    
+    .battles-table .table-row,
     .seasons-table .table-header,
     .seasons-table .table-row {
-        grid-template-columns: 1fr;
-        gap: 10px;
+        display: block;
+    }
+    
+    .battles-table .table-header,
+    .seasons-table .table-header {
+        display: none;
     }
     
     .dashboard-section {
@@ -831,6 +1098,10 @@ button:hover {
     
     .dashboard-sections {
         gap: 20px;
+    }
+    
+    .form-section {
+        padding: 15px;
     }
 }
 
@@ -850,6 +1121,28 @@ button:hover {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
     margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+    .stat-cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .stat-cards {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .stat-card {
+        padding: 15px;
+    }
+    
+    .stat-value {
+        font-size: 24px;
+    }
 }
 
 .stat-card {
@@ -945,31 +1238,6 @@ button:hover {
     margin-bottom: 20px;
 }
 
-@media (max-width: 768px) {
-    .stat-cards {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
-    }
-    
-    .stat-card {
-        padding: 15px;
-    }
-    
-    .stat-value {
-        font-size: 22px;
-    }
-    
-    .players-stats-table .table-header,
-    .players-stats-table .table-row {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-    
-    .players-stats-table .table-header > div,
-    .players-stats-table .table-row > div {
-        padding: 5px 0;
-    }
-}
 
 /* EXPERIMENTAL GRAPHS SECTION - CAN BE EASILY REMOVED */
 .experimental-graphs {
@@ -1077,3 +1345,82 @@ button:hover {
     }
 }
 /* END EXPERIMENTAL GRAPHS SECTION */
+
+/* Touch improvements for mobile */
+@media (max-width: 768px) {
+    /* Larger touch targets */
+    .roster-player {
+        cursor: grab;
+        touch-action: none;
+    }
+    
+    .roster-player:active {
+        cursor: grabbing;
+    }
+    
+    /* Better spacing for touch */
+    .player-battle-stats {
+        margin: 8px 0;
+    }
+    
+    .player-battle-stats .stat {
+        padding: 4px 6px;
+        font-size: 12px;
+    }
+    
+    /* Improved table styling for mobile */
+    .players-stats-table .table-row {
+        padding: 12px;
+    }
+    
+    .players-stats-table .table-row > div {
+        padding: 8px 0;
+        font-size: 14px;
+    }
+    
+    .players-stats-table .table-row > div:before {
+        font-size: 12px;
+        color: #666;
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+    h1 {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+    
+    h2 {
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
+    
+    h3 {
+        font-size: 18px;
+        margin-bottom: 10px;
+    }
+    
+    .player-name {
+        font-size: 16px;
+    }
+    
+    .game-id {
+        font-size: 13px;
+    }
+    
+    .loading {
+        font-size: 16px;
+        padding: 30px;
+    }
+    
+    .error {
+        font-size: 14px;
+        padding: 12px;
+    }
+    
+    .no-season {
+        padding: 30px;
+        font-size: 16px;
+    }
+}
