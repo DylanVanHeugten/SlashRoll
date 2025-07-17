@@ -1,5 +1,41 @@
 const { useState, useEffect } = React;
 
+// Theme Toggle Component
+function ThemeToggle() {
+  const [theme, setTheme] = useState(() => {
+    const savedTheme = localStorage.getItem('theme');
+    return savedTheme || 'light';
+  });
+
+  const themes = [
+    { value: 'light', name: '☀️ Light' },
+    { value: 'dark', name: '🌙 Dark' },
+    { value: 'ocean', name: '🌊 Ocean' },
+    { value: 'forest', name: '🌲 Forest' },
+    { value: 'cyberpunk', name: '🤖 Cyberpunk' }
+  ];
+
+  const currentThemeIndex = themes.findIndex(t => t.value === theme);
+
+  const toggleTheme = () => {
+    const nextIndex = (currentThemeIndex + 1) % themes.length;
+    const nextTheme = themes[nextIndex].value;
+    setTheme(nextTheme);
+    localStorage.setItem('theme', nextTheme);
+    document.documentElement.setAttribute('data-theme', nextTheme);
+  };
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  return (
+    <button className="theme-toggle" onClick={toggleTheme}>
+      {themes[currentThemeIndex].name}
+    </button>
+  );
+}
+
 // Utility function to format damage numbers with abbreviations
 function formatDamage(number) {
   if (number < 1000) {
@@ -1869,6 +1905,7 @@ function App() {
 
   return (
     <div className="container">
+      <ThemeToggle />
       <h1>Player Management System</h1>
       <Navigation currentPage={currentPage} onPageChange={setCurrentPage} />
       {error && <div className="error">{error}</div>}

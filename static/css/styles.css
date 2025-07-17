@@ -1,9 +1,588 @@
+/* Theme Variables */
+:root {
+    /* Default Theme (Light) */
+    --bg-primary: #f5f5f5;
+    --bg-secondary: white;
+    --bg-tertiary: #f8f9fa;
+    --text-primary: #333;
+    --text-secondary: #555;
+    --text-muted: #6c757d;
+    --border-color: #dee2e6;
+    --border-light: #ddd;
+    --button-primary: #007bff;
+    --button-primary-hover: #0056b3;
+    --button-danger: #dc3545;
+    --button-danger-hover: #c82333;
+    --shadow-light: rgba(0,0,0,0.1);
+    --shadow-medium: rgba(0,0,0,0.15);
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-tertiary: #3a3a3a;
+    --text-primary: #e0e0e0;
+    --text-secondary: #b0b0b0;
+    --text-muted: #808080;
+    --border-color: #4a4a4a;
+    --border-light: #555;
+    --button-primary: #0d6efd;
+    --button-primary-hover: #0b5ed7;
+    --button-danger: #dc3545;
+    --button-danger-hover: #bb2d3b;
+    --shadow-light: rgba(0,0,0,0.3);
+    --shadow-medium: rgba(0,0,0,0.5);
+}
+
+/* Ocean Blue Theme */
+[data-theme="ocean"] {
+    --bg-primary: #e8f4f8;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #f0f8ff;
+    --text-primary: #1e3a5f;
+    --text-secondary: #2c5282;
+    --text-muted: #4a5568;
+    --border-color: #bee3f8;
+    --border-light: #90cdf4;
+    --button-primary: #2b77ad;
+    --button-primary-hover: #1a5a8a;
+    --button-danger: #e53e3e;
+    --button-danger-hover: #c53030;
+    --shadow-light: rgba(43, 119, 173, 0.1);
+    --shadow-medium: rgba(43, 119, 173, 0.2);
+}
+
+/* Forest Green Theme */
+[data-theme="forest"] {
+    --bg-primary: #f0f4f0;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #f7fbf7;
+    --text-primary: #2d3748;
+    --text-secondary: #4a5568;
+    --text-muted: #718096;
+    --border-color: #c6f6d5;
+    --border-light: #9ae6b4;
+    --button-primary: #38a169;
+    --button-primary-hover: #2f855a;
+    --button-danger: #e53e3e;
+    --button-danger-hover: #c53030;
+    --shadow-light: rgba(56, 161, 105, 0.1);
+    --shadow-medium: rgba(56, 161, 105, 0.2);
+}
+
+/* Neon Cyberpunk Theme - EXPERIMENTAL! */
+[data-theme="cyberpunk"] {
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #1a0a1a;
+    --bg-tertiary: #2a0a2a;
+    --text-primary: #ff00ff;
+    --text-secondary: #00ffff;
+    --text-muted: #ff0080;
+    --border-color: #ff00ff;
+    --border-light: #00ffff;
+    --button-primary: #ff0080;
+    --button-primary-hover: #ff00ff;
+    --button-danger: #ff4400;
+    --button-danger-hover: #ff6600;
+    --shadow-light: rgba(255, 0, 255, 0.5);
+    --shadow-medium: rgba(255, 0, 255, 0.8);
+    --neon-glow: #ff00ff;
+    --neon-glow-secondary: #00ffff;
+    --neon-glow-tertiary: #ff0080;
+}
+
 body {
     font-family: Arial, sans-serif;
     max-width: 1400px;
     margin: 0 auto;
     padding: 20px;
-    background-color: #f5f5f5;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    background-color: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 25px;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px var(--shadow-light);
+    transition: all 0.3s ease;
+    color: var(--text-primary);
+    font-weight: bold;
+    min-width: 120px;
+    text-align: center;
+}
+
+.theme-toggle:hover {
+    background-color: var(--bg-tertiary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--shadow-medium);
+}
+
+@media (max-width: 768px) {
+    .theme-toggle {
+        top: 10px;
+        right: 10px;
+        padding: 6px 12px;
+        font-size: 12px;
+        min-width: 100px;
+    }
+}
+
+/* CYBERPUNK EXPERIMENTAL EFFECTS */
+[data-theme="cyberpunk"] {
+    animation: cyberpunk-flicker 3s infinite;
+}
+
+@keyframes cyberpunk-flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.98; }
+    51% { opacity: 1; }
+    52% { opacity: 0.99; }
+}
+
+[data-theme="cyberpunk"] .container {
+    border: 2px solid var(--neon-glow);
+    box-shadow: 
+        0 0 10px var(--neon-glow),
+        0 0 20px var(--neon-glow),
+        0 0 30px var(--neon-glow),
+        inset 0 0 20px rgba(255, 0, 255, 0.1);
+    animation: neon-pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes neon-pulse {
+    from {
+        box-shadow: 
+            0 0 10px var(--neon-glow),
+            0 0 20px var(--neon-glow),
+            0 0 30px var(--neon-glow),
+            inset 0 0 20px rgba(255, 0, 255, 0.1);
+    }
+    to {
+        box-shadow: 
+            0 0 15px var(--neon-glow),
+            0 0 25px var(--neon-glow),
+            0 0 35px var(--neon-glow),
+            inset 0 0 30px rgba(255, 0, 255, 0.2);
+    }
+}
+
+[data-theme="cyberpunk"] h1 {
+    text-shadow: 
+        0 0 5px var(--neon-glow),
+        0 0 10px var(--neon-glow),
+        0 0 15px var(--neon-glow);
+    animation: text-flicker 1.5s infinite alternate;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+@keyframes text-flicker {
+    0%, 100% { 
+        text-shadow: 
+            0 0 5px var(--neon-glow),
+            0 0 10px var(--neon-glow),
+            0 0 15px var(--neon-glow);
+    }
+    50% { 
+        text-shadow: 
+            0 0 2px var(--neon-glow),
+            0 0 5px var(--neon-glow),
+            0 0 8px var(--neon-glow);
+    }
+}
+
+[data-theme="cyberpunk"] button {
+    border: 1px solid var(--neon-glow-secondary);
+    box-shadow: 
+        0 0 5px var(--neon-glow-tertiary),
+        inset 0 0 5px rgba(255, 0, 128, 0.2);
+    text-shadow: 0 0 3px var(--neon-glow-secondary);
+    animation: button-glow 1s ease-in-out infinite alternate;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+@keyframes button-glow {
+    from {
+        box-shadow: 
+            0 0 5px var(--neon-glow-tertiary),
+            inset 0 0 5px rgba(255, 0, 128, 0.2);
+    }
+    to {
+        box-shadow: 
+            0 0 8px var(--neon-glow-tertiary),
+            0 0 12px var(--neon-glow-tertiary),
+            inset 0 0 8px rgba(255, 0, 128, 0.3);
+    }
+}
+
+[data-theme="cyberpunk"] button:hover {
+    transform: scale(1.05);
+    animation: button-crazy-glow 0.3s ease-in-out infinite;
+}
+
+@keyframes button-crazy-glow {
+    0% { 
+        box-shadow: 
+            0 0 10px var(--neon-glow),
+            0 0 20px var(--neon-glow),
+            inset 0 0 10px rgba(255, 0, 255, 0.5);
+    }
+    50% { 
+        box-shadow: 
+            0 0 15px var(--neon-glow-secondary),
+            0 0 25px var(--neon-glow-secondary),
+            inset 0 0 15px rgba(0, 255, 255, 0.5);
+    }
+    100% { 
+        box-shadow: 
+            0 0 20px var(--neon-glow-tertiary),
+            0 0 30px var(--neon-glow-tertiary),
+            inset 0 0 20px rgba(255, 0, 128, 0.5);
+    }
+}
+
+[data-theme="cyberpunk"] .player-item {
+    border: 1px solid var(--neon-glow-secondary);
+    box-shadow: 
+        0 0 3px var(--neon-glow-tertiary),
+        inset 0 0 3px rgba(255, 0, 128, 0.1);
+    animation: player-card-pulse 3s ease-in-out infinite;
+}
+
+@keyframes player-card-pulse {
+    0%, 100% { 
+        border-color: var(--neon-glow-secondary);
+        box-shadow: 
+            0 0 3px var(--neon-glow-tertiary),
+            inset 0 0 3px rgba(255, 0, 128, 0.1);
+    }
+    50% { 
+        border-color: var(--neon-glow);
+        box-shadow: 
+            0 0 5px var(--neon-glow),
+            inset 0 0 5px rgba(255, 0, 255, 0.2);
+    }
+}
+
+[data-theme="cyberpunk"] .roster-slot {
+    border: 2px solid var(--neon-glow-secondary);
+    box-shadow: 
+        0 0 5px var(--neon-glow-tertiary),
+        inset 0 0 5px rgba(255, 0, 128, 0.1);
+    animation: roster-slot-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes roster-slot-glow {
+    from {
+        box-shadow: 
+            0 0 5px var(--neon-glow-tertiary),
+            inset 0 0 5px rgba(255, 0, 128, 0.1);
+    }
+    to {
+        box-shadow: 
+            0 0 8px var(--neon-glow-tertiary),
+            0 0 12px var(--neon-glow-tertiary),
+            inset 0 0 8px rgba(255, 0, 128, 0.2);
+    }
+}
+
+[data-theme="cyberpunk"] .roster-slot.filled {
+    animation: filled-slot-crazy-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes filled-slot-crazy-glow {
+    0% { 
+        border-color: var(--neon-glow);
+        box-shadow: 
+            0 0 10px var(--neon-glow),
+            inset 0 0 10px rgba(255, 0, 255, 0.3);
+    }
+    33% { 
+        border-color: var(--neon-glow-secondary);
+        box-shadow: 
+            0 0 10px var(--neon-glow-secondary),
+            inset 0 0 10px rgba(0, 255, 255, 0.3);
+    }
+    66% { 
+        border-color: var(--neon-glow-tertiary);
+        box-shadow: 
+            0 0 10px var(--neon-glow-tertiary),
+            inset 0 0 10px rgba(255, 0, 128, 0.3);
+    }
+    100% { 
+        border-color: var(--neon-glow);
+        box-shadow: 
+            0 0 10px var(--neon-glow),
+            inset 0 0 10px rgba(255, 0, 255, 0.3);
+    }
+}
+
+[data-theme="cyberpunk"] input {
+    border: 1px solid var(--neon-glow-secondary);
+    box-shadow: 
+        0 0 3px var(--neon-glow-tertiary),
+        inset 0 0 3px rgba(255, 0, 128, 0.1);
+    animation: input-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes input-glow {
+    from {
+        box-shadow: 
+            0 0 3px var(--neon-glow-tertiary),
+            inset 0 0 3px rgba(255, 0, 128, 0.1);
+    }
+    to {
+        box-shadow: 
+            0 0 5px var(--neon-glow-tertiary),
+            0 0 8px var(--neon-glow-tertiary),
+            inset 0 0 5px rgba(255, 0, 128, 0.2);
+    }
+}
+
+[data-theme="cyberpunk"] input:focus {
+    border-color: var(--neon-glow);
+    box-shadow: 
+        0 0 10px var(--neon-glow),
+        0 0 20px var(--neon-glow),
+        inset 0 0 10px rgba(255, 0, 255, 0.3);
+    animation: input-focus-crazy 0.5s ease-in-out infinite;
+}
+
+@keyframes input-focus-crazy {
+    0%, 100% { 
+        box-shadow: 
+            0 0 10px var(--neon-glow),
+            0 0 20px var(--neon-glow),
+            inset 0 0 10px rgba(255, 0, 255, 0.3);
+    }
+    50% { 
+        box-shadow: 
+            0 0 15px var(--neon-glow-secondary),
+            0 0 25px var(--neon-glow-secondary),
+            inset 0 0 15px rgba(0, 255, 255, 0.3);
+    }
+}
+
+/* Matrix-style text effect for cyberpunk theme */
+[data-theme="cyberpunk"] .player-name {
+    animation: matrix-text 3s linear infinite;
+}
+
+@keyframes matrix-text {
+    0% { color: var(--text-primary); }
+    25% { color: var(--text-secondary); }
+    50% { color: var(--text-muted); }
+    75% { color: var(--text-secondary); }
+    100% { color: var(--text-primary); }
+}
+
+/* Glitch effect for theme toggle in cyberpunk */
+[data-theme="cyberpunk"] .theme-toggle {
+    animation: glitch-effect 4s infinite;
+}
+
+@keyframes glitch-effect {
+    0%, 100% { transform: translate(0); }
+    10% { transform: translate(-2px, 1px); }
+    20% { transform: translate(1px, -1px); }
+    30% { transform: translate(-1px, 2px); }
+    40% { transform: translate(2px, -2px); }
+    50% { transform: translate(-2px, -1px); }
+    60% { transform: translate(1px, 2px); }
+    70% { transform: translate(-1px, -2px); }
+    80% { transform: translate(2px, 1px); }
+    90% { transform: translate(-2px, -1px); }
+}
+
+/* Additional EXTREME cyberpunk effects */
+[data-theme="cyberpunk"] .navigation button {
+    animation: nav-button-rainbow 2s linear infinite;
+}
+
+@keyframes nav-button-rainbow {
+    0% { background-color: #ff0080; border-color: #ff0080; }
+    16% { background-color: #ff4400; border-color: #ff4400; }
+    32% { background-color: #ffff00; border-color: #ffff00; }
+    48% { background-color: #00ff00; border-color: #00ff00; }
+    64% { background-color: #00ffff; border-color: #00ffff; }
+    80% { background-color: #0080ff; border-color: #0080ff; }
+    100% { background-color: #ff00ff; border-color: #ff00ff; }
+}
+
+[data-theme="cyberpunk"] .navigation button:hover {
+    animation: nav-button-insane 0.1s linear infinite;
+    text-shadow: 0 0 10px currentColor;
+}
+
+@keyframes nav-button-insane {
+    0% { transform: scale(1) rotate(0deg); }
+    25% { transform: scale(1.1) rotate(1deg); }
+    50% { transform: scale(1.05) rotate(-1deg); }
+    75% { transform: scale(1.15) rotate(1deg); }
+    100% { transform: scale(1) rotate(0deg); }
+}
+
+[data-theme="cyberpunk"] .roster-slot:hover {
+    animation: roster-slot-insane 0.2s linear infinite;
+    border-width: 4px;
+}
+
+@keyframes roster-slot-insane {
+    0% { 
+        border-color: var(--neon-glow);
+        box-shadow: 
+            0 0 20px var(--neon-glow),
+            0 0 40px var(--neon-glow),
+            inset 0 0 20px rgba(255, 0, 255, 0.5);
+    }
+    25% { 
+        border-color: var(--neon-glow-secondary);
+        box-shadow: 
+            0 0 20px var(--neon-glow-secondary),
+            0 0 40px var(--neon-glow-secondary),
+            inset 0 0 20px rgba(0, 255, 255, 0.5);
+    }
+    50% { 
+        border-color: var(--neon-glow-tertiary);
+        box-shadow: 
+            0 0 20px var(--neon-glow-tertiary),
+            0 0 40px var(--neon-glow-tertiary),
+            inset 0 0 20px rgba(255, 0, 128, 0.5);
+    }
+    75% { 
+        border-color: #ffff00;
+        box-shadow: 
+            0 0 20px #ffff00,
+            0 0 40px #ffff00,
+            inset 0 0 20px rgba(255, 255, 0, 0.5);
+    }
+    100% { 
+        border-color: var(--neon-glow);
+        box-shadow: 
+            0 0 20px var(--neon-glow),
+            0 0 40px var(--neon-glow),
+            inset 0 0 20px rgba(255, 0, 255, 0.5);
+    }
+}
+
+/* Extreme text effects */
+[data-theme="cyberpunk"] .player-name:hover {
+    animation: text-explosion 0.5s ease-in-out infinite;
+    text-shadow: 
+        0 0 5px var(--neon-glow),
+        0 0 10px var(--neon-glow),
+        0 0 15px var(--neon-glow),
+        0 0 20px var(--neon-glow);
+}
+
+@keyframes text-explosion {
+    0% { 
+        transform: scale(1);
+        text-shadow: 
+            0 0 5px var(--neon-glow),
+            0 0 10px var(--neon-glow),
+            0 0 15px var(--neon-glow),
+            0 0 20px var(--neon-glow);
+    }
+    50% { 
+        transform: scale(1.2);
+        text-shadow: 
+            0 0 10px var(--neon-glow),
+            0 0 20px var(--neon-glow),
+            0 0 30px var(--neon-glow),
+            0 0 40px var(--neon-glow);
+    }
+    100% { 
+        transform: scale(1);
+        text-shadow: 
+            0 0 5px var(--neon-glow),
+            0 0 10px var(--neon-glow),
+            0 0 15px var(--neon-glow),
+            0 0 20px var(--neon-glow);
+    }
+}
+
+/* Pulsing background pattern */
+[data-theme="cyberpunk"] body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 20% 20%, rgba(255, 0, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 60%, rgba(255, 0, 128, 0.1) 0%, transparent 50%);
+    animation: background-pulse 4s ease-in-out infinite;
+    pointer-events: none;
+    z-index: -1;
+}
+
+@keyframes background-pulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.7; }
+}
+
+/* Extreme form styling */
+[data-theme="cyberpunk"] .form-section {
+    border: 2px solid var(--neon-glow);
+    animation: form-section-glow 3s ease-in-out infinite;
+}
+
+@keyframes form-section-glow {
+    0%, 100% { 
+        box-shadow: 
+            0 0 10px var(--neon-glow),
+            inset 0 0 10px rgba(255, 0, 255, 0.1);
+    }
+    50% { 
+        box-shadow: 
+            0 0 20px var(--neon-glow),
+            0 0 30px var(--neon-glow),
+            inset 0 0 20px rgba(255, 0, 255, 0.2);
+    }
+}
+
+/* Scanline effect */
+[data-theme="cyberpunk"] .container::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        transparent 0%,
+        rgba(0, 255, 255, 0.03) 50%,
+        transparent 100%
+    );
+    background-size: 100% 4px;
+    animation: scanlines 0.1s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes scanlines {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 4px; }
+}
+
+/* Make container relative for scanlines */
+[data-theme="cyberpunk"] .container {
+    position: relative;
+    overflow: hidden;
 }
 
 /* Mobile-first approach */
@@ -14,10 +593,11 @@ body {
 }
 
 .container {
-    background-color: white;
+    background-color: var(--bg-secondary);
     padding: 30px;
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 10px var(--shadow-light);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 @media (max-width: 768px) {
@@ -36,16 +616,17 @@ body {
 }
 
 h1 {
-    color: #333;
+    color: var(--text-primary);
     text-align: center;
     margin-bottom: 30px;
 }
 
 .form-section {
-    background-color: #f8f9fa;
+    background-color: var(--bg-tertiary);
     padding: 20px;
     border-radius: 6px;
     margin-bottom: 30px;
+    transition: background-color 0.3s ease;
 }
 
 .form-group {
@@ -56,16 +637,19 @@ label {
     display: block;
     margin-bottom: 5px;
     font-weight: bold;
-    color: #555;
+    color: var(--text-secondary);
 }
 
 input[type="text"], input[type="email"], input[type="number"] {
     width: 100%;
     padding: 10px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-light);
     border-radius: 4px;
     box-sizing: border-box;
     font-size: 14px;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
 }
 
 @media (max-width: 768px) {
@@ -93,7 +677,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 button {
-    background-color: #007bff;
+    background-color: var(--button-primary);
     color: white;
     padding: 10px 20px;
     border: none;
@@ -104,6 +688,7 @@ button {
     /* Better touch targets */
     min-height: 44px;
     min-width: 44px;
+    transition: background-color 0.3s ease;
 }
 
 @media (max-width: 768px) {
@@ -123,34 +708,36 @@ button {
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: var(--button-primary-hover);
 }
 
 .delete-btn {
-    background-color: #dc3545;
+    background-color: var(--button-danger);
     padding: 5px 10px;
     font-size: 12px;
 }
 
 .delete-btn:hover {
-    background-color: #c82333;
+    background-color: var(--button-danger-hover);
 }
 
 .players-list {
-    background-color: #f8f9fa;
+    background-color: var(--bg-tertiary);
     padding: 20px;
     border-radius: 6px;
+    transition: background-color 0.3s ease;
 }
 
 .player-item {
-    background-color: white;
+    background-color: var(--bg-secondary);
     padding: 15px;
     margin-bottom: 10px;
     border-radius: 4px;
-    border: 1px solid #dee2e6;
+    border: 1px solid var(--border-color);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 @media (max-width: 768px) {
@@ -234,22 +821,26 @@ button:hover {
 }
 
 .player-email {
-    color: #666;
+    color: var(--text-muted);
     font-size: 14px;
+    transition: color 0.3s ease;
 }
 
 .loading {
     text-align: center;
-    color: #666;
+    color: var(--text-muted);
     padding: 20px;
+    transition: color 0.3s ease;
 }
 
 .error {
-    color: #dc3545;
-    background-color: #f8d7da;
+    color: var(--button-danger);
+    background-color: var(--bg-tertiary);
     padding: 10px;
     border-radius: 4px;
     margin-bottom: 15px;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
 }
 
 /* Navigation */
@@ -257,9 +848,10 @@ button:hover {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 1px solid var(--border-color);
     padding-bottom: 15px;
     flex-wrap: wrap;
+    transition: border-color 0.3s ease;
 }
 
 @media (max-width: 768px) {
@@ -293,9 +885,10 @@ button:hover {
 .season-selector {
     margin-bottom: 30px;
     padding: 20px;
-    background-color: #f8f9fa;
+    background-color: var(--bg-tertiary);
     border-radius: 6px;
-    border: 1px solid #dee2e6;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
 }
 
 .season-controls {
@@ -328,26 +921,30 @@ button:hover {
 
 .season-controls label {
     font-weight: bold;
-    color: #555;
+    color: var(--text-secondary);
     margin-bottom: 0;
+    transition: color 0.3s ease;
 }
 
 .season-controls select {
     padding: 8px 12px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-light);
     border-radius: 4px;
     font-size: 14px;
-    background-color: white;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    transition: all 0.3s ease;
 }
 
 .create-season-btn {
-    background-color: #28a745;
+    background-color: var(--button-primary);
     padding: 8px 16px;
     font-size: 14px;
+    transition: background-color 0.3s ease;
 }
 
 .create-season-btn:hover {
-    background-color: #218838;
+    background-color: var(--button-primary-hover);
 }
 
 .create-season-form {
@@ -373,10 +970,13 @@ button:hover {
 
 .create-season-form input {
     padding: 8px 12px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-light);
     border-radius: 4px;
     font-size: 14px;
     width: 200px;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    transition: all 0.3s ease;
 }
 
 .create-season-form button {
@@ -387,25 +987,27 @@ button:hover {
 .no-season {
     text-align: center;
     padding: 40px;
-    color: #666;
+    color: var(--text-muted);
     font-style: italic;
+    transition: color 0.3s ease;
 }
 
 .navigation button {
-    background-color: #6c757d;
+    background-color: var(--text-muted);
     margin-right: 0;
+    transition: background-color 0.3s ease;
 }
 
 .navigation button.active {
-    background-color: #007bff;
+    background-color: var(--button-primary);
 }
 
 .navigation button:hover {
-    background-color: #5a6268;
+    background-color: var(--text-secondary);
 }
 
 .navigation button.active:hover {
-    background-color: #0056b3;
+    background-color: var(--button-primary-hover);
 }
 
 /* Main content layout */
@@ -452,25 +1054,28 @@ button:hover {
 }
 
 .add-roster-btn {
-    background-color: #28a745;
+    background-color: var(--button-primary);
     padding: 5px 10px;
     font-size: 12px;
+    transition: background-color 0.3s ease;
 }
 
 .add-roster-btn:hover {
-    background-color: #218838;
+    background-color: var(--button-primary-hover);
 }
 
 .add-roster-btn:disabled {
-    background-color: #6c757d;
+    background-color: var(--text-muted);
     cursor: not-allowed;
+    transition: background-color 0.3s ease;
 }
 
 /* Active Roster */
 .active-roster {
-    background-color: #e9ecef;
+    background-color: var(--bg-tertiary);
     padding: 20px;
     border-radius: 6px;
+    transition: background-color 0.3s ease;
 }
 
 .roster-grid {
@@ -501,14 +1106,15 @@ button:hover {
 }
 
 .roster-slot {
-    background-color: white;
-    border: 2px dashed #dee2e6;
+    background-color: var(--bg-secondary);
+    border: 2px dashed var(--border-color);
     border-radius: 6px;
     padding: 10px;
     min-height: 80px;
     display: flex;
     flex-direction: column;
     position: relative;
+    transition: all 0.3s ease;
 }
 
 @media (max-width: 768px) {
@@ -527,35 +1133,36 @@ button:hover {
 }
 
 .roster-slot.filled {
-    border: 2px solid #007bff;
-    background-color: #f8f9fa;
+    border: 2px solid var(--button-primary);
+    background-color: var(--bg-tertiary);
 }
 
 .roster-slot.empty {
-    border: 2px dashed #6c757d;
+    border: 2px dashed var(--text-muted);
 }
 
 .roster-slot.drag-over {
-    border: 3px solid #007bff;
-    background-color: #e3f2fd;
+    border: 3px solid var(--button-primary);
+    background-color: var(--bg-tertiary);
 }
 
 .roster-slot.drag-over.filled {
-    border: 3px solid #28a745;
-    background-color: #e8f5e8;
+    border: 3px solid var(--button-primary);
+    background-color: var(--bg-tertiary);
 }
 
 .roster-slot.being-dragged {
     opacity: 0.5;
     transform: scale(0.95);
-    border: 2px solid #ffc107;
+    border: 2px solid var(--button-primary);
+    transition: all 0.3s ease;
 }
 
 .slot-number {
     position: absolute;
     top: 5px;
     right: 5px;
-    background-color: #007bff;
+    background-color: var(--button-primary);
     color: white;
     width: 20px;
     height: 20px;
@@ -565,6 +1172,7 @@ button:hover {
     justify-content: center;
     font-size: 12px;
     font-weight: bold;
+    transition: background-color 0.3s ease;
 }
 
 @media (max-width: 768px) {
@@ -598,16 +1206,18 @@ button:hover {
 
 .roster-player .player-game-id {
     font-size: 12px;
-    color: #666;
+    color: var(--text-muted);
     margin-bottom: 10px;
+    transition: color 0.3s ease;
 }
 
 .remove-btn {
-    background-color: #dc3545;
+    background-color: var(--button-danger);
     padding: 3px 6px;
     font-size: 10px;
     margin-top: auto;
     min-height: 24px;
+    transition: background-color 0.3s ease;
 }
 
 @media (max-width: 768px) {
@@ -628,23 +1238,25 @@ button:hover {
 }
 
 .remove-btn:hover {
-    background-color: #c82333;
+    background-color: var(--button-danger-hover);
 }
 
 .empty-slot {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #6c757d;
+    color: var(--text-muted);
     font-style: italic;
     font-size: 14px;
+    transition: color 0.3s ease;
 }
 
 /* Admin Dashboard */
 .admin-dashboard {
-    background-color: #f8f9fa;
+    background-color: var(--bg-tertiary);
     padding: 20px;
     border-radius: 6px;
+    transition: background-color 0.3s ease;
 }
 
 .dashboard-sections {
@@ -671,19 +1283,21 @@ button:hover {
 }
 
 .dashboard-section {
-    background-color: white;
+    background-color: var(--bg-secondary);
     padding: 20px;
     border-radius: 6px;
-    border: 1px solid #dee2e6;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px var(--shadow-light);
+    transition: all 0.3s ease;
 }
 
 .dashboard-section h3 {
     margin-top: 0;
     margin-bottom: 20px;
-    color: #333;
-    border-bottom: 2px solid #007bff;
+    color: var(--text-primary);
+    border-bottom: 2px solid var(--button-primary);
     padding-bottom: 10px;
+    transition: all 0.3s ease;
 }
 
 .seasons-admin {
@@ -691,29 +1305,32 @@ button:hover {
 }
 
 .seasons-table {
-    background-color: white;
+    background-color: var(--bg-secondary);
     border-radius: 6px;
     overflow: hidden;
-    border: 1px solid #dee2e6;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
 }
 
 .seasons-table .table-header {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr;
-    background-color: #28a745;
+    background-color: var(--button-primary);
     color: white;
     padding: 15px;
     font-weight: bold;
     gap: 15px;
+    transition: background-color 0.3s ease;
 }
 
 .seasons-table .table-row {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr;
     padding: 15px;
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 1px solid var(--border-color);
     gap: 15px;
     align-items: center;
+    transition: all 0.3s ease;
 }
 
 .seasons-table .table-row:last-child {
@@ -721,17 +1338,19 @@ button:hover {
 }
 
 .seasons-table .table-row:hover {
-    background-color: #f8f9fa;
+    background-color: var(--bg-tertiary);
 }
 
 .season-name {
     font-weight: bold;
-    color: #333;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
 }
 
 .season-date {
-    color: #666;
+    color: var(--text-muted);
     font-size: 14px;
+    transition: color 0.3s ease;
 }
 
 .season-actions {
@@ -745,34 +1364,38 @@ button:hover {
 
 /* Player Management */
 .player-management {
-    background-color: #f8f9fa;
+    background-color: var(--bg-tertiary);
     padding: 20px;
     border-radius: 6px;
+    transition: background-color 0.3s ease;
 }
 
 .players-table {
-    background-color: white;
+    background-color: var(--bg-secondary);
     border-radius: 6px;
     overflow: hidden;
+    transition: background-color 0.3s ease;
 }
 
 .table-header {
     display: grid;
     grid-template-columns: 2fr 1.5fr 2fr 1fr 2fr;
-    background-color: #007bff;
+    background-color: var(--button-primary);
     color: white;
     padding: 15px;
     font-weight: bold;
     gap: 15px;
+    transition: background-color 0.3s ease;
 }
 
 .table-row {
     display: grid;
     grid-template-columns: 2fr 1.5fr 2fr 1fr 2fr;
     padding: 15px;
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 1px solid var(--border-color);
     gap: 15px;
     align-items: center;
+    transition: all 0.3s ease;
 }
 
 /* For bigger screens, optimize the players table layout */
@@ -836,7 +1459,7 @@ button:hover {
 }
 
 .table-row:hover {
-    background-color: #f8f9fa;
+    background-color: var(--bg-tertiary);
 }
 
 .player-status {
@@ -848,13 +1471,15 @@ button:hover {
 }
 
 .player-status.active {
-    background-color: #d4edda;
-    color: #155724;
+    background-color: var(--bg-tertiary);
+    color: var(--button-primary);
+    transition: all 0.3s ease;
 }
 
 .player-status.inactive {
-    background-color: #f8d7da;
-    color: #721c24;
+    background-color: var(--bg-tertiary);
+    color: var(--button-danger);
+    transition: all 0.3s ease;
 }
 
 .status-btn {
@@ -864,39 +1489,44 @@ button:hover {
 }
 
 .status-btn.activate {
-    background-color: #28a745;
+    background-color: var(--button-primary);
+    transition: background-color 0.3s ease;
 }
 
 .status-btn.activate:hover {
-    background-color: #218838;
+    background-color: var(--button-primary-hover);
 }
 
 .status-btn.deactivate {
-    background-color: #ffc107;
-    color: #212529;
+    background-color: var(--text-muted);
+    color: var(--bg-secondary);
+    transition: all 0.3s ease;
 }
 
 .status-btn.deactivate:hover {
-    background-color: #e0a800;
+    background-color: var(--text-secondary);
 }
 
 .player-game-id {
-    color: #666;
+    color: var(--text-muted);
     font-size: 14px;
+    transition: color 0.3s ease;
 }
 
 .player-season {
-    color: #666;
+    color: var(--text-muted);
     font-size: 14px;
     font-weight: 500;
+    transition: color 0.3s ease;
 }
 
 /* GameID Styles */
 .game-id {
-    color: #6c757d;
+    color: var(--text-muted);
     font-size: 12px;
     font-weight: normal;
     opacity: 0.7;
+    transition: color 0.3s ease;
 }
 
 .game-id-edit {
@@ -908,9 +1538,12 @@ button:hover {
 .game-id-edit input {
     padding: 4px 8px;
     font-size: 12px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-light);
     border-radius: 3px;
     width: 100%;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    transition: all 0.3s ease;
 }
 
 .game-id-edit button {
@@ -927,57 +1560,63 @@ button:hover {
 
 .game-id-display span {
     font-size: 14px;
-    color: #666;
+    color: var(--text-muted);
+    transition: color 0.3s ease;
 }
 
 .edit-btn {
-    background-color: #6c757d;
+    background-color: var(--text-muted);
     padding: 3px 8px;
     font-size: 11px;
     margin-right: 0;
+    transition: background-color 0.3s ease;
 }
 
 .edit-btn:hover {
-    background-color: #5a6268;
+    background-color: var(--text-secondary);
 }
 
 .save-btn {
-    background-color: #28a745;
+    background-color: var(--button-primary);
     padding: 3px 8px;
     font-size: 11px;
+    transition: background-color 0.3s ease;
 }
 
 .save-btn:hover {
-    background-color: #218838;
+    background-color: var(--button-primary-hover);
 }
 
 .cancel-btn {
-    background-color: #6c757d;
+    background-color: var(--text-muted);
     padding: 3px 8px;
     font-size: 11px;
     margin-right: 0;
+    transition: background-color 0.3s ease;
 }
 
 .cancel-btn:hover {
-    background-color: #5a6268;
+    background-color: var(--text-secondary);
 }
 
 /* Season display with tooltip */
 .seasons-display {
     cursor: help;
-    color: #666;
+    color: var(--text-muted);
     font-size: 14px;
     font-weight: 500;
+    transition: color 0.3s ease;
 }
 
 .seasons-display:hover {
-    color: #007bff;
+    color: var(--button-primary);
 }
 
 .no-seasons {
-    color: #999;
+    color: var(--text-muted);
     font-style: italic;
     font-size: 14px;
+    transition: color 0.3s ease;
 }
 
 /* Battle Components */
@@ -1010,14 +1649,16 @@ button:hover {
 .participant-stats {
     margin-top: 20px;
     padding: 20px;
-    background-color: #f8f9fa;
+    background-color: var(--bg-tertiary);
     border-radius: 6px;
+    transition: background-color 0.3s ease;
 }
 
 .participant-stats h3 {
     margin-top: 0;
     margin-bottom: 15px;
-    color: #333;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
 }
 
 .stats-grid {
@@ -1027,16 +1668,18 @@ button:hover {
 }
 
 .player-stats {
-    background-color: white;
+    background-color: var(--bg-secondary);
     padding: 15px;
     border-radius: 6px;
-    border: 1px solid #dee2e6;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
 }
 
 .player-stats h4 {
     margin-top: 0;
     margin-bottom: 10px;
-    color: #333;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
 }
 
 .stat-inputs {
@@ -1060,28 +1703,31 @@ button:hover {
 }
 
 .battles-table {
-    background-color: white;
+    background-color: var(--bg-secondary);
     border-radius: 6px;
     overflow: hidden;
+    transition: background-color 0.3s ease;
 }
 
 .battles-table .table-header {
     display: grid;
     grid-template-columns: 1fr 2fr 1fr 1fr 1fr 1fr 1fr;
-    background-color: #007bff;
+    background-color: var(--button-primary);
     color: white;
     padding: 15px;
     font-weight: bold;
     gap: 15px;
+    transition: background-color 0.3s ease;
 }
 
 .battles-table .table-row {
     display: grid;
     grid-template-columns: 1fr 2fr 1fr 1fr 1fr 1fr 1fr;
     padding: 15px;
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 1px solid var(--border-color);
     gap: 15px;
     align-items: center;
+    transition: all 0.3s ease;
 }
 
 .battle-result {
@@ -1094,18 +1740,21 @@ button:hover {
 }
 
 .battle-result.win {
-    background-color: #d4edda;
-    color: #155724;
+    background-color: var(--bg-tertiary);
+    color: var(--button-primary);
+    transition: all 0.3s ease;
 }
 
 .battle-result.loss {
-    background-color: #f8d7da;
-    color: #721c24;
+    background-color: var(--bg-tertiary);
+    color: var(--button-danger);
+    transition: all 0.3s ease;
 }
 
 .battle-result.tie {
-    background-color: #fff3cd;
-    color: #856404;
+    background-color: var(--bg-tertiary);
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
 }
 
 .player-battle-stats {
@@ -1117,16 +1766,18 @@ button:hover {
 
 .player-battle-stats .stat {
     font-size: 11px;
-    color: #666;
-    background-color: #f8f9fa;
+    color: var(--text-muted);
+    background-color: var(--bg-tertiary);
     padding: 2px 4px;
     border-radius: 3px;
+    transition: all 0.3s ease;
 }
 
 .total-damage {
     font-weight: bold;
-    color: #dc3545;
+    color: var(--button-danger);
     text-align: center;
+    transition: color 0.3s ease;
 }
 
 .roster-slot.filled {
@@ -1150,7 +1801,8 @@ button:hover {
     .table-row {
         display: block;
         padding: 10px;
-        border-bottom: 1px solid #dee2e6;
+        border-bottom: 1px solid var(--border-color);
+        transition: border-color 0.3s ease;
     }
     
     .table-header {
@@ -1159,15 +1811,17 @@ button:hover {
     
     .table-row {
         margin-bottom: 10px;
-        border: 1px solid #dee2e6;
+        border: 1px solid var(--border-color);
         border-radius: 4px;
+        transition: border-color 0.3s ease;
     }
     
     .table-row > div {
         display: flex;
         justify-content: space-between;
         padding: 8px 0;
-        border-bottom: 1px solid #f0f0f0;
+        border-bottom: 1px solid var(--border-light);
+        transition: border-color 0.3s ease;
     }
     
     .table-row > div:last-child {
@@ -1177,9 +1831,10 @@ button:hover {
     .table-row > div:before {
         content: attr(data-label);
         font-weight: bold;
-        color: #333;
+        color: var(--text-primary);
         width: 40%;
         display: inline-block;
+        transition: color 0.3s ease;
     }
     
     .players-table .table-header,
@@ -1232,9 +1887,10 @@ button:hover {
 
 /* Statistics Page */
 .statistics-content {
-    background-color: #f8f9fa;
+    background-color: var(--bg-tertiary);
     padding: 20px;
     border-radius: 6px;
+    transition: background-color 0.3s ease;
 }
 
 .stats-dashboard {
@@ -1271,84 +1927,96 @@ button:hover {
 }
 
 .stat-card {
-    background-color: white;
+    background-color: var(--bg-secondary);
     padding: 20px;
     border-radius: 6px;
-    border: 1px solid #dee2e6;
+    border: 1px solid var(--border-color);
     text-align: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px var(--shadow-light);
+    transition: all 0.3s ease;
 }
 
 .stat-card h4 {
     margin: 0 0 10px 0;
-    color: #666;
+    color: var(--text-muted);
     font-size: 14px;
     font-weight: 500;
     text-transform: uppercase;
+    transition: color 0.3s ease;
 }
 
 .stat-value {
     font-size: 28px;
     font-weight: bold;
-    color: #333;
+    color: var(--text-primary);
     display: block;
+    transition: color 0.3s ease;
 }
 
 .stat-value.wins {
-    color: #28a745;
+    color: var(--button-primary);
+    transition: color 0.3s ease;
 }
 
 .stat-value.losses {
-    color: #dc3545;
+    color: var(--button-danger);
+    transition: color 0.3s ease;
 }
 
 
 .players-stats-table {
-    background-color: white;
+    background-color: var(--bg-secondary);
     border-radius: 6px;
     overflow: hidden;
-    border: 1px solid #dee2e6;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
 }
 
 .players-stats-table .table-header {
     display: grid;
     grid-template-columns: 60px 2fr 1.5fr 1.5fr 1fr 1.5fr;
-    background-color: #007bff;
+    background-color: var(--button-primary);
     color: white;
     padding: 15px;
     font-weight: bold;
     gap: 15px;
+    transition: background-color 0.3s ease;
 }
 
 .players-stats-table .table-row {
     display: grid;
     grid-template-columns: 60px 2fr 1.5fr 1.5fr 1fr 1.5fr;
     padding: 15px;
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 1px solid var(--border-color);
     gap: 15px;
     align-items: center;
+    transition: all 0.3s ease;
 }
 
 .players-stats-table .table-row:hover {
-    background-color: #f8f9fa;
+    background-color: var(--bg-tertiary);
 }
 
 .rank {
     font-weight: bold;
-    color: #007bff;
+    color: var(--button-primary);
     text-align: center;
+    transition: color 0.3s ease;
 }
 
 .players-stats-table .table-row:nth-child(2) .rank {
-    color: #ffd700; /* Gold for #1 */
+    color: var(--button-primary); /* Gold for #1 */
+    transition: color 0.3s ease;
 }
 
 .players-stats-table .table-row:nth-child(3) .rank {
-    color: #c0c0c0; /* Silver for #2 */
+    color: var(--text-secondary); /* Silver for #2 */
+    transition: color 0.3s ease;
 }
 
 .players-stats-table .table-row:nth-child(4) .rank {
-    color: #cd7f32; /* Bronze for #3 */
+    color: var(--text-muted); /* Bronze for #3 */
+    transition: color 0.3s ease;
 }
 
 .season-stats {
@@ -1366,18 +2034,20 @@ button:hover {
 
 /* EXPERIMENTAL GRAPHS SECTION - CAN BE EASILY REMOVED */
 .experimental-graphs {
-    border: 2px dashed #007bff;
-    background-color: #f8f9ff;
+    border: 2px dashed var(--button-primary);
+    background-color: var(--bg-tertiary);
+    transition: all 0.3s ease;
 }
 
 .experimental-badge {
-    background-color: #007bff;
+    background-color: var(--button-primary);
     color: white;
     padding: 2px 8px;
     border-radius: 12px;
     font-size: 12px;
     font-weight: normal;
     margin-left: 10px;
+    transition: background-color 0.3s ease;
 }
 
 .graphs-container {
@@ -1388,18 +2058,20 @@ button:hover {
 }
 
 .graph-card {
-    background-color: white;
+    background-color: var(--bg-secondary);
     padding: 20px;
     border-radius: 6px;
-    border: 1px solid #dee2e6;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px var(--shadow-light);
+    transition: all 0.3s ease;
 }
 
 .graph-card h4 {
     margin-top: 0;
     margin-bottom: 15px;
-    color: #333;
+    color: var(--text-primary);
     font-size: 16px;
+    transition: color 0.3s ease;
 }
 
 .pie-chart-container {
@@ -1505,7 +2177,8 @@ button:hover {
     
     .players-stats-table .table-row > div:before {
         font-size: 12px;
-        color: #666;
+        color: var(--text-muted);
+        transition: color 0.3s ease;
     }
 }
 
