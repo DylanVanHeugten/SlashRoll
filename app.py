@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from flask import Flask, jsonify, render_template, request
 from flask_cors import CORS
@@ -15,7 +15,7 @@ db = SQLAlchemy(app)
 class Season(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    date_created = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
     def to_dict(self):
         return {
@@ -83,7 +83,7 @@ class Battle(db.Model):
     enemy_power_ranking = db.Column(db.Integer, nullable=False)
     our_score = db.Column(db.Integer, nullable=False)
     their_score = db.Column(db.Integer, nullable=False)
-    date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    date_created = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
     season_id = db.Column(db.Integer, db.ForeignKey("season.id"), nullable=True)
 
     season = db.relationship("Season", backref="battles")
@@ -627,7 +627,7 @@ def delete_season(season_id):
         if battle_ids:
             BattleParticipant.query.filter(
                 BattleParticipant.battle_id.in_(battle_ids)
-            ).delete(synchronize_session=False)
+            ).delete()
 
         # 2. Delete battles for this season
         Battle.query.filter_by(season_id=season_id).delete()
