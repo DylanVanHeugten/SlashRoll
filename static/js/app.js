@@ -1644,14 +1644,26 @@ function Statistics({
 
 function SuperAdminPanel() {
   const [users, setUsers] = useState([]);
+  const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newUser, setNewUser] = useState({ username: "", password: "" });
   const [creating, setCreating] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
-  const [editForm, setEditForm] = useState({ username: "", password: "" });
+  const [editForm, setEditForm] = useState({ username: "", password: "", team_ids: [] });
   const [updating, setUpdating] = useState(false);
+  const [teamDropdownOpen, setTeamDropdownOpen] = useState(false);
+  const [teamSearchTerm, setTeamSearchTerm] = useState("");
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
+  
+  // Team management state
+  const [showCreateTeamForm, setShowCreateTeamForm] = useState(false);
+  const [newTeam, setNewTeam] = useState({ name: "", description: "" });
+  const [creatingTeam, setCreatingTeam] = useState(false);
+  const [editingTeam, setEditingTeam] = useState(null);
+  const [editTeamForm, setEditTeamForm] = useState({ name: "", description: "" });
+  const [updatingTeam, setUpdatingTeam] = useState(false);
 
   const fetchUsers = async () => {
     try {
@@ -1664,9 +1676,27 @@ function SuperAdminPanel() {
       }
     } catch (error) {
       setError("Network error occurred");
-    } finally {
-      setLoading(false);
     }
+  };
+
+  const fetchTeams = async () => {
+    try {
+      const response = await fetch("/api/teams");
+      if (response.ok) {
+        const data = await response.json();
+        setTeams(data);
+      } else {
+        setError("Failed to fetch teams");
+      }
+    } catch (error) {
+      setError("Network error occurred");
+    }
+  };
+
+  const fetchData = async () => {
+    setLoading(true);
+    await Promise.all([fetchUsers(), fetchTeams()]);
+    setLoading(false);
   };
 
   const handleCreateUser = async (e) => {
@@ -1724,12 +1754,58 @@ function SuperAdminPanel() {
 
   const handleEditUser = (user) => {
     setEditingUser(user.id);
-    setEditForm({ username: user.username, password: "" });
+    setEditForm({ 
+      username: user.username, 
+      password: "", 
+      team_ids: user.teams ? user.teams.map(team => team.id) : [] 
+    });
+    setTeamSearchTerm(""); // Reset search term when starting to edit
   };
 
   const handleCancelEdit = () => {
     setEditingUser(null);
-    setEditForm({ username: "", password: "" });
+    setEditForm({ username: "", password: "", team_ids: [] });
+    setTeamDropdownOpen(false);
+    setTeamSearchTerm("");
+  };
+
+  const handleTeamToggle = (teamId) => {
+    if (editForm.team_ids.includes(teamId)) {
+      setEditForm({...editForm, team_ids: editForm.team_ids.filter(id => id !== teamId)});
+    } else {
+      setEditForm({...editForm, team_ids: [...editForm.team_ids, teamId]});
+    }
+  };
+
+  const handleDropdownToggle = (event) => {
+    if (!teamDropdownOpen) {
+      const rect = event.currentTarget.getBoundingClientRect();
+      const dropdownWidth = 250;
+      const viewportWidth = window.innerWidth;
+      
+      // Calculate left position, ensuring dropdown doesn't go off-screen
+      let left = rect.left + window.scrollX;
+      if (left + dropdownWidth > viewportWidth) {
+        left = viewportWidth - dropdownWidth - 20; // 20px margin from edge
+      }
+      
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY + 2,
+        left: Math.max(10, left) // Minimum 10px from left edge
+      });
+    }
+    setTeamDropdownOpen(!teamDropdownOpen);
+  };
+
+  const filteredTeams = teams.filter(team => 
+    team.name.toLowerCase().includes(teamSearchTerm.toLowerCase())
+  );
+
+  const getSelectedTeamNames = () => {
+    return teams
+      .filter(team => editForm.team_ids.includes(team.id))
+      .map(team => team.name)
+      .join(", ");
   };
 
   const handleUpdateUser = async (userId) => {
@@ -1740,6 +1816,7 @@ function SuperAdminPanel() {
 
     setUpdating(true);
     try {
+      // Update user basic info first
       const updateData = { username: editForm.username.trim() };
       
       // Only include password if it's provided
@@ -1747,7 +1824,7 @@ function SuperAdminPanel() {
         updateData.password = editForm.password.trim();
       }
 
-      const response = await fetch(`/api/users/${userId}`, {
+      const userResponse = await fetch(`/api/users/${userId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -1755,17 +1832,32 @@ function SuperAdminPanel() {
         body: JSON.stringify(updateData),
       });
 
-      if (response.ok) {
-        const updatedUser = await response.json();
+      if (!userResponse.ok) {
+        const errorData = await userResponse.json();
+        alert(errorData.error || "Failed to update user");
+        return;
+      }
+
+      // Update team assignments
+      const teamResponse = await fetch(`/api/users/${userId}/teams`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ team_ids: editForm.team_ids }),
+      });
+
+      if (teamResponse.ok) {
+        const updatedUser = await teamResponse.json();
         setUsers(users.map(user => 
           user.id === userId ? updatedUser : user
         ));
         setEditingUser(null);
-        setEditForm({ username: "", password: "" });
+        setEditForm({ username: "", password: "", team_ids: [] });
         alert("User updated successfully");
       } else {
-        const errorData = await response.json();
-        alert(errorData.error || "Failed to update user");
+        const errorData = await teamResponse.json();
+        alert(errorData.error || "Failed to update user teams");
       }
     } catch (error) {
       alert("Network error occurred");
@@ -1774,9 +1866,125 @@ function SuperAdminPanel() {
     }
   };
 
+  // Team management functions
+  const handleCreateTeam = async (e) => {
+    e.preventDefault();
+    if (!newTeam.name.trim()) {
+      alert("Team name is required");
+      return;
+    }
+
+    setCreatingTeam(true);
+    try {
+      const response = await fetch("/api/teams", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newTeam),
+      });
+
+      if (response.ok) {
+        const createdTeam = await response.json();
+        setTeams([...teams, createdTeam]);
+        setNewTeam({ name: "", description: "" });
+        setShowCreateTeamForm(false);
+        alert("Team created successfully");
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || "Failed to create team");
+      }
+    } catch (error) {
+      alert("Network error occurred");
+    } finally {
+      setCreatingTeam(false);
+    }
+  };
+
+  const handleEditTeam = (team) => {
+    setEditingTeam(team.id);
+    setEditTeamForm({ name: team.name, description: team.description || "" });
+  };
+
+  const handleCancelTeamEdit = () => {
+    setEditingTeam(null);
+    setEditTeamForm({ name: "", description: "" });
+  };
+
+  const handleUpdateTeam = async (teamId) => {
+    if (!editTeamForm.name.trim()) {
+      alert("Team name cannot be empty");
+      return;
+    }
+
+    setUpdatingTeam(true);
+    try {
+      const updateData = { 
+        name: editTeamForm.name.trim(),
+        description: editTeamForm.description.trim()
+      };
+
+      const response = await fetch(`/api/teams/${teamId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updateData),
+      });
+
+      if (response.ok) {
+        const updatedTeam = await response.json();
+        setTeams(teams.map(team => 
+          team.id === teamId ? updatedTeam : team
+        ));
+        setEditingTeam(null);
+        setEditTeamForm({ name: "", description: "" });
+        alert("Team updated successfully");
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || "Failed to update team");
+      }
+    } catch (error) {
+      alert("Network error occurred");
+    } finally {
+      setUpdatingTeam(false);
+    }
+  };
+
+  const handleDeleteTeam = async (teamId) => {
+    if (!confirm("Are you sure you want to delete this team?")) return;
+
+    try {
+      const response = await fetch(`/api/teams/${teamId}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        setTeams(teams.filter(team => team.id !== teamId));
+        alert("Team deleted successfully");
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || "Failed to delete team");
+      }
+    } catch (error) {
+      alert("Network error occurred");
+    }
+  };
+
   useEffect(() => {
-    fetchUsers();
+    fetchData();
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (teamDropdownOpen && !event.target.closest('.team-multiselect-container')) {
+        setTeamDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [teamDropdownOpen]);
 
   if (loading) {
     return <div className="loading">Loading users...</div>;
@@ -1838,6 +2046,7 @@ function SuperAdminPanel() {
                 <tr>
                   <th>ID</th>
                   <th>Username</th>
+                  <th>Team</th>
                   <th>Date Created / Password</th>
                   <th>Actions</th>
                 </tr>
@@ -1856,6 +2065,80 @@ function SuperAdminPanel() {
                         />
                       ) : (
                         user.username
+                      )}
+                    </td>
+                    <td>
+                      {editingUser === user.id ? (
+                        <div className="team-multiselect-container">
+                          <div className="team-multiselect-trigger" onClick={handleDropdownToggle}>
+                            <div className="selected-teams-display">
+                              {editForm.team_ids.length > 0 ? (
+                                <span className="selected-count">{editForm.team_ids.length} team(s) selected</span>
+                              ) : (
+                                <span className="no-selection">Select teams...</span>
+                              )}
+                            </div>
+                            <div className="dropdown-arrow">{teamDropdownOpen ? "▲" : "▼"}</div>
+                          </div>
+                          
+                          {teamDropdownOpen && (
+                            <div 
+                              className="team-multiselect-dropdown"
+                              style={{
+                                top: `${dropdownPosition.top}px`,
+                                left: `${dropdownPosition.left}px`
+                              }}
+                            >
+                              <div className="team-search-container">
+                                <input
+                                  type="text"
+                                  placeholder="Search teams..."
+                                  value={teamSearchTerm}
+                                  onChange={(e) => setTeamSearchTerm(e.target.value)}
+                                  className="team-search-input"
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              </div>
+                              <div className="team-options-container">
+                                {filteredTeams.length > 0 ? (
+                                  filteredTeams.map(team => (
+                                    <label key={team.id} className="team-option">
+                                      <input
+                                        type="checkbox"
+                                        checked={editForm.team_ids.includes(team.id)}
+                                        onChange={() => handleTeamToggle(team.id)}
+                                        onClick={(e) => e.stopPropagation()}
+                                      />
+                                      <span className="team-option-label">{team.name}</span>
+                                    </label>
+                                  ))
+                                ) : (
+                                  <div className="no-teams-found">No teams found</div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                          
+                          {editForm.team_ids.length > 0 && (
+                            <div className="selected-teams-preview">
+                              {teams
+                                .filter(team => editForm.team_ids.includes(team.id))
+                                .map(team => (
+                                  <span key={team.id} className="team-badge-small">{team.name}</span>
+                                ))}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="user-teams">
+                          {user.teams && user.teams.length > 0 ? (
+                            user.teams.map(team => (
+                              <span key={team.id} className="team-badge">{team.name}</span>
+                            ))
+                          ) : (
+                            <span className="no-teams">No Teams</span>
+                          )}
+                        </div>
                       )}
                     </td>
                     <td>
@@ -1903,6 +2186,135 @@ function SuperAdminPanel() {
                           <button 
                             className="btn btn-danger btn-sm"
                             onClick={() => handleDeleteUser(user.id)}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+
+      <div className="team-management">
+        <div className="section-header">
+          <h3>Team Management</h3>
+          <button 
+            className="btn btn-primary"
+            onClick={() => setShowCreateTeamForm(!showCreateTeamForm)}
+          >
+            {showCreateTeamForm ? "Cancel" : "Create New Team"}
+          </button>
+        </div>
+
+        {showCreateTeamForm && (
+          <form onSubmit={handleCreateTeam} className="create-team-form">
+            <div className="form-group">
+              <label htmlFor="team-name">Team Name:</label>
+              <input
+                type="text"
+                id="team-name"
+                value={newTeam.name}
+                onChange={(e) => setNewTeam({...newTeam, name: e.target.value})}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="team-description">Description (Optional):</label>
+              <textarea
+                id="team-description"
+                value={newTeam.description}
+                onChange={(e) => setNewTeam({...newTeam, description: e.target.value})}
+                rows="3"
+              />
+            </div>
+            <div className="form-actions">
+              <button type="submit" disabled={creatingTeam}>
+                {creatingTeam ? "Creating..." : "Create Team"}
+              </button>
+            </div>
+          </form>
+        )}
+
+        <div className="teams-list">
+          <h4>Existing Teams</h4>
+          {teams.length === 0 ? (
+            <p>No teams found.</p>
+          ) : (
+            <table className="teams-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Description</th>
+                  <th>Members</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {teams.map(team => (
+                  <tr key={team.id}>
+                    <td>{team.id}</td>
+                    <td>
+                      {editingTeam === team.id ? (
+                        <input
+                          type="text"
+                          value={editTeamForm.name}
+                          onChange={(e) => setEditTeamForm({...editTeamForm, name: e.target.value})}
+                          className="edit-input"
+                        />
+                      ) : (
+                        team.name
+                      )}
+                    </td>
+                    <td>
+                      {editingTeam === team.id ? (
+                        <textarea
+                          value={editTeamForm.description}
+                          onChange={(e) => setEditTeamForm({...editTeamForm, description: e.target.value})}
+                          className="edit-input"
+                          rows="2"
+                        />
+                      ) : (
+                        team.description || "No description"
+                      )}
+                    </td>
+                    <td>
+                      {team.member_count} members
+                    </td>
+                    <td>
+                      {editingTeam === team.id ? (
+                        <div className="edit-actions">
+                          <button 
+                            className="btn btn-success btn-sm"
+                            onClick={() => handleUpdateTeam(team.id)}
+                            disabled={updatingTeam}
+                          >
+                            {updatingTeam ? "Saving..." : "Save"}
+                          </button>
+                          <button 
+                            className="btn btn-secondary btn-sm"
+                            onClick={handleCancelTeamEdit}
+                            disabled={updatingTeam}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="team-actions">
+                          <button 
+                            className="btn btn-primary btn-sm"
+                            onClick={() => handleEditTeam(team)}
+                          >
+                            Edit
+                          </button>
+                          <button 
+                            className="btn btn-danger btn-sm"
+                            onClick={() => handleDeleteTeam(team.id)}
                           >
                             Delete
                           </button>

@@ -25,11 +25,62 @@ class User(db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    def get_teams(self):
+        """Get all teams this user is assigned to"""
+        return [ut.team for ut in self.user_teams]
+
     def to_dict(self):
+        teams = self.get_teams()
         return {
             "id": self.id,
             "username": self.username,
+            "teams": [{"id": team.id, "name": team.name} for team in teams],
             "date_created": self.date_created.isoformat(),
+        }
+
+
+class Team(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False, unique=True)
+    description = db.Column(db.Text, nullable=True)
+    date_created = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+
+    def get_users(self):
+        """Get all users assigned to this team"""
+        return [tu.user for tu in self.team_users]
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "date_created": self.date_created.isoformat(),
+            "member_count": len(self.team_users),
+        }
+
+
+class UserTeam(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    team_id = db.Column(db.Integer, db.ForeignKey("team.id"), nullable=False)
+    date_assigned = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+
+    user = db.relationship("User", backref="user_teams")
+    team = db.relationship("Team", backref="team_users")
+
+    # Unique constraint to prevent duplicate assignments
+    __table_args__ = (
+        db.UniqueConstraint("user_id", "team_id", name="unique_user_team"),
+    )
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "team_id": self.team_id,
+            "user_name": self.user.username,
+            "team_name": self.team.name,
+            "date_assigned": self.date_assigned.isoformat(),
         }
 
 
@@ -214,6 +265,7 @@ def update_user(user_id):
         
         user.set_password(new_password)
     
+    
     try:
         db.session.commit()
         return jsonify(user.to_dict()), 200
@@ -233,6 +285,167 @@ def delete_user(user_id):
     except Exception:
         db.session.rollback()
         return jsonify({"error": "Failed to delete user"}), 500
+
+
+# Team endpoints
+@app.route("/api/teams", methods=["GET"])
+def get_teams():
+    teams = Team.query.all()
+    return jsonify([team.to_dict() for team in teams])
+
+
+@app.route("/api/teams", methods=["POST"])
+def create_team():
+    data = request.get_json()
+    
+    if not data or "name" not in data:
+        return jsonify({"error": "Team name is required"}), 400
+    
+    if Team.query.filter_by(name=data["name"]).first():
+        return jsonify({"error": "Team name already exists"}), 400
+    
+    team = Team(
+        name=data["name"],
+        description=data.get("description", "").strip() or None
+    )
+    
+    try:
+        db.session.add(team)
+        db.session.commit()
+        return jsonify(team.to_dict()), 201
+    except Exception:
+        db.session.rollback()
+        return jsonify({"error": "Failed to create team"}), 500
+
+
+@app.route("/api/teams/<int:team_id>", methods=["PUT"])
+def update_team(team_id):
+    team = Team.query.get_or_404(team_id)
+    data = request.get_json()
+    
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+    
+    # Update team name if provided
+    if "name" in data:
+        new_name = data["name"].strip()
+        if not new_name:
+            return jsonify({"error": "Team name cannot be empty"}), 400
+        
+        # Check if team name is already taken by another team
+        existing_team = Team.query.filter_by(name=new_name).filter(Team.id != team_id).first()
+        if existing_team:
+            return jsonify({"error": "Team name already exists"}), 400
+        
+        team.name = new_name
+    
+    # Update description if provided
+    if "description" in data:
+        team.description = data["description"].strip() or None
+    
+    try:
+        db.session.commit()
+        return jsonify(team.to_dict()), 200
+    except Exception:
+        db.session.rollback()
+        return jsonify({"error": "Failed to update team"}), 500
+
+
+@app.route("/api/teams/<int:team_id>", methods=["DELETE"])
+def delete_team(team_id):
+    team = Team.query.get_or_404(team_id)
+    
+    # Check if team has users assigned
+    if team.team_users:
+        return jsonify({"error": "Cannot delete team with assigned users. Please reassign users first."}), 400
+    
+    try:
+        db.session.delete(team)
+        db.session.commit()
+        return jsonify({"message": "Team deleted successfully"}), 200
+    except Exception:
+        db.session.rollback()
+        return jsonify({"error": "Failed to delete team"}), 500
+
+
+# User-Team assignment endpoints
+@app.route("/api/users/<int:user_id>/teams", methods=["GET"])
+def get_user_teams(user_id):
+    user = User.query.get_or_404(user_id)
+    teams = user.get_teams()
+    return jsonify([{"id": team.id, "name": team.name} for team in teams])
+
+
+@app.route("/api/users/<int:user_id>/teams", methods=["PUT"])
+def update_user_teams(user_id):
+    user = User.query.get_or_404(user_id)
+    data = request.get_json()
+    
+    if not data or "team_ids" not in data:
+        return jsonify({"error": "team_ids array is required"}), 400
+    
+    team_ids = data["team_ids"]
+    
+    # Validate all team IDs exist
+    if team_ids:
+        teams = Team.query.filter(Team.id.in_(team_ids)).all()
+        if len(teams) != len(team_ids):
+            return jsonify({"error": "One or more team IDs are invalid"}), 400
+    
+    try:
+        # Remove all existing team assignments for this user
+        UserTeam.query.filter_by(user_id=user_id).delete()
+        
+        # Add new team assignments
+        for team_id in team_ids:
+            user_team = UserTeam(user_id=user_id, team_id=team_id)
+            db.session.add(user_team)
+        
+        db.session.commit()
+        return jsonify(user.to_dict()), 200
+    except Exception:
+        db.session.rollback()
+        return jsonify({"error": "Failed to update user teams"}), 500
+
+
+@app.route("/api/users/<int:user_id>/teams/<int:team_id>", methods=["POST"])
+def assign_user_to_team(user_id, team_id):
+    # Validate user and team exist
+    User.query.get_or_404(user_id)
+    Team.query.get_or_404(team_id)
+    
+    # Check if assignment already exists
+    existing = UserTeam.query.filter_by(user_id=user_id, team_id=team_id).first()
+    if existing:
+        return jsonify({"error": "User is already assigned to this team"}), 400
+    
+    try:
+        user_team = UserTeam(user_id=user_id, team_id=team_id)
+        db.session.add(user_team)
+        db.session.commit()
+        return jsonify(user_team.to_dict()), 201
+    except Exception:
+        db.session.rollback()
+        return jsonify({"error": "Failed to assign user to team"}), 500
+
+
+@app.route("/api/users/<int:user_id>/teams/<int:team_id>", methods=["DELETE"])
+def remove_user_from_team(user_id, team_id):
+    # Validate user and team exist
+    User.query.get_or_404(user_id)
+    Team.query.get_or_404(team_id)
+    
+    user_team = UserTeam.query.filter_by(user_id=user_id, team_id=team_id).first()
+    if not user_team:
+        return jsonify({"error": "User is not assigned to this team"}), 404
+    
+    try:
+        db.session.delete(user_team)
+        db.session.commit()
+        return jsonify({"message": "User removed from team successfully"}), 200
+    except Exception:
+        db.session.rollback()
+        return jsonify({"error": "Failed to remove user from team"}), 500
 
 
 @app.route("/api/players", methods=["GET"])
@@ -987,6 +1200,74 @@ def run_migrations():
         )
         db.session.commit()
         print("User table created successfully!")
+
+    # Check and create Team table
+    try:
+        db.session.execute(text("SELECT id FROM team LIMIT 1"))
+    except Exception:
+        print("Creating team table...")
+        db.session.execute(
+            text(f"""
+            CREATE TABLE team (
+                id {integer_type} {primary_key} {auto_increment},
+                name {varchar_type}(100) NOT NULL UNIQUE,
+                description TEXT,
+                date_created DATETIME NOT NULL {datetime_default}
+            )
+        """)
+        )
+        db.session.commit()
+        print("Team table created successfully!")
+
+    # Add team_id to user table
+    try:
+        db.session.execute(text("SELECT team_id FROM user LIMIT 1"))
+    except Exception:
+        print("Adding team_id column to user table...")
+        db.session.execute(
+            text(f"ALTER TABLE user ADD COLUMN team_id {integer_type}")
+        )
+        db.session.commit()
+        print("Team_id column added to user table successfully!")
+
+    # Check and create UserTeam table
+    try:
+        db.session.execute(text("SELECT id FROM user_team LIMIT 1"))
+    except Exception:
+        print("Creating user_team table...")
+        db.session.execute(
+            text(f"""
+            CREATE TABLE user_team (
+                id {integer_type} {primary_key} {auto_increment},
+                user_id {integer_type} NOT NULL,
+                team_id {integer_type} NOT NULL,
+                date_assigned DATETIME NOT NULL {datetime_default},
+                FOREIGN KEY (user_id) REFERENCES user (id),
+                FOREIGN KEY (team_id) REFERENCES team (id),
+                UNIQUE(user_id, team_id)
+            )
+        """)
+        )
+        db.session.commit()
+        print("UserTeam table created successfully!")
+
+        # Migrate existing team assignments from user.team_id to user_team table
+        print("Migrating existing team assignments...")
+        existing_assignments = db.session.execute(
+            text("SELECT id, team_id FROM user WHERE team_id IS NOT NULL")
+        ).fetchall()
+
+        for user_id, team_id in existing_assignments:
+            db.session.execute(
+                text("""
+                INSERT OR IGNORE INTO user_team (user_id, team_id, date_assigned)
+                VALUES (:user_id, :team_id, CURRENT_TIMESTAMP)
+            """),
+                {"user_id": user_id, "team_id": team_id},
+            )
+
+        db.session.commit()
+        print("Team assignments migration completed!")
 
     print("Database migration completed for SQLite!")
 
