@@ -29,12 +29,66 @@ function formatDamage(number) {
   }
 }
 
+function Modal({ isOpen, onClose, title, message, type = "info" }) {
+  if (!isOpen) return null;
+
+  const getModalIcon = () => {
+    switch (type) {
+      case "error":
+        return "⚠️";
+      case "success":
+        return "✅";
+      case "warning":
+        return "⚠️";
+      default:
+        return "ℹ️";
+    }
+  };
+
+  const getModalClass = () => {
+    switch (type) {
+      case "error":
+        return "modal-error";
+      case "success":
+        return "modal-success";
+      case "warning":
+        return "modal-warning";
+      default:
+        return "modal-info";
+    }
+  };
+
+  return React.createElement(
+    "div",
+    { className: "modal-overlay", onClick: onClose },
+    React.createElement(
+      "div",
+      { className: `modal-content ${getModalClass()}`, onClick: (e) => e.stopPropagation() },
+      React.createElement(
+        "div",
+        { className: "modal-header" },
+        React.createElement("span", { className: "modal-icon" }, getModalIcon()),
+        React.createElement("h3", { className: "modal-title" }, title || "Notification"),
+        React.createElement("button", { className: "modal-close", onClick: onClose }, "×")
+      ),
+      React.createElement("div", { className: "modal-body" }, message),
+      React.createElement(
+        "div",
+        { className: "modal-footer" },
+        React.createElement("button", { className: "modal-btn", onClick: onClose }, "OK")
+      )
+    )
+  );
+}
+
 function SeasonSelector({
   seasons,
   currentSeason,
   onSeasonChange,
   onCreateSeason,
   showCreateButton = false,
+  currentTeam,
+  showModal,
 }) {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newSeasonName, setNewSeasonName] = useState("");
@@ -51,7 +105,10 @@ function SeasonSelector({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name: newSeasonName.trim() }),
+        body: JSON.stringify({ 
+          name: newSeasonName.trim(),
+          team_id: currentTeam?.id
+        }),
       });
 
       if (response.ok) {
@@ -60,10 +117,10 @@ function SeasonSelector({
         setNewSeasonName("");
         setShowCreateForm(false);
       } else {
-        alert("Failed to create season");
+        showModal("Failed to create season", "Error", "error");
       }
     } catch (error) {
-      alert("Network error occurred");
+      showModal("Network error occurred", "Error", "error");
     } finally {
       setCreating(false);
     }
@@ -118,33 +175,159 @@ function SeasonSelector({
   );
 }
 
-function Navigation({ currentPage, onPageChange }) {
+function TeamSelector({
+  teams,
+  currentTeam,
+  onTeamChange,
+  onCreateTeam,
+  showCreateButton = false,
+  showModal,
+}) {
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [newTeamName, setNewTeamName] = useState("");
+  const [newTeamDescription, setNewTeamDescription] = useState("");
+  const [creating, setCreating] = useState(false);
+
+  const handleCreateTeam = async (e) => {
+    e.preventDefault();
+    if (!newTeamName.trim()) return;
+
+    setCreating(true);
+    try {
+      const response = await fetch("/api/teams", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+          name: newTeamName.trim(),
+          description: newTeamDescription.trim() || null
+        }),
+      });
+
+      if (response.ok) {
+        const newTeam = await response.json();
+        onCreateTeam(newTeam);
+        setNewTeamName("");
+        setNewTeamDescription("");
+        setShowCreateForm(false);
+      } else {
+        const error = await response.json();
+        showModal(`Failed to create team: ${error.error}`, "Error", "error");
+      }
+    } catch (error) {
+      console.error("Error creating team:", error);
+      showModal("Error creating team", "Error", "error");
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  return (
+    <div className="team-selector">
+      <label htmlFor="team-select">Team:</label>
+      <select
+        id="team-select"
+        value={currentTeam?.id || ""}
+        onChange={(e) => {
+          const selectedTeam = teams.find(
+            (team) => team.id === parseInt(e.target.value)
+          );
+          onTeamChange(selectedTeam);
+        }}
+      >
+        <option value="">Select a team</option>
+        {teams.map((team) => (
+          <option key={team.id} value={team.id}>
+            {team.name}
+          </option>
+        ))}
+      </select>
+      
+      {showCreateButton && (
+        <button
+          className="create-team-btn"
+          onClick={() => setShowCreateForm(true)}
+        >
+          Create Team
+        </button>
+      )}
+
+      {showCreateForm && (
+        <div className="create-team-form">
+          <form onSubmit={handleCreateTeam}>
+            <input
+              type="text"
+              placeholder="Team name"
+              value={newTeamName}
+              onChange={(e) => setNewTeamName(e.target.value)}
+              required
+              disabled={creating}
+            />
+            <input
+              type="text"
+              placeholder="Team description (optional)"
+              value={newTeamDescription}
+              onChange={(e) => setNewTeamDescription(e.target.value)}
+              disabled={creating}
+            />
+            <div className="form-actions">
+              <button type="submit" disabled={creating}>
+                {creating ? "Creating..." : "Create"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowCreateForm(false);
+                  setNewTeamName("");
+                  setNewTeamDescription("");
+                }}
+                disabled={creating}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Navigation({ currentPage, onPageChange, user }) {
   return (
     <nav className="navigation">
-      <button
-        className={currentPage === "players" ? "active" : ""}
-        onClick={() => onPageChange("players")}
-      >
-        Players
-      </button>
-      <button
-        className={currentPage === "battles" ? "active" : ""}
-        onClick={() => onPageChange("battles")}
-      >
-        Battles
-      </button>
-      <button
-        className={currentPage === "statistics" ? "active" : ""}
-        onClick={() => onPageChange("statistics")}
-      >
-        Statistics
-      </button>
-      <button
-        className={currentPage === "manage" ? "active" : ""}
-        onClick={() => onPageChange("manage")}
-      >
-        Administrator Dashboard
-      </button>
+      {user?.is_superadmin ? (
+        // Superuser only sees Super Admin panel
+        <button
+          className={currentPage === "super-admin" ? "active" : ""}
+          onClick={() => onPageChange("super-admin")}
+        >
+          Super Admin
+        </button>
+      ) : (
+        // Regular users see all other panels
+        <>
+          <button
+            className={currentPage === "players" ? "active" : ""}
+            onClick={() => onPageChange("players")}
+          >
+            Players
+          </button>
+          <button
+            className={currentPage === "battles" ? "active" : ""}
+            onClick={() => onPageChange("battles")}
+          >
+            Battles
+          </button>
+          <button
+            className={currentPage === "manage" ? "active" : ""}
+            onClick={() => onPageChange("manage")}
+          >
+            Administrator Dashboard
+          </button>
+        </>
+      )}
     </nav>
   );
 }
@@ -159,6 +342,7 @@ function ActiveRoster({
   currentSeason,
   onSeasonChange,
   onCreateSeason,
+  currentTeam,
 }) {
   const [draggedPlayer, setDraggedPlayer] = useState(null);
   const [dragOverSlot, setDragOverSlot] = useState(null);
@@ -215,6 +399,7 @@ function ActiveRoster({
         currentSeason={currentSeason}
         onSeasonChange={onSeasonChange}
         onCreateSeason={onCreateSeason}
+        currentTeam={currentTeam}
       />
       {currentSeason ? (
         <div className="roster-grid">
@@ -277,7 +462,7 @@ function ActiveRoster({
   );
 }
 
-function PlayerForm({ onPlayerAdded, currentSeason }) {
+function PlayerForm({ onPlayerAdded, currentSeason, currentTeam }) {
   const [name, setName] = useState("");
   const [gameId, setGameId] = useState("");
   const [loading, setLoading] = useState(false);
@@ -304,6 +489,7 @@ function PlayerForm({ onPlayerAdded, currentSeason }) {
           name: name.trim(),
           game_id: gameId.trim() || null,
           season_id: currentSeason?.id,
+          team_id: currentTeam?.id,
         }),
       });
 
@@ -359,7 +545,7 @@ function PlayerForm({ onPlayerAdded, currentSeason }) {
   );
 }
 
-function PlayerList({ players, onPlayerDeleted, onAddToRoster, roster }) {
+function PlayerList({ players, onPlayerDeleted, onAddToRoster, roster, showModal }) {
   const [deletingId, setDeletingId] = useState(null);
 
   const handleDelete = async (playerId) => {
@@ -373,10 +559,10 @@ function PlayerList({ players, onPlayerDeleted, onAddToRoster, roster }) {
       if (response.ok) {
         onPlayerDeleted(playerId);
       } else {
-        alert("Failed to delete player");
+        showModal("Failed to delete player", "Error", "error");
       }
     } catch (error) {
-      alert("Network error occurred");
+      showModal("Network error occurred", "Error", "error");
     } finally {
       setDeletingId(null);
     }
@@ -384,7 +570,7 @@ function PlayerList({ players, onPlayerDeleted, onAddToRoster, roster }) {
 
   const handleAddToRoster = (playerId) => {
     if (roster.length >= 20) {
-      alert("Roster is full (20 players maximum)");
+      showModal("Roster is full (20 players maximum)", "Warning", "warning");
       return;
     }
 
@@ -445,7 +631,7 @@ function PlayerList({ players, onPlayerDeleted, onAddToRoster, roster }) {
   );
 }
 
-function BattleForm({ roster, onBattleAdded, currentSeason }) {
+function BattleForm({ roster, onBattleAdded, currentSeason, currentTeam }) {
   const [enemyName, setEnemyName] = useState("");
   const [enemyPowerRanking, setEnemyPowerRanking] = useState("");
   const [ourScore, setOurScore] = useState("");
@@ -496,6 +682,7 @@ function BattleForm({ roster, onBattleAdded, currentSeason }) {
           our_score: parseInt(ourScore),
           their_score: parseInt(theirScore),
           season_id: currentSeason?.id,
+          team_id: currentTeam?.id,
           participants: participants,
         }),
       });
@@ -829,11 +1016,12 @@ function BattleEdit({ battle, onBattleUpdated, onCancel, currentSeason }) {
   );
 }
 
-function BattleList({ battles, onBattleDeleted, onBattleUpdated, currentSeason }) {
+function BattleList({ battles, onBattleDeleted, onBattleUpdated, currentSeason, showModal }) {
   const [deletingId, setDeletingId] = useState(null);
   const [editingBattle, setEditingBattle] = useState(null);
 
   const handleDelete = async (battleId) => {
+    // TODO: Convert to modal confirmation
     if (!confirm("Are you sure you want to delete this battle?")) return;
 
     setDeletingId(battleId);
@@ -846,10 +1034,10 @@ function BattleList({ battles, onBattleDeleted, onBattleUpdated, currentSeason }
       if (response.ok) {
         onBattleDeleted(battleId);
       } else {
-        alert("Failed to delete battle");
+        showModal("Failed to delete battle", "Error", "error");
       }
     } catch (error) {
-      alert("Network error occurred");
+      showModal("Network error occurred", "Error", "error");
     } finally {
       setDeletingId(null);
     }
@@ -962,6 +1150,7 @@ function AdminDashboard({
   onCreateSeason,
   battles,
   onBattleUpdated,
+  currentTeam,
 }) {
   const [updatingId, setUpdatingId] = useState(null);
   const [editingGameId, setEditingGameId] = useState(null);
@@ -1157,6 +1346,7 @@ function AdminDashboard({
             <PlayerForm
               onPlayerAdded={onPlayerAdded}
               currentSeason={currentSeason}
+              currentTeam={currentTeam}
             />
           </div>
 
@@ -1168,6 +1358,7 @@ function AdminDashboard({
               onSeasonChange={onSeasonChange}
               onCreateSeason={onCreateSeason}
               showCreateButton={true}
+              currentTeam={currentTeam}
             />
           </div>
         </div>
@@ -1397,241 +1588,693 @@ function AdminDashboard({
   );
 }
 
-function Statistics({
-  roster,
-  players,
-  battles,
-  currentSeason,
-  seasons,
-  onSeasonChange,
-  onCreateSeason,
-}) {
-  const [selectedPlayer, setSelectedPlayer] = useState(null);
-  const [playerStats, setPlayerStats] = useState({});
-  const [loading, setLoading] = useState(false);
+
+function SuperAdminPanel({ showModal }) {
+  const [users, setUsers] = useState([]);
+  const [teams, setTeams] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [newUser, setNewUser] = useState({ username: "", password: "" });
+  const [creating, setCreating] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [editForm, setEditForm] = useState({ username: "", password: "", team_ids: [] });
+  const [updating, setUpdating] = useState(false);
+  const [teamDropdownOpen, setTeamDropdownOpen] = useState(false);
+  const [teamSearchTerm, setTeamSearchTerm] = useState("");
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
+  
+  // Team management state
+  const [showCreateTeamForm, setShowCreateTeamForm] = useState(false);
+  const [newTeam, setNewTeam] = useState({ name: "", description: "" });
+  const [creatingTeam, setCreatingTeam] = useState(false);
+  const [editingTeam, setEditingTeam] = useState(null);
+  const [editTeamForm, setEditTeamForm] = useState({ name: "", description: "" });
+  const [updatingTeam, setUpdatingTeam] = useState(false);
+
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch("/api/users");
+      if (response.ok) {
+        const data = await response.json();
+        setUsers(data);
+      } else {
+        setError("Failed to fetch users");
+      }
+    } catch (error) {
+      setError("Network error occurred");
+    }
+  };
+
+  const fetchTeams = async () => {
+    try {
+      const response = await fetch("/api/teams");
+      if (response.ok) {
+        const data = await response.json();
+        setTeams(data);
+      } else {
+        setError("Failed to fetch teams");
+      }
+    } catch (error) {
+      setError("Network error occurred");
+    }
+  };
+
+  const fetchData = async () => {
+    setLoading(true);
+    await Promise.all([fetchUsers(), fetchTeams()]);
+    setLoading(false);
+  };
+
+  const handleCreateUser = async (e) => {
+    e.preventDefault();
+    if (!newUser.username.trim() || !newUser.password.trim()) {
+      showModal("Username and password are required", "Error", "error");
+      return;
+    }
+
+    setCreating(true);
+    try {
+      const response = await fetch("/api/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newUser),
+      });
+
+      if (response.ok) {
+        const createdUser = await response.json();
+        setUsers([...users, createdUser]);
+        setNewUser({ username: "", password: "" });
+        setShowCreateForm(false);
+        showModal("User created successfully", "Success", "success");
+      } else {
+        const errorData = await response.json();
+        showModal(errorData.error || "Failed to create user", "Error", "error");
+      }
+    } catch (error) {
+      showModal("Network error occurred", "Error", "error");
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleDeleteUser = async (userId) => {
+    if (!confirm("Are you sure you want to delete this user?")) return;
+
+    try {
+      const response = await fetch(`/api/users/${userId}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        setUsers(users.filter(user => user.id !== userId));
+        showModal("User deleted successfully", "Success", "success");
+      } else {
+        showModal("Failed to delete user", "Error", "error");
+      }
+    } catch (error) {
+      showModal("Network error occurred", "Error", "error");
+    }
+  };
+
+  const handleEditUser = (user) => {
+    setEditingUser(user.id);
+    setEditForm({ 
+      username: user.username, 
+      password: "", 
+      team_ids: user.teams ? user.teams.map(team => team.id) : [] 
+    });
+    setTeamSearchTerm(""); // Reset search term when starting to edit
+  };
+
+  const handleCancelEdit = () => {
+    setEditingUser(null);
+    setEditForm({ username: "", password: "", team_ids: [] });
+    setTeamDropdownOpen(false);
+    setTeamSearchTerm("");
+  };
+
+  const handleTeamToggle = (teamId) => {
+    if (editForm.team_ids.includes(teamId)) {
+      setEditForm({...editForm, team_ids: editForm.team_ids.filter(id => id !== teamId)});
+    } else {
+      setEditForm({...editForm, team_ids: [...editForm.team_ids, teamId]});
+    }
+  };
+
+  const handleDropdownToggle = (event) => {
+    if (!teamDropdownOpen) {
+      const rect = event.currentTarget.getBoundingClientRect();
+      const dropdownWidth = 250;
+      const viewportWidth = window.innerWidth;
+      
+      // Calculate left position, ensuring dropdown doesn't go off-screen
+      let left = rect.left + window.scrollX;
+      if (left + dropdownWidth > viewportWidth) {
+        left = viewportWidth - dropdownWidth - 20; // 20px margin from edge
+      }
+      
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY + 2,
+        left: Math.max(10, left) // Minimum 10px from left edge
+      });
+    }
+    setTeamDropdownOpen(!teamDropdownOpen);
+  };
+
+  const filteredTeams = teams.filter(team => 
+    team.name.toLowerCase().includes(teamSearchTerm.toLowerCase())
+  );
+
+  const getSelectedTeamNames = () => {
+    return teams
+      .filter(team => editForm.team_ids.includes(team.id))
+      .map(team => team.name)
+      .join(", ");
+  };
+
+  const handleUpdateUser = async (userId) => {
+    if (!editForm.username.trim()) {
+      showModal("Username cannot be empty", "Error", "error");
+      return;
+    }
+
+    setUpdating(true);
+    try {
+      // Update user basic info first
+      const updateData = { username: editForm.username.trim() };
+      
+      // Only include password if it's provided
+      if (editForm.password.trim()) {
+        updateData.password = editForm.password.trim();
+      }
+
+      const userResponse = await fetch(`/api/users/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updateData),
+      });
+
+      if (!userResponse.ok) {
+        const errorData = await userResponse.json();
+        showModal(errorData.error || "Failed to update user", "Error", "error");
+        return;
+      }
+
+      // Update team assignments
+      const teamResponse = await fetch(`/api/users/${userId}/teams`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ team_ids: editForm.team_ids }),
+      });
+
+      if (teamResponse.ok) {
+        const updatedUser = await teamResponse.json();
+        setUsers(users.map(user => 
+          user.id === userId ? updatedUser : user
+        ));
+        setEditingUser(null);
+        setEditForm({ username: "", password: "", team_ids: [] });
+        showModal("User updated successfully", "Success", "success");
+      } else {
+        const errorData = await teamResponse.json();
+        showModal(errorData.error || "Failed to update user teams", "Error", "error");
+      }
+    } catch (error) {
+      showModal("Network error occurred", "Error", "error");
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  // Team management functions
+  const handleCreateTeam = async (e) => {
+    e.preventDefault();
+    if (!newTeam.name.trim()) {
+      showModal("Team name is required", "Error", "error");
+      return;
+    }
+
+    setCreatingTeam(true);
+    try {
+      const response = await fetch("/api/teams", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newTeam),
+      });
+
+      if (response.ok) {
+        const createdTeam = await response.json();
+        setTeams([...teams, createdTeam]);
+        setNewTeam({ name: "", description: "" });
+        setShowCreateTeamForm(false);
+        showModal("Team created successfully", "Success", "success");
+      } else {
+        const errorData = await response.json();
+        showModal(errorData.error || "Failed to create team", "Error", "error");
+      }
+    } catch (error) {
+      showModal("Network error occurred", "Error", "error");
+    } finally {
+      setCreatingTeam(false);
+    }
+  };
+
+  const handleEditTeam = (team) => {
+    setEditingTeam(team.id);
+    setEditTeamForm({ name: team.name, description: team.description || "" });
+  };
+
+  const handleCancelTeamEdit = () => {
+    setEditingTeam(null);
+    setEditTeamForm({ name: "", description: "" });
+  };
+
+  const handleUpdateTeam = async (teamId) => {
+    if (!editTeamForm.name.trim()) {
+      showModal("Team name cannot be empty", "Error", "error");
+      return;
+    }
+
+    setUpdatingTeam(true);
+    try {
+      const updateData = { 
+        name: editTeamForm.name.trim(),
+        description: editTeamForm.description.trim()
+      };
+
+      const response = await fetch(`/api/teams/${teamId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updateData),
+      });
+
+      if (response.ok) {
+        const updatedTeam = await response.json();
+        setTeams(teams.map(team => 
+          team.id === teamId ? updatedTeam : team
+        ));
+        setEditingTeam(null);
+        setEditTeamForm({ name: "", description: "" });
+        showModal("Team updated successfully", "Success", "success");
+      } else {
+        const errorData = await response.json();
+        showModal(errorData.error || "Failed to update team", "Error", "error");
+      }
+    } catch (error) {
+      showModal("Network error occurred", "Error", "error");
+    } finally {
+      setUpdatingTeam(false);
+    }
+  };
+
+  const handleDeleteTeam = async (teamId) => {
+    if (!confirm("Are you sure you want to delete this team?")) return;
+
+    try {
+      const response = await fetch(`/api/teams/${teamId}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        setTeams(teams.filter(team => team.id !== teamId));
+        showModal("Team deleted successfully", "Success", "success");
+      } else {
+        const errorData = await response.json();
+        showModal(errorData.error || "Failed to delete team", "Error", "error");
+      }
+    } catch (error) {
+      showModal("Network error occurred", "Error", "error");
+    }
+  };
 
   useEffect(() => {
-    if (currentSeason && roster.length > 0) {
-      fetchAllPlayerStats();
-    }
-  }, [currentSeason, roster]);
+    fetchData();
+  }, []);
 
-  const fetchAllPlayerStats = async () => {
-    setLoading(true);
-    try {
-      const stats = {};
-      await Promise.all(
-        roster.map(async (player) => {
-          const response = await fetch(
-            `/api/players/${player.id}/battle-stats?season_id=${currentSeason.id}`
-          );
-          if (response.ok) {
-            const data = await response.json();
-            stats[player.id] = data;
-          }
-        })
-      );
-      setPlayerStats(stats);
-    } catch (error) {
-      console.error("Failed to fetch player stats:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const calculateSeasonStats = () => {
-    if (!currentSeason || battles.length === 0) return null;
-
-    const wins = battles.filter((b) => b.our_score > b.their_score).length;
-    const losses = battles.filter((b) => b.our_score < b.their_score).length;
-    const totalDamage = battles.reduce(
-      (sum, battle) => sum + (battle.total_damage || 0),
-      0
-    );
-    const avgDamage = battles.length > 0 ? totalDamage / battles.length : 0;
-
-    return {
-      totalBattles: battles.length,
-      wins,
-      losses,
-      winRate:
-        battles.length > 0 ? ((wins / battles.length) * 100).toFixed(1) : 0,
-      totalDamage,
-      avgDamage,
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (teamDropdownOpen && !event.target.closest('.team-multiselect-container')) {
+        setTeamDropdownOpen(false);
+      }
     };
-  };
 
-  const getTopPlayers = () => {
-    const players = Object.entries(playerStats)
-      .map(([playerId, stats]) => ({
-        playerId,
-        name:
-          roster.find((p) => p.id === parseInt(playerId))?.name || "Unknown",
-        ...stats,
-      }))
-      .sort((a, b) => b.total_damage - a.total_damage);
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [teamDropdownOpen]);
 
-    return players.slice(0, 10);
-  };
-
-  const seasonStats = calculateSeasonStats();
-  const topPlayers = getTopPlayers();
+  if (loading) {
+    return <div className="loading">Loading users...</div>;
+  }
 
   return (
-    <div className="statistics-content">
-      <h2>Statistics</h2>
-
-      <SeasonSelector
-        seasons={seasons}
-        currentSeason={currentSeason}
-        onSeasonChange={onSeasonChange}
-        onCreateSeason={onCreateSeason}
-      />
-
-      {!currentSeason ? (
-        <div className="no-season">
-          <p>Please select a season to view statistics.</p>
+    <div className="super-admin-panel">
+      <h2>Super Admin Panel</h2>
+      {error && <div className="error">{error}</div>}
+      
+      <div className="user-management">
+        <div className="section-header">
+          <h3>User Management</h3>
+          <button 
+            className="btn btn-primary"
+            onClick={() => setShowCreateForm(!showCreateForm)}
+          >
+            {showCreateForm ? "Cancel" : "Create New User"}
+          </button>
         </div>
-      ) : (
-        <div className="stats-dashboard">
-          <div className="dashboard-sections">
-            <div className="dashboard-section">
-              <h3>Season Overview</h3>
-              {seasonStats ? (
-                <div className="season-stats">
-                  <div className="stat-cards">
-                    <div className="stat-card">
-                      <h4>Total Battles</h4>
-                      <span className="stat-value">
-                        {seasonStats.totalBattles}
-                      </span>
-                    </div>
-                    <div className="stat-card">
-                      <h4>Win Rate</h4>
-                      <span className="stat-value">{seasonStats.winRate}%</span>
-                    </div>
-                    <div className="stat-card">
-                      <h4>Wins</h4>
-                      <span className="stat-value wins">
-                        {seasonStats.wins}
-                      </span>
-                    </div>
-                    <div className="stat-card">
-                      <h4>Losses</h4>
-                      <span className="stat-value losses">
-                        {seasonStats.losses}
-                      </span>
-                    </div>
-                    <div className="stat-card">
-                      <h4>Total Damage</h4>
-                      <span className="stat-value">
-                        {formatDamage(seasonStats.totalDamage)}
-                      </span>
-                    </div>
-                    <div className="stat-card">
-                      <h4>Avg Damage/Battle</h4>
-                      <span className="stat-value">
-                        {formatDamage(Math.round(seasonStats.avgDamage))}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <p>No battles recorded for this season.</p>
-              )}
-            </div>
 
-            <div className="dashboard-section">
-              <h3>Top Players</h3>
-              {loading ? (
-                <p>Loading player statistics...</p>
-              ) : topPlayers.length > 0 ? (
-                <div className="top-players">
-                  <div className="players-stats-table">
-                    <div className="table-header">
-                      <div>Rank</div>
-                      <div>Player</div>
-                      <div>Total Damage</div>
-                      <div>Shields Broken</div>
-                      <div>Battles</div>
-                      <div>Avg Damage</div>
-                    </div>
-                    {topPlayers.map((player, index) => (
-                      <div key={player.playerId} className="table-row">
-                        <div className="rank">#{index + 1}</div>
-                        <div className="player-name">{player.name}</div>
-                        <div className="total-damage">
-                          {formatDamage(player.total_damage)}
-                        </div>
-                        <div>{formatDamage(player.total_shields_broken)}</div>
-                        <div>{player.battles_participated}</div>
-                        <div>
-                          {formatDamage(
-                            Math.round(
-                              player.total_damage /
-                                Math.max(1, player.battles_participated)
-                            )
+        {showCreateForm && (
+          <form onSubmit={handleCreateUser} className="create-user-form">
+            <div className="form-group">
+              <label htmlFor="username">Username:</label>
+              <input
+                type="text"
+                id="username"
+                value={newUser.username}
+                onChange={(e) => setNewUser({...newUser, username: e.target.value})}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="password">Password:</label>
+              <input
+                type="password"
+                id="password"
+                value={newUser.password}
+                onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+                required
+              />
+            </div>
+            <div className="form-actions">
+              <button type="submit" disabled={creating}>
+                {creating ? "Creating..." : "Create User"}
+              </button>
+            </div>
+          </form>
+        )}
+
+        <div className="users-list">
+          <h4>Existing Users</h4>
+          {users.length === 0 ? (
+            <p>No users found.</p>
+          ) : (
+            <table className="users-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Username</th>
+                  <th>Team</th>
+                  <th>Date Created / Password</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map(user => (
+                  <tr key={user.id}>
+                    <td>{user.id}</td>
+                    <td>
+                      {editingUser === user.id ? (
+                        <input
+                          type="text"
+                          value={editForm.username}
+                          onChange={(e) => setEditForm({...editForm, username: e.target.value})}
+                          className="edit-input"
+                        />
+                      ) : (
+                        user.username
+                      )}
+                    </td>
+                    <td>
+                      {editingUser === user.id ? (
+                        <div className="team-multiselect-container">
+                          <div className="team-multiselect-trigger" onClick={handleDropdownToggle}>
+                            <div className="selected-teams-display">
+                              {editForm.team_ids.length > 0 ? (
+                                <span className="selected-count">{editForm.team_ids.length} team(s) selected</span>
+                              ) : (
+                                <span className="no-selection">Select teams...</span>
+                              )}
+                            </div>
+                            <div className="dropdown-arrow">{teamDropdownOpen ? "▲" : "▼"}</div>
+                          </div>
+                          
+                          {teamDropdownOpen && (
+                            <div 
+                              className="team-multiselect-dropdown"
+                              style={{
+                                top: `${dropdownPosition.top}px`,
+                                left: `${dropdownPosition.left}px`
+                              }}
+                            >
+                              <div className="team-search-container">
+                                <input
+                                  type="text"
+                                  placeholder="Search teams..."
+                                  value={teamSearchTerm}
+                                  onChange={(e) => setTeamSearchTerm(e.target.value)}
+                                  className="team-search-input"
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              </div>
+                              <div className="team-options-container">
+                                {filteredTeams.length > 0 ? (
+                                  filteredTeams.map(team => (
+                                    <label key={team.id} className="team-option">
+                                      <input
+                                        type="checkbox"
+                                        checked={editForm.team_ids.includes(team.id)}
+                                        onChange={() => handleTeamToggle(team.id)}
+                                        onClick={(e) => e.stopPropagation()}
+                                      />
+                                      <span className="team-option-label">{team.name}</span>
+                                    </label>
+                                  ))
+                                ) : (
+                                  <div className="no-teams-found">No teams found</div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                          
+                          {editForm.team_ids.length > 0 && (
+                            <div className="selected-teams-preview">
+                              {teams
+                                .filter(team => editForm.team_ids.includes(team.id))
+                                .map(team => (
+                                  <span key={team.id} className="team-badge-small">{team.name}</span>
+                                ))}
+                            </div>
                           )}
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <p>No player statistics available.</p>
-              )}
-            </div>
-
-            <div className="dashboard-section">
-              <h3>Recent Battles</h3>
-              {battles.length > 0 ? (
-                <div className="recent-battles">
-                  <div className="battles-table">
-                    <div className="table-header">
-                      <div>Date</div>
-                      <div>Enemy</div>
-                      <div>Score</div>
-                      <div>Result</div>
-                      <div>Total Damage</div>
-                    </div>
-                    {battles.slice(0, 10).map((battle) => (
-                      <div key={battle.id} className="table-row">
-                        <div>
-                          {new Date(battle.date_created).toLocaleDateString()}
+                      ) : (
+                        <div className="user-teams">
+                          {user.teams && user.teams.length > 0 ? (
+                            user.teams.map(team => (
+                              <span key={team.id} className="team-badge">{team.name}</span>
+                            ))
+                          ) : (
+                            <span className="no-teams">No Teams</span>
+                          )}
                         </div>
-                        <div>{battle.enemy_name}</div>
-                        <div>
-                          {battle.our_score} - {battle.their_score}
+                      )}
+                    </td>
+                    <td>
+                      {editingUser === user.id ? (
+                        <div className="password-edit">
+                          <input
+                            type="password"
+                            value={editForm.password}
+                            onChange={(e) => setEditForm({...editForm, password: e.target.value})}
+                            placeholder="New password (optional)"
+                            className="edit-input"
+                          />
+                          <small className="password-hint">Leave blank to keep current password</small>
                         </div>
-                        <div
-                          className={`battle-result ${
-                            battle.our_score > battle.their_score
-                              ? "win"
-                              : battle.our_score < battle.their_score
-                              ? "loss"
-                              : "tie"
-                          }`}
-                        >
-                          {battle.our_score > battle.their_score
-                            ? "Win"
-                            : battle.our_score < battle.their_score
-                            ? "Loss"
-                            : "Tie"}
+                      ) : (
+                        new Date(user.date_created).toLocaleDateString()
+                      )}
+                    </td>
+                    <td>
+                      {editingUser === user.id ? (
+                        <div className="edit-actions">
+                          <button 
+                            className="btn btn-success btn-sm"
+                            onClick={() => handleUpdateUser(user.id)}
+                            disabled={updating}
+                          >
+                            {updating ? "Saving..." : "Save"}
+                          </button>
+                          <button 
+                            className="btn btn-secondary btn-sm"
+                            onClick={handleCancelEdit}
+                            disabled={updating}
+                          >
+                            Cancel
+                          </button>
                         </div>
-                        <div className="total-damage">
-                          {formatDamage(battle.total_damage || 0)}
+                      ) : (
+                        <div className="user-actions">
+                          <button 
+                            className="btn btn-primary btn-sm"
+                            onClick={() => handleEditUser(user)}
+                          >
+                            Edit
+                          </button>
+                          <button 
+                            className="btn btn-danger btn-sm"
+                            onClick={() => handleDeleteUser(user.id)}
+                          >
+                            Delete
+                          </button>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <p>No battles recorded for this season.</p>
-              )}
-            </div>
-          </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
-      )}
+      </div>
+
+      <div className="team-management">
+        <div className="section-header">
+          <h3>Team Management</h3>
+          <button 
+            className="btn btn-primary"
+            onClick={() => setShowCreateTeamForm(!showCreateTeamForm)}
+          >
+            {showCreateTeamForm ? "Cancel" : "Create New Team"}
+          </button>
+        </div>
+
+        {showCreateTeamForm && (
+          <form onSubmit={handleCreateTeam} className="create-team-form">
+            <div className="form-group">
+              <label htmlFor="team-name">Team Name:</label>
+              <input
+                type="text"
+                id="team-name"
+                value={newTeam.name}
+                onChange={(e) => setNewTeam({...newTeam, name: e.target.value})}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="team-description">Description (Optional):</label>
+              <textarea
+                id="team-description"
+                value={newTeam.description}
+                onChange={(e) => setNewTeam({...newTeam, description: e.target.value})}
+                rows="3"
+              />
+            </div>
+            <div className="form-actions">
+              <button type="submit" disabled={creatingTeam}>
+                {creatingTeam ? "Creating..." : "Create Team"}
+              </button>
+            </div>
+          </form>
+        )}
+
+        <div className="teams-list">
+          <h4>Existing Teams</h4>
+          {teams.length === 0 ? (
+            <p>No teams found.</p>
+          ) : (
+            <table className="teams-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Description</th>
+                  <th>Members</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {teams.map(team => (
+                  <tr key={team.id}>
+                    <td>{team.id}</td>
+                    <td>
+                      {editingTeam === team.id ? (
+                        <input
+                          type="text"
+                          value={editTeamForm.name}
+                          onChange={(e) => setEditTeamForm({...editTeamForm, name: e.target.value})}
+                          className="edit-input"
+                        />
+                      ) : (
+                        team.name
+                      )}
+                    </td>
+                    <td>
+                      {editingTeam === team.id ? (
+                        <textarea
+                          value={editTeamForm.description}
+                          onChange={(e) => setEditTeamForm({...editTeamForm, description: e.target.value})}
+                          className="edit-input"
+                          rows="2"
+                        />
+                      ) : (
+                        team.description || "No description"
+                      )}
+                    </td>
+                    <td>
+                      {team.member_count} members
+                    </td>
+                    <td>
+                      {editingTeam === team.id ? (
+                        <div className="edit-actions">
+                          <button 
+                            className="btn btn-success btn-sm"
+                            onClick={() => handleUpdateTeam(team.id)}
+                            disabled={updatingTeam}
+                          >
+                            {updatingTeam ? "Saving..." : "Save"}
+                          </button>
+                          <button 
+                            className="btn btn-secondary btn-sm"
+                            onClick={handleCancelTeamEdit}
+                            disabled={updatingTeam}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="team-actions">
+                          <button 
+                            className="btn btn-primary btn-sm"
+                            onClick={() => handleEditTeam(team)}
+                          >
+                            Edit
+                          </button>
+                          <button 
+                            className="btn btn-danger btn-sm"
+                            onClick={() => handleDeleteTeam(team.id)}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -1646,10 +2289,97 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState("players");
+  const [modal, setModal] = useState({ isOpen: false, title: "", message: "", type: "info" });
+
+  const showModal = (message, title = "Notification", type = "info") => {
+    setModal({ isOpen: true, title, message, type });
+  };
+
+  const closeModal = () => {
+    setModal({ isOpen: false, title: "", message: "", type: "info" });
+  };
+
+  const handlePageChange = (page) => {
+    // Prevent non-superadmins from accessing super-admin page
+    if (page === "super-admin" && !user?.is_superadmin) {
+      showModal("Access denied: Super Admin privileges required", "Access Denied", "error");
+      return;
+    }
+    
+    // Prevent superadmins from accessing non-admin pages
+    if (user?.is_superadmin && page !== "super-admin") {
+      showModal("Access denied: Superusers can only access the Super Admin panel", "Access Denied", "error");
+      return;
+    }
+    
+    setCurrentPage(page);
+  };
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [teams, setTeams] = useState([]);
+  const [currentTeam, setCurrentTeam] = useState(null);
+
+  const checkAuth = async () => {
+    try {
+      const response = await fetch("/api/auth/status");
+      if (response.ok) {
+        const data = await response.json();
+        setIsAuthenticated(data.authenticated);
+        setUser(data.user);
+      } else {
+        setIsAuthenticated(false);
+        setUser(null);
+      }
+    } catch (error) {
+      console.error("Error checking auth:", error);
+      setIsAuthenticated(false);
+      setUser(null);
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("/logout", {
+        method: "POST",
+      });
+      if (response.ok) {
+        window.location.href = "/login";
+      }
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
+
+  const fetchTeams = async () => {
+    try {
+      const response = await fetch("/api/auth/teams");
+      if (response.ok) {
+        const data = await response.json();
+        setTeams(data);
+
+        // Set current team to first if not already set
+        if (!currentTeam && data.length > 0) {
+          setCurrentTeam(data[0]);
+        }
+      } else {
+        if (response.status === 401) {
+          window.location.href = "/login";
+          return;
+        }
+        setError("Failed to fetch teams");
+      }
+    } catch (error) {
+      setError("Network error occurred");
+    }
+  };
 
   const fetchSeasons = async () => {
     try {
-      const response = await fetch("/api/seasons");
+      const url = currentTeam ? `/api/seasons?team_id=${currentTeam.id}` : "/api/seasons";
+      const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
         setSeasons(data);
@@ -1664,6 +2394,10 @@ function App() {
           setLoading(false);
         }
       } else {
+        if (response.status === 401) {
+          window.location.href = "/login";
+          return;
+        }
         setError("Failed to fetch seasons");
         setLoading(false);
       }
@@ -1675,12 +2409,21 @@ function App() {
 
   const fetchPlayers = async () => {
     try {
-      const url = `/api/players?status=active`;
+      if (!currentTeam) {
+        setError("Please select a team first");
+        return;
+      }
+      setError(""); // Clear any previous errors
+      const url = `/api/players?status=active&team_id=${currentTeam.id}`;
       const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
         setPlayers(data);
       } else {
+        if (response.status === 401) {
+          window.location.href = "/login";
+          return;
+        }
         setError("Failed to fetch players");
       }
     } catch (error) {
@@ -1690,12 +2433,21 @@ function App() {
 
   const fetchAllPlayers = async () => {
     try {
-      const url = `/api/players?status=all`;
+      if (!currentTeam) {
+        setError("Please select a team first");
+        return;
+      }
+      setError(""); // Clear any previous errors
+      const url = `/api/players?status=all&team_id=${currentTeam.id}`;
       const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
         setPlayers(data);
       } else {
+        if (response.status === 401) {
+          window.location.href = "/login";
+          return;
+        }
         setError("Failed to fetch players");
       }
     } catch (error) {
@@ -1704,15 +2456,19 @@ function App() {
   };
 
   const fetchRoster = async () => {
-    if (!currentSeason) return;
+    if (!currentSeason || !currentTeam) return;
 
     try {
-      const url = `/api/players/roster?season_id=${currentSeason.id}`;
+      const url = `/api/players/roster?season_id=${currentSeason.id}&team_id=${currentTeam.id}`;
       const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
         setRoster(data);
       } else {
+        if (response.status === 401) {
+          window.location.href = "/login";
+          return;
+        }
         setError("Failed to fetch roster");
       }
     } catch (error) {
@@ -1726,7 +2482,10 @@ function App() {
     if (!currentSeason) return;
 
     try {
-      const url = `/api/battles?season_id=${currentSeason.id}`;
+      let url = `/api/battles?season_id=${currentSeason.id}`;
+      if (currentTeam) {
+        url += `&team_id=${currentTeam.id}`;
+      }
       const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
@@ -1740,11 +2499,11 @@ function App() {
   };
 
   const fetchPlayerStats = async () => {
-    if (!currentSeason) return;
+    if (!currentSeason || !currentTeam) return;
 
     try {
       const rosterResponse = await fetch(
-        `/api/players/roster?season_id=${currentSeason.id}`
+        `/api/players/roster?season_id=${currentSeason.id}&team_id=${currentTeam.id}`
       );
       if (rosterResponse.ok) {
         const rosterData = await rosterResponse.json();
@@ -1770,10 +2529,42 @@ function App() {
   };
 
   useEffect(() => {
-    fetchSeasons();
+    checkAuth();
   }, []);
 
   useEffect(() => {
+    if (isAuthenticated && !authLoading) {
+      fetchTeams();
+    }
+  }, [isAuthenticated, authLoading]);
+
+  useEffect(() => {
+    if (user) {
+      if (user.is_superadmin) {
+        // Superusers can only access super-admin page
+        if (currentPage !== "super-admin") {
+          setCurrentPage("super-admin");
+        }
+        // Superusers don't need team-dependent data, so set loading to false
+        setLoading(false);
+      } else {
+        // Regular users cannot access super-admin page
+        if (currentPage === "super-admin") {
+          setCurrentPage("players");
+        }
+      }
+    }
+  }, [user, currentPage]);
+
+  useEffect(() => {
+    if (currentTeam) {
+      fetchSeasons();
+    }
+  }, [currentTeam]);
+
+  useEffect(() => {
+    if (!currentTeam) return; // Don't fetch data if no team is selected
+    
     if (currentPage === "players") {
       fetchPlayers();
       if (currentSeason) {
@@ -1784,18 +2575,28 @@ function App() {
       if (!currentSeason) return;
       fetchBattles();
       fetchRoster();
-    } else if (currentPage === "statistics") {
-      if (currentSeason) {
-        fetchBattles();
-        fetchRoster();
-      }
     } else {
       fetchAllPlayers();
       if (currentSeason) {
         fetchBattles();
       }
     }
-  }, [currentPage, currentSeason]);
+  }, [currentPage, currentSeason, currentTeam]);
+
+  const handleTeamChange = (team) => {
+    setCurrentTeam(team);
+    setCurrentSeason(null); // Reset season when team changes
+    setPlayers([]);
+    setBattles([]);
+    setRoster([]);
+    setPlayerStats({});
+    setError(""); // Clear any previous errors when team changes
+  };
+
+  const handleTeamCreated = (newTeam) => {
+    setTeams((prev) => [...prev, newTeam]);
+    setCurrentTeam(newTeam);
+  };
 
   const handlePlayerAdded = (newPlayer) => {
     setPlayers((prev) => [...prev, newPlayer]);
@@ -1821,7 +2622,7 @@ function App() {
 
   const handleAddToRoster = async (playerId, position) => {
     if (!currentSeason) {
-      alert("Please select a season first");
+      showModal("Please select a season first", "Error", "error");
       return;
     }
 
@@ -1849,14 +2650,14 @@ function App() {
         fetchPlayers();
       } else {
         const errorData = await response.json();
-        alert(
+        showModal(
           `Failed to add player to roster: ${
             errorData.error || "Unknown error"
-          }`
+          }`, "Error", "error"
         );
       }
     } catch (error) {
-      alert("Network error occurred");
+      showModal("Network error occurred", "Error", "error");
     }
   };
 
@@ -1884,14 +2685,14 @@ function App() {
         fetchPlayers();
       } else {
         const errorData = await response.json();
-        alert(
+        showModal(
           `Failed to remove player from roster: ${
             errorData.error || "Unknown error"
-          }`
+          }`, "Error", "error"
         );
       }
     } catch (error) {
-      alert("Network error occurred");
+      showModal("Network error occurred", "Error", "error");
     }
   };
 
@@ -1911,10 +2712,10 @@ function App() {
       if (response.ok) {
         fetchRoster();
       } else {
-        alert("Failed to move player");
+        showModal("Failed to move player", "Error", "error");
       }
     } catch (error) {
-      alert("Network error occurred");
+      showModal("Network error occurred", "Error", "error");
     }
   };
 
@@ -1925,7 +2726,7 @@ function App() {
       const player2 = roster.find((p) => p.id === playerId2);
 
       if (!player1 || !player2) {
-        alert("Error: Could not find players to swap");
+        showModal("Error: Could not find players to swap", "Error", "error");
         return;
       }
 
@@ -1946,10 +2747,10 @@ function App() {
         fetchRoster();
       } else {
         const errorData = await response.json();
-        alert(`Failed to swap players: ${errorData.error || "Unknown error"}`);
+        showModal(`Failed to swap players: ${errorData.error || "Unknown error"}`, "Error", "error");
       }
     } catch (error) {
-      alert("Network error occurred");
+      showModal("Network error occurred", "Error", "error");
     }
   };
 
@@ -2005,13 +2806,53 @@ function App() {
     return <div className="loading">Loading...</div>;
   }
 
+  if (authLoading) {
+    return (
+      <div className="container">
+        <div className="loading">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    window.location.href = "/login";
+    return null;
+  }
+
   return (
     <div className="container">
-      <h1>Player Management System</h1>
-      <Navigation currentPage={currentPage} onPageChange={setCurrentPage} />
+      <div className="header">
+        <h1>Player Management System</h1>
+        <div className="header-controls">
+          {!user?.is_superadmin && (
+            <TeamSelector
+              teams={teams}
+              currentTeam={currentTeam}
+              onTeamChange={handleTeamChange}
+              onCreateTeam={handleTeamCreated}
+              showCreateButton={false}
+              showModal={showModal}
+            />
+          )}
+          <div className="user-info">
+            <span>Welcome, {user?.username}</span>
+            {user?.is_superadmin && <span className="superadmin-badge">Super Admin</span>}
+            <button onClick={handleLogout} className="logout-btn">
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+      <Navigation currentPage={currentPage} onPageChange={handlePageChange} user={user} />
       {error && <div className="error">{error}</div>}
 
-      {currentPage === "players" ? (
+      {user?.is_superadmin ? (
+        <SuperAdminPanel showModal={showModal} />
+      ) : !currentTeam ? (
+        <div className="no-team-message">
+          <p>Please select a team to continue.</p>
+        </div>
+      ) : currentPage === "players" ? (
         <div className="main-content">
           <div className="columns">
             <PlayerList
@@ -2019,6 +2860,7 @@ function App() {
               onPlayerDeleted={handlePlayerDeleted}
               onAddToRoster={handleAddToRoster}
               roster={roster}
+              showModal={showModal}
             />
             <ActiveRoster
               roster={roster}
@@ -2030,6 +2872,7 @@ function App() {
               currentSeason={currentSeason}
               onSeasonChange={handleSeasonChange}
               onCreateSeason={handleSeasonCreated}
+              currentTeam={currentTeam}
             />
           </div>
         </div>
@@ -2042,6 +2885,8 @@ function App() {
               currentSeason={currentSeason}
               onSeasonChange={handleSeasonChange}
               onCreateSeason={handleSeasonCreated}
+              currentTeam={currentTeam}
+              showModal={showModal}
             />
           </div>
         ) : (
@@ -2051,30 +2896,24 @@ function App() {
               currentSeason={currentSeason}
               onSeasonChange={handleSeasonChange}
               onCreateSeason={handleSeasonCreated}
+              currentTeam={currentTeam}
+              showModal={showModal}
             />
             <BattleForm
               roster={roster}
               onBattleAdded={handleBattleAdded}
               currentSeason={currentSeason}
+              currentTeam={currentTeam}
             />
             <BattleList
               battles={battles}
               onBattleDeleted={handleBattleDeleted}
               onBattleUpdated={handleBattleUpdated}
               currentSeason={currentSeason}
+              showModal={showModal}
             />
           </div>
         )
-      ) : currentPage === "statistics" ? (
-        <Statistics
-          roster={roster}
-          players={players}
-          battles={battles}
-          currentSeason={currentSeason}
-          seasons={seasons}
-          onSeasonChange={handleSeasonChange}
-          onCreateSeason={handleSeasonCreated}
-        />
       ) : (
         <AdminDashboard
           players={players}
@@ -2089,8 +2928,16 @@ function App() {
           onCreateSeason={handleSeasonCreated}
           battles={battles}
           onBattleUpdated={handleBattleUpdated}
+          currentTeam={currentTeam}
         />
       )}
+      <Modal
+        isOpen={modal.isOpen}
+        onClose={closeModal}
+        title={modal.title}
+        message={modal.message}
+        type={modal.type}
+      />
     </div>
   );
 }

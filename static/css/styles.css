@@ -6,6 +6,165 @@ body {
     background-color: #f5f5f5;
 }
 
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 8px;
+    min-width: 320px;
+    max-width: 500px;
+    margin: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    padding: 20px 20px 15px;
+    border-bottom: 1px solid #eee;
+    gap: 10px;
+}
+
+.modal-icon {
+    font-size: 24px;
+}
+
+.modal-title {
+    margin: 0;
+    flex-grow: 1;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #999;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.modal-close:hover {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.modal-body {
+    padding: 20px;
+    line-height: 1.5;
+    color: #333;
+}
+
+.modal-footer {
+    padding: 15px 20px 20px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.modal-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.modal-btn:hover {
+    background-color: #0056b3;
+}
+
+.modal-error .modal-title {
+    color: #dc3545;
+}
+
+.modal-error .modal-btn {
+    background-color: #dc3545;
+}
+
+.modal-error .modal-btn:hover {
+    background-color: #c82333;
+}
+
+.modal-success .modal-title {
+    color: #28a745;
+}
+
+.modal-success .modal-btn {
+    background-color: #28a745;
+}
+
+.modal-success .modal-btn:hover {
+    background-color: #218838;
+}
+
+.modal-warning .modal-title {
+    color: #ffc107;
+}
+
+.modal-warning .modal-btn {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.modal-warning .modal-btn:hover {
+    background-color: #e0a800;
+}
+
+@media (max-width: 480px) {
+    .modal-content {
+        min-width: 280px;
+        margin: 10px;
+    }
+    
+    .modal-header {
+        padding: 15px 15px 10px;
+    }
+    
+    .modal-body {
+        padding: 15px;
+    }
+    
+    .modal-footer {
+        padding: 10px 15px 15px;
+    }
+}
+
 /* Mobile-first approach */
 @media (max-width: 480px) {
     body {
@@ -18,6 +177,82 @@ body {
     padding: 30px;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.header h1 {
+    margin: 0;
+    color: #333;
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-info span {
+    color: #666;
+}
+
+.superadmin-badge {
+    background-color: #dc3545;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-left: 10px;
+}
+    font-size: 14px;
+}
+
+.logout-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.logout-btn:hover {
+    background: #c82333;
+}
+
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    .header-controls {
+        flex-direction: column;
+        gap: 15px;
+        width: 100%;
+    }
+    
+    .user-info {
+        flex-direction: column;
+        gap: 8px;
+    }
 }
 
 @media (max-width: 768px) {
@@ -1547,5 +1782,841 @@ button:hover {
     .no-season {
         padding: 30px;
         font-size: 16px;
+    }
+}
+
+/* Super Admin Panel Styles */
+.super-admin-panel {
+    max-width: 1000px;
+    margin: 0 auto;
+    overflow-x: hidden;
+}
+
+.super-admin-panel h2 {
+    color: #333;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.user-management {
+    background-color: #f8f9fa;
+    padding: 30px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.section-header h3 {
+    margin: 0;
+    color: #333;
+}
+
+.create-user-form {
+    background-color: white;
+    padding: 20px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.form-actions {
+    margin-top: 20px;
+}
+
+.users-list h4 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 6px;
+    overflow: visible;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    table-layout: fixed;
+}
+
+.users-table th,
+.users-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #e9ecef;
+    position: relative;
+    overflow: visible;
+}
+
+.users-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    color: #333;
+}
+
+.users-table tr {
+    position: relative;
+}
+
+.users-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.users-table .btn {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.2s;
+}
+
+.btn:hover {
+    opacity: 0.8;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Mobile responsiveness for Super Admin */
+@media (max-width: 768px) {
+    .section-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+    
+    .users-table {
+        font-size: 14px;
+    }
+    
+    .users-table th,
+    .users-table td {
+        padding: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .user-management {
+        padding: 15px;
+    }
+    
+    .create-user-form {
+        padding: 15px;
+    }
+    
+    .users-table {
+        font-size: 12px;
+    }
+    
+    .users-table th,
+    .users-table td {
+        padding: 6px;
+    }
+}
+
+/* Edit form styles */
+.edit-input {
+    width: 100%;
+    padding: 4px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #fff;
+}
+
+.edit-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.password-edit {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.password-hint {
+    color: #666;
+    font-size: 11px;
+    font-style: italic;
+}
+
+.edit-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.user-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.btn-sm {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+/* Mobile responsiveness for edit forms */
+@media (max-width: 768px) {
+    .edit-actions,
+    .user-actions {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .password-edit {
+        gap: 2px;
+    }
+    
+    .password-hint {
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .edit-input {
+        padding: 3px 6px;
+        font-size: 12px;
+    }
+    
+    .btn-sm {
+        padding: 3px 6px;
+        font-size: 11px;
+    }
+}
+
+/* Team Management Styles */
+.team-management {
+    background-color: #f8f9fa;
+    padding: 30px;
+    border-radius: 8px;
+    margin-top: 30px;
+}
+
+.create-team-form {
+    background-color: white;
+    padding: 20px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+}
+
+.create-team-form textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    resize: vertical;
+    font-family: Arial, sans-serif;
+}
+
+.create-team-form textarea:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.teams-list h4 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.teams-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.teams-table th,
+.teams-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.teams-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    color: #333;
+}
+
+.teams-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.teams-table .btn {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+.edit-input textarea {
+    width: 100%;
+    padding: 4px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    resize: vertical;
+    font-family: Arial, sans-serif;
+}
+
+.edit-input textarea:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.team-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Mobile responsiveness for team management */
+@media (max-width: 768px) {
+    .team-management {
+        padding: 15px;
+    }
+    
+    .create-team-form {
+        padding: 15px;
+    }
+    
+    .teams-table {
+        font-size: 14px;
+    }
+    
+    .teams-table th,
+    .teams-table td {
+        padding: 8px;
+    }
+    
+    .team-actions {
+        flex-direction: column;
+        gap: 4px;
+    }
+}
+
+@media (max-width: 480px) {
+    .teams-table {
+        font-size: 12px;
+    }
+    
+    .teams-table th,
+    .teams-table td {
+        padding: 6px;
+    }
+    
+    .create-team-form textarea {
+        padding: 6px;
+        font-size: 12px;
+    }
+}
+
+/* Multi-team assignment styles */
+.team-select-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.team-checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.team-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.team-checkbox:hover {
+    background-color: #f0f0f0;
+}
+
+.team-checkbox input[type="checkbox"] {
+    margin: 0;
+    cursor: pointer;
+}
+
+.team-checkbox-label {
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+}
+
+.no-teams-hint {
+    color: #666;
+    font-size: 12px;
+    font-style: italic;
+}
+
+.user-teams {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.team-badge {
+    background-color: #007bff;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.no-teams {
+    color: #666;
+    font-style: italic;
+    font-size: 14px;
+}
+
+/* Mobile responsiveness for team selection */
+@media (max-width: 768px) {
+    .team-select-container {
+        max-height: 120px;
+    }
+    
+    .team-checkbox {
+        padding: 2px;
+    }
+    
+    .team-checkbox-label {
+        font-size: 12px;
+    }
+    
+    .team-badge {
+        font-size: 10px;
+        padding: 1px 6px;
+    }
+}
+
+@media (max-width: 480px) {
+    .team-select-container {
+        max-height: 100px;
+    }
+    
+    .team-checkbox-label {
+        font-size: 11px;
+    }
+    
+    .team-badge {
+        font-size: 9px;
+        padding: 1px 4px;
+    }
+}
+
+/* Searchable Multi-Select Dropdown Styles */
+.team-multiselect-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 200px;
+}
+
+.team-multiselect-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.team-multiselect-trigger:hover {
+    border-color: #007bff;
+}
+
+.team-multiselect-trigger:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.selected-teams-display {
+    flex: 1;
+    text-align: left;
+}
+
+.selected-count {
+    color: #333;
+    font-weight: 500;
+}
+
+.no-selection {
+    color: #999;
+    font-style: italic;
+}
+
+.dropdown-arrow {
+    color: #666;
+    font-size: 12px;
+    margin-left: 8px;
+}
+
+.team-multiselect-dropdown {
+    position: fixed;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
+    max-height: 200px;
+    overflow: hidden;
+    margin-top: 2px;
+    width: 250px;
+    max-width: 90vw;
+}
+
+.team-search-container {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+}
+
+.team-search-input {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+}
+
+.team-search-input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.team-options-container {
+    max-height: 140px;
+    overflow-y: auto;
+}
+
+.team-option {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border: none;
+    background: none;
+    width: 100%;
+}
+
+.team-option:hover {
+    background-color: #f8f9fa;
+}
+
+.team-option input[type="checkbox"] {
+    margin: 0 8px 0 0;
+    cursor: pointer;
+}
+
+.team-option-label {
+    flex: 1;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+}
+
+.no-teams-found {
+    padding: 12px;
+    text-align: center;
+    color: #666;
+    font-style: italic;
+}
+
+.selected-teams-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.team-badge-small {
+    background-color: #007bff;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+/* Mobile responsiveness for multi-select dropdown */
+@media (max-width: 768px) {
+    .team-multiselect-container {
+        min-width: 150px;
+    }
+    
+    .team-multiselect-trigger {
+        padding: 6px 8px;
+    }
+    
+    .team-multiselect-dropdown {
+        max-height: 150px;
+    }
+    
+    .team-options-container {
+        max-height: 100px;
+    }
+    
+    .team-option {
+        padding: 6px 8px;
+    }
+    
+    .team-option-label {
+        font-size: 12px;
+    }
+    
+    .team-badge-small {
+        font-size: 9px;
+        padding: 1px 4px;
+    }
+}
+
+@media (max-width: 480px) {
+    .team-multiselect-container {
+        min-width: 120px;
+    }
+    
+    .team-multiselect-trigger {
+        padding: 4px 6px;
+    }
+    
+    .team-search-input {
+        padding: 4px 6px;
+        font-size: 12px;
+    }
+    
+    .team-option {
+        padding: 4px 6px;
+    }
+    
+    .team-option-label {
+        font-size: 11px;
+    }
+    
+    .selected-count,
+    .no-selection {
+        font-size: 12px;
+    }
+    
+    .dropdown-arrow {
+        font-size: 10px;
+    }
+}
+
+/* Team Selector Styles */
+.team-selector {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+/* Header Team Selector - when used in header */
+.header-controls .team-selector {
+    margin-bottom: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-controls .team-selector label {
+    margin-bottom: 0;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.team-selector label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+
+.team-selector select {
+    width: 200px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-right: 10px;
+}
+
+.create-team-btn {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.create-team-btn:hover {
+    background: #218838;
+}
+
+.create-team-form {
+    margin-top: 15px;
+    padding: 15px;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.create-team-form input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.create-team-form .form-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.create-team-form .form-actions button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.create-team-form .form-actions button[type="submit"] {
+    background: #007bff;
+    color: white;
+}
+
+.create-team-form .form-actions button[type="submit"]:hover {
+    background: #0056b3;
+}
+
+.create-team-form .form-actions button[type="button"] {
+    background: #6c757d;
+    color: white;
+}
+
+.create-team-form .form-actions button[type="button"]:hover {
+    background: #545b62;
+}
+
+.no-team-message {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    font-size: 16px;
+}
+
+@media (max-width: 768px) {
+    .team-selector select {
+        width: 100%;
+        margin-bottom: 10px;
+        margin-right: 0;
+    }
+    
+    .header-controls .team-selector {
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+    }
+    
+    .header-controls .team-selector select {
+        width: 100%;
+        margin-right: 0;
+    }
+    
+    .create-team-form .form-actions {
+        flex-direction: column;
     }
 }
