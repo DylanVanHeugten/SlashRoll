@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from werkzeug.security import generate_password_hash, check_password_hash
 
 from flask import Flask, jsonify, render_template, request
 from flask_cors import CORS
@@ -10,6 +11,26 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///slashroll.db"
 
 CORS(app)
 db = SQLAlchemy(app)
+
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    password_hash = db.Column(db.String(120), nullable=False)
+    date_created = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "username": self.username,
+            "date_created": self.date_created.isoformat(),
+        }
 
 
 class Season(db.Model):
@@ -92,7 +113,7 @@ class Battle(db.Model):
     def to_dict(self):
         try:
             total_damage = sum(p.damage_done for p in self.participants)
-        except:
+        except Exception:
             # If participants aren't loaded, query them directly
             participants = BattleParticipant.query.filter_by(battle_id=self.id).all()
             total_damage = sum(p.damage_done for p in participants)
@@ -133,6 +154,85 @@ class BattleParticipant(db.Model):
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
+# User endpoints
+@app.route("/api/users", methods=["GET"])
+def get_users():
+    users = User.query.all()
+    return jsonify([user.to_dict() for user in users])
+
+
+@app.route("/api/users", methods=["POST"])
+def create_user():
+    data = request.get_json()
+    
+    if not data or "username" not in data or "password" not in data:
+        return jsonify({"error": "Username and password are required"}), 400
+    
+    if User.query.filter_by(username=data["username"]).first():
+        return jsonify({"error": "Username already exists"}), 400
+    
+    user = User(username=data["username"])
+    user.set_password(data["password"])
+    
+    try:
+        db.session.add(user)
+        db.session.commit()
+        return jsonify(user.to_dict()), 201
+    except Exception:
+        db.session.rollback()
+        return jsonify({"error": "Failed to create user"}), 500
+
+
+@app.route("/api/users/<int:user_id>", methods=["PUT"])
+def update_user(user_id):
+    user = User.query.get_or_404(user_id)
+    data = request.get_json()
+    
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+    
+    # Update username if provided
+    if "username" in data:
+        new_username = data["username"].strip()
+        if not new_username:
+            return jsonify({"error": "Username cannot be empty"}), 400
+        
+        # Check if username is already taken by another user
+        existing_user = User.query.filter_by(username=new_username).filter(User.id != user_id).first()
+        if existing_user:
+            return jsonify({"error": "Username already exists"}), 400
+        
+        user.username = new_username
+    
+    # Update password if provided
+    if "password" in data:
+        new_password = data["password"].strip()
+        if not new_password:
+            return jsonify({"error": "Password cannot be empty"}), 400
+        
+        user.set_password(new_password)
+    
+    try:
+        db.session.commit()
+        return jsonify(user.to_dict()), 200
+    except Exception:
+        db.session.rollback()
+        return jsonify({"error": "Failed to update user"}), 500
+
+
+@app.route("/api/users/<int:user_id>", methods=["DELETE"])
+def delete_user(user_id):
+    user = User.query.get_or_404(user_id)
+    
+    try:
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({"message": "User deleted successfully"}), 200
+    except Exception:
+        db.session.rollback()
+        return jsonify({"error": "Failed to delete user"}), 500
 
 
 @app.route("/api/players", methods=["GET"])
@@ -549,7 +649,7 @@ def update_battle(battle_id):
         battle_data = battle.to_dict()
         battle_data["participants"] = [p.to_dict() for p in battle.participants]
         return jsonify(battle_data), 200
-    except Exception as e:
+    except Exception:
         db.session.rollback()
         return jsonify({"error": "Failed to update battle"}), 500
 
@@ -869,6 +969,24 @@ def run_migrations():
 
         db.session.commit()
         print("Roster data migration completed!")
+
+    # Check and create User table
+    try:
+        db.session.execute(text("SELECT id FROM user LIMIT 1"))
+    except Exception:
+        print("Creating user table...")
+        db.session.execute(
+            text(f"""
+            CREATE TABLE user (
+                id {integer_type} {primary_key} {auto_increment},
+                username {varchar_type}(80) NOT NULL UNIQUE,
+                password_hash {varchar_type}(120) NOT NULL,
+                date_created DATETIME NOT NULL {datetime_default}
+            )
+        """)
+        )
+        db.session.commit()
+        print("User table created successfully!")
 
     print("Database migration completed for SQLite!")
 

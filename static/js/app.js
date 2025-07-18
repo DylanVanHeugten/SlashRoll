@@ -145,6 +145,12 @@ function Navigation({ currentPage, onPageChange }) {
       >
         Administrator Dashboard
       </button>
+      <button
+        className={currentPage === "super-admin" ? "active" : ""}
+        onClick={() => onPageChange("super-admin")}
+      >
+        Super Admin
+      </button>
     </nav>
   );
 }
@@ -1636,6 +1642,284 @@ function Statistics({
   );
 }
 
+function SuperAdminPanel() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [newUser, setNewUser] = useState({ username: "", password: "" });
+  const [creating, setCreating] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [editForm, setEditForm] = useState({ username: "", password: "" });
+  const [updating, setUpdating] = useState(false);
+
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch("/api/users");
+      if (response.ok) {
+        const data = await response.json();
+        setUsers(data);
+      } else {
+        setError("Failed to fetch users");
+      }
+    } catch (error) {
+      setError("Network error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateUser = async (e) => {
+    e.preventDefault();
+    if (!newUser.username.trim() || !newUser.password.trim()) {
+      alert("Username and password are required");
+      return;
+    }
+
+    setCreating(true);
+    try {
+      const response = await fetch("/api/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newUser),
+      });
+
+      if (response.ok) {
+        const createdUser = await response.json();
+        setUsers([...users, createdUser]);
+        setNewUser({ username: "", password: "" });
+        setShowCreateForm(false);
+        alert("User created successfully");
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || "Failed to create user");
+      }
+    } catch (error) {
+      alert("Network error occurred");
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleDeleteUser = async (userId) => {
+    if (!confirm("Are you sure you want to delete this user?")) return;
+
+    try {
+      const response = await fetch(`/api/users/${userId}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        setUsers(users.filter(user => user.id !== userId));
+        alert("User deleted successfully");
+      } else {
+        alert("Failed to delete user");
+      }
+    } catch (error) {
+      alert("Network error occurred");
+    }
+  };
+
+  const handleEditUser = (user) => {
+    setEditingUser(user.id);
+    setEditForm({ username: user.username, password: "" });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingUser(null);
+    setEditForm({ username: "", password: "" });
+  };
+
+  const handleUpdateUser = async (userId) => {
+    if (!editForm.username.trim()) {
+      alert("Username cannot be empty");
+      return;
+    }
+
+    setUpdating(true);
+    try {
+      const updateData = { username: editForm.username.trim() };
+      
+      // Only include password if it's provided
+      if (editForm.password.trim()) {
+        updateData.password = editForm.password.trim();
+      }
+
+      const response = await fetch(`/api/users/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updateData),
+      });
+
+      if (response.ok) {
+        const updatedUser = await response.json();
+        setUsers(users.map(user => 
+          user.id === userId ? updatedUser : user
+        ));
+        setEditingUser(null);
+        setEditForm({ username: "", password: "" });
+        alert("User updated successfully");
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || "Failed to update user");
+      }
+    } catch (error) {
+      alert("Network error occurred");
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  if (loading) {
+    return <div className="loading">Loading users...</div>;
+  }
+
+  return (
+    <div className="super-admin-panel">
+      <h2>Super Admin Panel</h2>
+      {error && <div className="error">{error}</div>}
+      
+      <div className="user-management">
+        <div className="section-header">
+          <h3>User Management</h3>
+          <button 
+            className="btn btn-primary"
+            onClick={() => setShowCreateForm(!showCreateForm)}
+          >
+            {showCreateForm ? "Cancel" : "Create New User"}
+          </button>
+        </div>
+
+        {showCreateForm && (
+          <form onSubmit={handleCreateUser} className="create-user-form">
+            <div className="form-group">
+              <label htmlFor="username">Username:</label>
+              <input
+                type="text"
+                id="username"
+                value={newUser.username}
+                onChange={(e) => setNewUser({...newUser, username: e.target.value})}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="password">Password:</label>
+              <input
+                type="password"
+                id="password"
+                value={newUser.password}
+                onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+                required
+              />
+            </div>
+            <div className="form-actions">
+              <button type="submit" disabled={creating}>
+                {creating ? "Creating..." : "Create User"}
+              </button>
+            </div>
+          </form>
+        )}
+
+        <div className="users-list">
+          <h4>Existing Users</h4>
+          {users.length === 0 ? (
+            <p>No users found.</p>
+          ) : (
+            <table className="users-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Username</th>
+                  <th>Date Created / Password</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map(user => (
+                  <tr key={user.id}>
+                    <td>{user.id}</td>
+                    <td>
+                      {editingUser === user.id ? (
+                        <input
+                          type="text"
+                          value={editForm.username}
+                          onChange={(e) => setEditForm({...editForm, username: e.target.value})}
+                          className="edit-input"
+                        />
+                      ) : (
+                        user.username
+                      )}
+                    </td>
+                    <td>
+                      {editingUser === user.id ? (
+                        <div className="password-edit">
+                          <input
+                            type="password"
+                            value={editForm.password}
+                            onChange={(e) => setEditForm({...editForm, password: e.target.value})}
+                            placeholder="New password (optional)"
+                            className="edit-input"
+                          />
+                          <small className="password-hint">Leave blank to keep current password</small>
+                        </div>
+                      ) : (
+                        new Date(user.date_created).toLocaleDateString()
+                      )}
+                    </td>
+                    <td>
+                      {editingUser === user.id ? (
+                        <div className="edit-actions">
+                          <button 
+                            className="btn btn-success btn-sm"
+                            onClick={() => handleUpdateUser(user.id)}
+                            disabled={updating}
+                          >
+                            {updating ? "Saving..." : "Save"}
+                          </button>
+                          <button 
+                            className="btn btn-secondary btn-sm"
+                            onClick={handleCancelEdit}
+                            disabled={updating}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="user-actions">
+                          <button 
+                            className="btn btn-primary btn-sm"
+                            onClick={() => handleEditUser(user)}
+                          >
+                            Edit
+                          </button>
+                          <button 
+                            className="btn btn-danger btn-sm"
+                            onClick={() => handleDeleteUser(user.id)}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [players, setPlayers] = useState([]);
   const [roster, setRoster] = useState([]);
@@ -2075,6 +2359,8 @@ function App() {
           onSeasonChange={handleSeasonChange}
           onCreateSeason={handleSeasonCreated}
         />
+      ) : currentPage === "super-admin" ? (
+        <SuperAdminPanel />
       ) : (
         <AdminDashboard
           players={players}
