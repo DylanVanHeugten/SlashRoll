@@ -29,6 +29,58 @@ function formatDamage(number) {
   }
 }
 
+function Modal({ isOpen, onClose, title, message, type = "info" }) {
+  if (!isOpen) return null;
+
+  const getModalIcon = () => {
+    switch (type) {
+      case "error":
+        return "⚠️";
+      case "success":
+        return "✅";
+      case "warning":
+        return "⚠️";
+      default:
+        return "ℹ️";
+    }
+  };
+
+  const getModalClass = () => {
+    switch (type) {
+      case "error":
+        return "modal-error";
+      case "success":
+        return "modal-success";
+      case "warning":
+        return "modal-warning";
+      default:
+        return "modal-info";
+    }
+  };
+
+  return React.createElement(
+    "div",
+    { className: "modal-overlay", onClick: onClose },
+    React.createElement(
+      "div",
+      { className: `modal-content ${getModalClass()}`, onClick: (e) => e.stopPropagation() },
+      React.createElement(
+        "div",
+        { className: "modal-header" },
+        React.createElement("span", { className: "modal-icon" }, getModalIcon()),
+        React.createElement("h3", { className: "modal-title" }, title || "Notification"),
+        React.createElement("button", { className: "modal-close", onClick: onClose }, "×")
+      ),
+      React.createElement("div", { className: "modal-body" }, message),
+      React.createElement(
+        "div",
+        { className: "modal-footer" },
+        React.createElement("button", { className: "modal-btn", onClick: onClose }, "OK")
+      )
+    )
+  );
+}
+
 function SeasonSelector({
   seasons,
   currentSeason,
@@ -36,6 +88,7 @@ function SeasonSelector({
   onCreateSeason,
   showCreateButton = false,
   currentTeam,
+  showModal,
 }) {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newSeasonName, setNewSeasonName] = useState("");
@@ -64,10 +117,10 @@ function SeasonSelector({
         setNewSeasonName("");
         setShowCreateForm(false);
       } else {
-        alert("Failed to create season");
+        showModal("Failed to create season", "Error", "error");
       }
     } catch (error) {
-      alert("Network error occurred");
+      showModal("Network error occurred", "Error", "error");
     } finally {
       setCreating(false);
     }
@@ -128,6 +181,7 @@ function TeamSelector({
   onTeamChange,
   onCreateTeam,
   showCreateButton = false,
+  showModal,
 }) {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newTeamName, setNewTeamName] = useState("");
@@ -159,11 +213,11 @@ function TeamSelector({
         setShowCreateForm(false);
       } else {
         const error = await response.json();
-        alert(`Failed to create team: ${error.error}`);
+        showModal(`Failed to create team: ${error.error}`, "Error", "error");
       }
     } catch (error) {
       console.error("Error creating team:", error);
-      alert("Error creating team");
+      showModal("Error creating team", "Error", "error");
     } finally {
       setCreating(false);
     }
@@ -243,31 +297,36 @@ function TeamSelector({
 function Navigation({ currentPage, onPageChange, user }) {
   return (
     <nav className="navigation">
-      <button
-        className={currentPage === "players" ? "active" : ""}
-        onClick={() => onPageChange("players")}
-      >
-        Players
-      </button>
-      <button
-        className={currentPage === "battles" ? "active" : ""}
-        onClick={() => onPageChange("battles")}
-      >
-        Battles
-      </button>
-      <button
-        className={currentPage === "manage" ? "active" : ""}
-        onClick={() => onPageChange("manage")}
-      >
-        Administrator Dashboard
-      </button>
-      {user?.is_superadmin && (
+      {user?.is_superadmin ? (
+        // Superuser only sees Super Admin panel
         <button
           className={currentPage === "super-admin" ? "active" : ""}
           onClick={() => onPageChange("super-admin")}
         >
           Super Admin
         </button>
+      ) : (
+        // Regular users see all other panels
+        <>
+          <button
+            className={currentPage === "players" ? "active" : ""}
+            onClick={() => onPageChange("players")}
+          >
+            Players
+          </button>
+          <button
+            className={currentPage === "battles" ? "active" : ""}
+            onClick={() => onPageChange("battles")}
+          >
+            Battles
+          </button>
+          <button
+            className={currentPage === "manage" ? "active" : ""}
+            onClick={() => onPageChange("manage")}
+          >
+            Administrator Dashboard
+          </button>
+        </>
       )}
     </nav>
   );
@@ -486,7 +545,7 @@ function PlayerForm({ onPlayerAdded, currentSeason, currentTeam }) {
   );
 }
 
-function PlayerList({ players, onPlayerDeleted, onAddToRoster, roster }) {
+function PlayerList({ players, onPlayerDeleted, onAddToRoster, roster, showModal }) {
   const [deletingId, setDeletingId] = useState(null);
 
   const handleDelete = async (playerId) => {
@@ -500,10 +559,10 @@ function PlayerList({ players, onPlayerDeleted, onAddToRoster, roster }) {
       if (response.ok) {
         onPlayerDeleted(playerId);
       } else {
-        alert("Failed to delete player");
+        showModal("Failed to delete player", "Error", "error");
       }
     } catch (error) {
-      alert("Network error occurred");
+      showModal("Network error occurred", "Error", "error");
     } finally {
       setDeletingId(null);
     }
@@ -511,7 +570,7 @@ function PlayerList({ players, onPlayerDeleted, onAddToRoster, roster }) {
 
   const handleAddToRoster = (playerId) => {
     if (roster.length >= 20) {
-      alert("Roster is full (20 players maximum)");
+      showModal("Roster is full (20 players maximum)", "Warning", "warning");
       return;
     }
 
@@ -957,11 +1016,12 @@ function BattleEdit({ battle, onBattleUpdated, onCancel, currentSeason }) {
   );
 }
 
-function BattleList({ battles, onBattleDeleted, onBattleUpdated, currentSeason }) {
+function BattleList({ battles, onBattleDeleted, onBattleUpdated, currentSeason, showModal }) {
   const [deletingId, setDeletingId] = useState(null);
   const [editingBattle, setEditingBattle] = useState(null);
 
   const handleDelete = async (battleId) => {
+    // TODO: Convert to modal confirmation
     if (!confirm("Are you sure you want to delete this battle?")) return;
 
     setDeletingId(battleId);
@@ -974,10 +1034,10 @@ function BattleList({ battles, onBattleDeleted, onBattleUpdated, currentSeason }
       if (response.ok) {
         onBattleDeleted(battleId);
       } else {
-        alert("Failed to delete battle");
+        showModal("Failed to delete battle", "Error", "error");
       }
     } catch (error) {
-      alert("Network error occurred");
+      showModal("Network error occurred", "Error", "error");
     } finally {
       setDeletingId(null);
     }
@@ -1529,7 +1589,7 @@ function AdminDashboard({
 }
 
 
-function SuperAdminPanel() {
+function SuperAdminPanel({ showModal }) {
   const [users, setUsers] = useState([]);
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -1589,7 +1649,7 @@ function SuperAdminPanel() {
   const handleCreateUser = async (e) => {
     e.preventDefault();
     if (!newUser.username.trim() || !newUser.password.trim()) {
-      alert("Username and password are required");
+      showModal("Username and password are required", "Error", "error");
       return;
     }
 
@@ -1608,13 +1668,13 @@ function SuperAdminPanel() {
         setUsers([...users, createdUser]);
         setNewUser({ username: "", password: "" });
         setShowCreateForm(false);
-        alert("User created successfully");
+        showModal("User created successfully", "Success", "success");
       } else {
         const errorData = await response.json();
-        alert(errorData.error || "Failed to create user");
+        showModal(errorData.error || "Failed to create user", "Error", "error");
       }
     } catch (error) {
-      alert("Network error occurred");
+      showModal("Network error occurred", "Error", "error");
     } finally {
       setCreating(false);
     }
@@ -1630,12 +1690,12 @@ function SuperAdminPanel() {
 
       if (response.ok) {
         setUsers(users.filter(user => user.id !== userId));
-        alert("User deleted successfully");
+        showModal("User deleted successfully", "Success", "success");
       } else {
-        alert("Failed to delete user");
+        showModal("Failed to delete user", "Error", "error");
       }
     } catch (error) {
-      alert("Network error occurred");
+      showModal("Network error occurred", "Error", "error");
     }
   };
 
@@ -1697,7 +1757,7 @@ function SuperAdminPanel() {
 
   const handleUpdateUser = async (userId) => {
     if (!editForm.username.trim()) {
-      alert("Username cannot be empty");
+      showModal("Username cannot be empty", "Error", "error");
       return;
     }
 
@@ -1721,7 +1781,7 @@ function SuperAdminPanel() {
 
       if (!userResponse.ok) {
         const errorData = await userResponse.json();
-        alert(errorData.error || "Failed to update user");
+        showModal(errorData.error || "Failed to update user", "Error", "error");
         return;
       }
 
@@ -1741,13 +1801,13 @@ function SuperAdminPanel() {
         ));
         setEditingUser(null);
         setEditForm({ username: "", password: "", team_ids: [] });
-        alert("User updated successfully");
+        showModal("User updated successfully", "Success", "success");
       } else {
         const errorData = await teamResponse.json();
-        alert(errorData.error || "Failed to update user teams");
+        showModal(errorData.error || "Failed to update user teams", "Error", "error");
       }
     } catch (error) {
-      alert("Network error occurred");
+      showModal("Network error occurred", "Error", "error");
     } finally {
       setUpdating(false);
     }
@@ -1757,7 +1817,7 @@ function SuperAdminPanel() {
   const handleCreateTeam = async (e) => {
     e.preventDefault();
     if (!newTeam.name.trim()) {
-      alert("Team name is required");
+      showModal("Team name is required", "Error", "error");
       return;
     }
 
@@ -1773,16 +1833,16 @@ function SuperAdminPanel() {
 
       if (response.ok) {
         const createdTeam = await response.json();
-        onTeamCreated(createdTeam);
+        setTeams([...teams, createdTeam]);
         setNewTeam({ name: "", description: "" });
         setShowCreateTeamForm(false);
-        alert("Team created successfully");
+        showModal("Team created successfully", "Success", "success");
       } else {
         const errorData = await response.json();
-        alert(errorData.error || "Failed to create team");
+        showModal(errorData.error || "Failed to create team", "Error", "error");
       }
     } catch (error) {
-      alert("Network error occurred");
+      showModal("Network error occurred", "Error", "error");
     } finally {
       setCreatingTeam(false);
     }
@@ -1800,7 +1860,7 @@ function SuperAdminPanel() {
 
   const handleUpdateTeam = async (teamId) => {
     if (!editTeamForm.name.trim()) {
-      alert("Team name cannot be empty");
+      showModal("Team name cannot be empty", "Error", "error");
       return;
     }
 
@@ -1826,13 +1886,13 @@ function SuperAdminPanel() {
         ));
         setEditingTeam(null);
         setEditTeamForm({ name: "", description: "" });
-        alert("Team updated successfully");
+        showModal("Team updated successfully", "Success", "success");
       } else {
         const errorData = await response.json();
-        alert(errorData.error || "Failed to update team");
+        showModal(errorData.error || "Failed to update team", "Error", "error");
       }
     } catch (error) {
-      alert("Network error occurred");
+      showModal("Network error occurred", "Error", "error");
     } finally {
       setUpdatingTeam(false);
     }
@@ -1848,13 +1908,13 @@ function SuperAdminPanel() {
 
       if (response.ok) {
         setTeams(teams.filter(team => team.id !== teamId));
-        alert("Team deleted successfully");
+        showModal("Team deleted successfully", "Success", "success");
       } else {
         const errorData = await response.json();
-        alert(errorData.error || "Failed to delete team");
+        showModal(errorData.error || "Failed to delete team", "Error", "error");
       }
     } catch (error) {
-      alert("Network error occurred");
+      showModal("Network error occurred", "Error", "error");
     }
   };
 
@@ -2229,13 +2289,29 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState("players");
+  const [modal, setModal] = useState({ isOpen: false, title: "", message: "", type: "info" });
+
+  const showModal = (message, title = "Notification", type = "info") => {
+    setModal({ isOpen: true, title, message, type });
+  };
+
+  const closeModal = () => {
+    setModal({ isOpen: false, title: "", message: "", type: "info" });
+  };
 
   const handlePageChange = (page) => {
     // Prevent non-superadmins from accessing super-admin page
     if (page === "super-admin" && !user?.is_superadmin) {
-      alert("Access denied: Super Admin privileges required");
+      showModal("Access denied: Super Admin privileges required", "Access Denied", "error");
       return;
     }
+    
+    // Prevent superadmins from accessing non-admin pages
+    if (user?.is_superadmin && page !== "super-admin") {
+      showModal("Access denied: Superusers can only access the Super Admin panel", "Access Denied", "error");
+      return;
+    }
+    
     setCurrentPage(page);
   };
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -2463,9 +2539,20 @@ function App() {
   }, [isAuthenticated, authLoading]);
 
   useEffect(() => {
-    // Redirect non-superadmins away from super-admin page
-    if (currentPage === "super-admin" && user && !user.is_superadmin) {
-      setCurrentPage("players");
+    if (user) {
+      if (user.is_superadmin) {
+        // Superusers can only access super-admin page
+        if (currentPage !== "super-admin") {
+          setCurrentPage("super-admin");
+        }
+        // Superusers don't need team-dependent data, so set loading to false
+        setLoading(false);
+      } else {
+        // Regular users cannot access super-admin page
+        if (currentPage === "super-admin") {
+          setCurrentPage("players");
+        }
+      }
     }
   }, [user, currentPage]);
 
@@ -2535,7 +2622,7 @@ function App() {
 
   const handleAddToRoster = async (playerId, position) => {
     if (!currentSeason) {
-      alert("Please select a season first");
+      showModal("Please select a season first", "Error", "error");
       return;
     }
 
@@ -2563,14 +2650,14 @@ function App() {
         fetchPlayers();
       } else {
         const errorData = await response.json();
-        alert(
+        showModal(
           `Failed to add player to roster: ${
             errorData.error || "Unknown error"
-          }`
+          }`, "Error", "error"
         );
       }
     } catch (error) {
-      alert("Network error occurred");
+      showModal("Network error occurred", "Error", "error");
     }
   };
 
@@ -2598,14 +2685,14 @@ function App() {
         fetchPlayers();
       } else {
         const errorData = await response.json();
-        alert(
+        showModal(
           `Failed to remove player from roster: ${
             errorData.error || "Unknown error"
-          }`
+          }`, "Error", "error"
         );
       }
     } catch (error) {
-      alert("Network error occurred");
+      showModal("Network error occurred", "Error", "error");
     }
   };
 
@@ -2625,10 +2712,10 @@ function App() {
       if (response.ok) {
         fetchRoster();
       } else {
-        alert("Failed to move player");
+        showModal("Failed to move player", "Error", "error");
       }
     } catch (error) {
-      alert("Network error occurred");
+      showModal("Network error occurred", "Error", "error");
     }
   };
 
@@ -2639,7 +2726,7 @@ function App() {
       const player2 = roster.find((p) => p.id === playerId2);
 
       if (!player1 || !player2) {
-        alert("Error: Could not find players to swap");
+        showModal("Error: Could not find players to swap", "Error", "error");
         return;
       }
 
@@ -2660,10 +2747,10 @@ function App() {
         fetchRoster();
       } else {
         const errorData = await response.json();
-        alert(`Failed to swap players: ${errorData.error || "Unknown error"}`);
+        showModal(`Failed to swap players: ${errorData.error || "Unknown error"}`, "Error", "error");
       }
     } catch (error) {
-      alert("Network error occurred");
+      showModal("Network error occurred", "Error", "error");
     }
   };
 
@@ -2737,15 +2824,19 @@ function App() {
       <div className="header">
         <h1>Player Management System</h1>
         <div className="header-controls">
-          <TeamSelector
-            teams={teams}
-            currentTeam={currentTeam}
-            onTeamChange={handleTeamChange}
-            onCreateTeam={handleTeamCreated}
-            showCreateButton={false}
-          />
+          {!user?.is_superadmin && (
+            <TeamSelector
+              teams={teams}
+              currentTeam={currentTeam}
+              onTeamChange={handleTeamChange}
+              onCreateTeam={handleTeamCreated}
+              showCreateButton={false}
+              showModal={showModal}
+            />
+          )}
           <div className="user-info">
             <span>Welcome, {user?.username}</span>
+            {user?.is_superadmin && <span className="superadmin-badge">Super Admin</span>}
             <button onClick={handleLogout} className="logout-btn">
               Logout
             </button>
@@ -2755,7 +2846,9 @@ function App() {
       <Navigation currentPage={currentPage} onPageChange={handlePageChange} user={user} />
       {error && <div className="error">{error}</div>}
 
-      {!currentTeam ? (
+      {user?.is_superadmin ? (
+        <SuperAdminPanel showModal={showModal} />
+      ) : !currentTeam ? (
         <div className="no-team-message">
           <p>Please select a team to continue.</p>
         </div>
@@ -2767,6 +2860,7 @@ function App() {
               onPlayerDeleted={handlePlayerDeleted}
               onAddToRoster={handleAddToRoster}
               roster={roster}
+              showModal={showModal}
             />
             <ActiveRoster
               roster={roster}
@@ -2792,6 +2886,7 @@ function App() {
               onSeasonChange={handleSeasonChange}
               onCreateSeason={handleSeasonCreated}
               currentTeam={currentTeam}
+              showModal={showModal}
             />
           </div>
         ) : (
@@ -2802,6 +2897,7 @@ function App() {
               onSeasonChange={handleSeasonChange}
               onCreateSeason={handleSeasonCreated}
               currentTeam={currentTeam}
+              showModal={showModal}
             />
             <BattleForm
               roster={roster}
@@ -2814,11 +2910,10 @@ function App() {
               onBattleDeleted={handleBattleDeleted}
               onBattleUpdated={handleBattleUpdated}
               currentSeason={currentSeason}
+              showModal={showModal}
             />
           </div>
         )
-      ) : currentPage === "super-admin" ? (
-        <SuperAdminPanel />
       ) : (
         <AdminDashboard
           players={players}
@@ -2836,6 +2931,13 @@ function App() {
           currentTeam={currentTeam}
         />
       )}
+      <Modal
+        isOpen={modal.isOpen}
+        onClose={closeModal}
+        title={modal.title}
+        message={modal.message}
+        type={modal.type}
+      />
     </div>
   );
 }
