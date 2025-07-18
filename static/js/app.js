@@ -656,7 +656,7 @@ function BattleForm({ roster, onBattleAdded, currentSeason, currentTeam }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!enemyName.trim() || !enemyPowerRanking || !ourScore || !theirScore) {
+    if (!enemyName.trim() || !enemyPowerRanking || !ourScore || theirScore === "") {
       setError("All battle fields are required");
       return;
     }
@@ -2364,15 +2364,22 @@ function App() {
         if (!currentTeam && data.length > 0) {
           setCurrentTeam(data[0]);
         }
+        
+        // If user has no teams, set loading to false to show the "no teams" message
+        if (data.length === 0) {
+          setLoading(false);
+        }
       } else {
         if (response.status === 401) {
           window.location.href = "/login";
           return;
         }
         setError("Failed to fetch teams");
+        setLoading(false);
       }
     } catch (error) {
       setError("Network error occurred");
+      setLoading(false);
     }
   };
 
@@ -2850,7 +2857,18 @@ function App() {
         <SuperAdminPanel showModal={showModal} />
       ) : !currentTeam ? (
         <div className="no-team-message">
-          <p>Please select a team to continue.</p>
+          {teams.length === 0 ? (
+            <div>
+              <h3>No Teams Available</h3>
+              <p>You are not currently assigned to any teams. Please contact your administrator to be assigned to a team.</p>
+              <p>Once you have been assigned to a team, you'll be able to manage players, battles, and view statistics.</p>
+            </div>
+          ) : (
+            <div>
+              <h3>Select a Team</h3>
+              <p>Please select a team from the dropdown above to continue.</p>
+            </div>
+          )}
         </div>
       ) : currentPage === "players" ? (
         <div className="main-content">

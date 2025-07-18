@@ -2593,9 +2593,30 @@ button:hover {
 
 .no-team-message {
     text-align: center;
-    padding: 40px;
+    padding: 60px 40px;
     color: #666;
     font-size: 16px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin: 20px;
+    max-width: 600px;
+    margin: 20px auto;
+}
+
+.no-team-message h3 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+.no-team-message p {
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
+
+.no-team-message p:last-child {
+    margin-bottom: 0;
 }
 
 @media (max-width: 768px) {

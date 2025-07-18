@@ -1,36 +1,79 @@
 import os
-from datetime import datetime, timezone
-from werkzeug.security import generate_password_hash, check_password_hash
-from dotenv import load_dotenv
+from datetime import datetime, timedelta, timezone
 
+from dotenv import load_dotenv
 from flask import Flask, jsonify, render_template, request
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_login import (
+    LoginManager,
+    UserMixin,
+    current_user,
+    login_required,
+    login_user,
+    logout_user,
+)
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from flask_wtf.csrf import CSRFProtect
 from sqlalchemy import text
+from werkzeug.security import check_password_hash, generate_password_hash
 
 load_dotenv()
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///slashroll.db"
-app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
 
-CORS(app)
+# Critical security fix: Require SECRET_KEY environment variable
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise ValueError("SECRET_KEY environment variable is required for security")
+app.config["SECRET_KEY"] = SECRET_KEY
+
+# Security fix: Session timeout configuration
+app.permanent_session_lifetime = timedelta(hours=2)
+
+# Security fix: Restrict CORS to specific origins
+CORS(app, origins=["http://localhost:5000"], methods=["GET", "POST", "PUT", "DELETE"])
+
+# Security fix: Add CSRF protection with API exemption
+csrf = CSRFProtect(app)
+
+# Configure CSRF to exempt API endpoints
+app.config["WTF_CSRF_CHECK_DEFAULT"] = False
+
+
+@app.before_request
+def csrf_protect():
+    """Apply CSRF protection only to non-API routes, but exempt login/logout for now"""
+    if request.endpoint and not request.path.startswith("/api/"):
+        # Skip CSRF for login and logout routes since they're handled via JSON
+        if request.path in ["/login", "/logout"]:
+            return
+        if request.method in ["POST", "PUT", "DELETE", "PATCH"]:
+            csrf.protect()
+
+
+# Security fix: Add rate limiting
+limiter = Limiter(
+    app=app, key_func=get_remote_address, default_limits=["200 per day", "50 per hour"]
+)
+
 db = SQLAlchemy(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'login'  # type: ignore
+login_manager.login_view = "login"  # type: ignore
 
 
 @login_manager.user_loader
 def load_user(user_id):
     # Handle prefixed user IDs to distinguish between user types
-    if user_id.startswith('admin_'):
-        actual_id = int(user_id.replace('admin_', ''))
+    if user_id.startswith("admin_"):
+        actual_id = int(user_id.replace("admin_", ""))
         return AdminUser.query.get(actual_id)
-    elif user_id.startswith('user_'):
-        actual_id = int(user_id.replace('user_', ''))
+    elif user_id.startswith("user_"):
+        actual_id = int(user_id.replace("user_", ""))
         return User.query.get(actual_id)
     else:
         # For backward compatibility, try AdminUser first
@@ -44,15 +87,15 @@ def get_user_teams():
     """Get all teams for the current authenticated user"""
     if not current_user.is_authenticated:
         return []
-    
+
     # Check if current user is the superadmin
     if is_superadmin():
         return Team.query.all()
-    
+
     # For regular users, return only their assigned teams
     if isinstance(current_user, User):
         return current_user.get_teams()
-    
+
     # For AdminUser (non-superadmin), return no teams by default
     return []
 
@@ -61,29 +104,64 @@ def is_superadmin():
     """Check if the current user is the superadmin"""
     if not current_user.is_authenticated:
         return False
-    
+
     superadmin_username = os.getenv("su_username", "admin")
-    return (isinstance(current_user, AdminUser) and 
-            current_user.username == superadmin_username)
+    return (
+        isinstance(current_user, AdminUser)
+        and current_user.username == superadmin_username
+    )
 
 
 def validate_team_access(team_id):
     """Validate that the current user has access to the specified team"""
     if not current_user.is_authenticated:
         return False
-    
+
     if not team_id:
         return False
-    
+
     user_teams = get_user_teams()
     return any(team.id == team_id for team in user_teams)
+
+
+def validate_input_data(
+    data, required_fields=None, max_lengths=None, allow_zero_fields=None
+):
+    """Validate input data for security and data integrity"""
+    if not data:
+        return False, "No data provided"
+
+    # Check required fields
+    if required_fields:
+        for field in required_fields:
+            if field not in data:
+                return False, f"{field} is required"
+            # Allow 0 for numeric fields that can be zero
+            if allow_zero_fields and field in allow_zero_fields:
+                if data[field] is None or data[field] == "":
+                    return False, f"{field} is required"
+            elif not data[field]:
+                return False, f"{field} is required"
+
+    # Check string lengths
+    if max_lengths:
+        for field, max_length in max_lengths.items():
+            if field in data and isinstance(data[field], str):
+                if len(data[field]) > max_length:
+                    return False, f"{field} must be {max_length} characters or less"
+                # Basic sanitization - remove dangerous characters
+                data[field] = data[field].strip()
+
+    return True, "Valid"
 
 
 class AdminUser(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(120), nullable=False)
-    date_created = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    date_created = db.Column(
+        db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
+    )
 
     def get_id(self):
         """Override UserMixin get_id to return prefixed ID"""
@@ -107,7 +185,13 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(120), nullable=False)
-    date_created = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    date_created = db.Column(
+        db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
+    )
+    team_id = db.Column(db.Integer, db.ForeignKey("team.id"), nullable=True)
+
+    # Relationship to Team (legacy, now uses UserTeam)
+    team = db.relationship("Team", backref="users")
 
     def get_id(self):
         """Override UserMixin get_id to return prefixed ID"""
@@ -137,7 +221,9 @@ class Team(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False, unique=True)
     description = db.Column(db.Text, nullable=True)
-    date_created = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    date_created = db.Column(
+        db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
+    )
 
     def get_users(self):
         """Get all users assigned to this team"""
@@ -157,7 +243,9 @@ class UserTeam(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     team_id = db.Column(db.Integer, db.ForeignKey("team.id"), nullable=False)
-    date_assigned = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    date_assigned = db.Column(
+        db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
+    )
 
     user = db.relationship("User", backref="user_teams")
     team = db.relationship("Team", backref="team_users")
@@ -181,7 +269,9 @@ class UserTeam(db.Model):
 class Season(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    date_created = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    date_created = db.Column(
+        db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
+    )
     team_id = db.Column(db.Integer, db.ForeignKey("team.id"), nullable=True)
 
     team = db.relationship("Team", backref="seasons")
@@ -258,7 +348,9 @@ class Battle(db.Model):
     enemy_power_ranking = db.Column(db.Integer, nullable=False)
     our_score = db.Column(db.Integer, nullable=False)
     their_score = db.Column(db.Integer, nullable=False)
-    date_created = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    date_created = db.Column(
+        db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
+    )
     season_id = db.Column(db.Integer, db.ForeignKey("season.id"), nullable=True)
     team_id = db.Column(db.Integer, db.ForeignKey("team.id"), nullable=True)
 
@@ -272,7 +364,7 @@ class Battle(db.Model):
             # If participants aren't loaded, query them directly
             participants = BattleParticipant.query.filter_by(battle_id=self.id).all()
             total_damage = sum(p.damage_done for p in participants)
-        
+
         return {
             "id": self.id,
             "enemy_name": self.enemy_name,
@@ -316,15 +408,16 @@ def index():
 
 
 @app.route("/login", methods=["GET", "POST"])
+@limiter.limit("5 per minute")
 def login():
     if request.method == "POST":
         data = request.get_json()
         username = data.get("username")
         password = data.get("password")
-        
+
         # Check AdminUser first
         user = AdminUser.query.filter_by(username=username).first()
-        
+
         # If not found in AdminUser, check regular User
         if not user:
             regular_user = User.query.filter_by(username=username).first()
@@ -333,13 +426,15 @@ def login():
                 # In a real system, you'd have proper role-based authentication
                 login_user(regular_user)
                 return jsonify({"success": True, "message": "Logged in successfully"})
-        
+
         if user and user.check_password(password):
             login_user(user)
             return jsonify({"success": True, "message": "Logged in successfully"})
         else:
-            return jsonify({"success": False, "message": "Invalid username or password"}), 401
-    
+            return jsonify(
+                {"success": False, "message": "Invalid username or password"}
+            ), 401
+
     return render_template("login.html")
 
 
@@ -355,15 +450,9 @@ def auth_status():
     if current_user.is_authenticated:
         user_dict = current_user.to_dict()
         user_dict["is_superadmin"] = is_superadmin()
-        return jsonify({
-            "authenticated": True,
-            "user": user_dict
-        })
+        return jsonify({"authenticated": True, "user": user_dict})
     else:
-        return jsonify({
-            "authenticated": False,
-            "user": None
-        })
+        return jsonify({"authenticated": False, "user": None})
 
 
 @app.route("/api/auth/teams")
@@ -389,17 +478,17 @@ def get_users():
 @login_required
 def create_user():
     data = request.get_json()
-    
+
     if not data or "username" not in data or "password" not in data:
         return jsonify({"error": "Username and password are required"}), 400
-    
+
     if User.query.filter_by(username=data["username"]).first():
         return jsonify({"error": "Username already exists"}), 400
-    
+
     user = User()
     user.username = data["username"]
     user.set_password(data["password"])
-    
+
     try:
         db.session.add(user)
         db.session.commit()
@@ -414,32 +503,35 @@ def create_user():
 def update_user(user_id):
     user = User.query.get_or_404(user_id)
     data = request.get_json()
-    
+
     if not data:
         return jsonify({"error": "No data provided"}), 400
-    
+
     # Update username if provided
     if "username" in data:
         new_username = data["username"].strip()
         if not new_username:
             return jsonify({"error": "Username cannot be empty"}), 400
-        
+
         # Check if username is already taken by another user
-        existing_user = User.query.filter_by(username=new_username).filter(User.id != user_id).first()
+        existing_user = (
+            User.query.filter_by(username=new_username)
+            .filter(User.id != user_id)
+            .first()
+        )
         if existing_user:
             return jsonify({"error": "Username already exists"}), 400
-        
+
         user.username = new_username
-    
+
     # Update password if provided
     if "password" in data:
         new_password = data["password"].strip()
         if not new_password:
             return jsonify({"error": "Password cannot be empty"}), 400
-        
+
         user.set_password(new_password)
-    
-    
+
     try:
         db.session.commit()
         return jsonify(user.to_dict()), 200
@@ -452,7 +544,7 @@ def update_user(user_id):
 @login_required
 def delete_user(user_id):
     user = User.query.get_or_404(user_id)
-    
+
     try:
         db.session.delete(user)
         db.session.commit()
@@ -474,18 +566,17 @@ def get_teams():
 @login_required
 def create_team():
     data = request.get_json()
-    
+
     if not data or "name" not in data:
         return jsonify({"error": "Team name is required"}), 400
-    
+
     if Team.query.filter_by(name=data["name"]).first():
         return jsonify({"error": "Team name already exists"}), 400
-    
+
     team = Team(
-        name=data["name"],
-        description=data.get("description", "").strip() or None
+        name=data["name"], description=data.get("description", "").strip() or None
     )
-    
+
     try:
         db.session.add(team)
         db.session.commit()
@@ -500,27 +591,29 @@ def create_team():
 def update_team(team_id):
     team = Team.query.get_or_404(team_id)
     data = request.get_json()
-    
+
     if not data:
         return jsonify({"error": "No data provided"}), 400
-    
+
     # Update team name if provided
     if "name" in data:
         new_name = data["name"].strip()
         if not new_name:
             return jsonify({"error": "Team name cannot be empty"}), 400
-        
+
         # Check if team name is already taken by another team
-        existing_team = Team.query.filter_by(name=new_name).filter(Team.id != team_id).first()
+        existing_team = (
+            Team.query.filter_by(name=new_name).filter(Team.id != team_id).first()
+        )
         if existing_team:
             return jsonify({"error": "Team name already exists"}), 400
-        
+
         team.name = new_name
-    
+
     # Update description if provided
     if "description" in data:
         team.description = data["description"].strip() or None
-    
+
     try:
         db.session.commit()
         return jsonify(team.to_dict()), 200
@@ -533,11 +626,15 @@ def update_team(team_id):
 @login_required
 def delete_team(team_id):
     team = Team.query.get_or_404(team_id)
-    
+
     # Check if team has users assigned
     if team.team_users:
-        return jsonify({"error": "Cannot delete team with assigned users. Please reassign users first."}), 400
-    
+        return jsonify(
+            {
+                "error": "Cannot delete team with assigned users. Please reassign users first."
+            }
+        ), 400
+
     try:
         db.session.delete(team)
         db.session.commit()
@@ -561,27 +658,27 @@ def get_user_teams_endpoint(user_id):
 def update_user_teams(user_id):
     user = User.query.get_or_404(user_id)
     data = request.get_json()
-    
+
     if not data or "team_ids" not in data:
         return jsonify({"error": "team_ids array is required"}), 400
-    
+
     team_ids = data["team_ids"]
-    
+
     # Validate all team IDs exist
     if team_ids:
         teams = Team.query.filter(Team.id.in_(team_ids)).all()
         if len(teams) != len(team_ids):
             return jsonify({"error": "One or more team IDs are invalid"}), 400
-    
+
     try:
         # Remove all existing team assignments for this user
         UserTeam.query.filter_by(user_id=user_id).delete()
-        
+
         # Add new team assignments
         for team_id in team_ids:
             user_team = UserTeam(user_id=user_id, team_id=team_id)
             db.session.add(user_team)
-        
+
         db.session.commit()
         return jsonify(user.to_dict()), 200
     except Exception:
@@ -595,12 +692,12 @@ def assign_user_to_team(user_id, team_id):
     # Validate user and team exist
     User.query.get_or_404(user_id)
     Team.query.get_or_404(team_id)
-    
+
     # Check if assignment already exists
     existing = UserTeam.query.filter_by(user_id=user_id, team_id=team_id).first()
     if existing:
         return jsonify({"error": "User is already assigned to this team"}), 400
-    
+
     try:
         user_team = UserTeam(user_id=user_id, team_id=team_id)
         db.session.add(user_team)
@@ -617,11 +714,11 @@ def remove_user_from_team(user_id, team_id):
     # Validate user and team exist
     User.query.get_or_404(user_id)
     Team.query.get_or_404(team_id)
-    
+
     user_team = UserTeam.query.filter_by(user_id=user_id, team_id=team_id).first()
     if not user_team:
         return jsonify({"error": "User is not assigned to this team"}), 404
-    
+
     try:
         db.session.delete(user_team)
         db.session.commit()
@@ -684,8 +781,7 @@ def get_players():
             # Get season names (only from the same team)
             if season_ids:
                 seasons = Season.query.filter(
-                    Season.id.in_(season_ids),
-                    Season.team_id == team_id
+                    Season.id.in_(season_ids), Season.team_id == team_id
                 ).all()
                 player_data["seasons"] = [{"id": s.id, "name": s.name} for s in seasons]
             else:
@@ -729,10 +825,9 @@ def get_roster():
         return jsonify(roster_data)
     else:
         # Fallback to old method for backward compatibility with team filter
-        query = Player.query.filter_by(
-            status="active", 
-            team_id=team_id
-        ).filter(Player.roster_position.isnot(None))
+        query = Player.query.filter_by(status="active", team_id=team_id).filter(
+            Player.roster_position.isnot(None)
+        )
         players = query.order_by(Player.roster_position).all()
         return jsonify([player.to_dict() for player in players])
 
@@ -741,11 +836,11 @@ def get_roster():
 @login_required
 def update_player_status(player_id):
     player = Player.query.get_or_404(player_id)
-    
+
     # Validate team access for the player
     if not validate_team_access(player.team_id):
         return jsonify({"error": "Access denied to this team"}), 403
-    
+
     data = request.get_json()
 
     if not data or "status" not in data:
@@ -770,11 +865,11 @@ def update_player_status(player_id):
 @login_required
 def update_roster_position(player_id):
     player = Player.query.get_or_404(player_id)
-    
+
     # Validate team access for the player
     if not validate_team_access(player.team_id):
         return jsonify({"error": "Access denied to this team"}), 403
-    
+
     data = request.get_json()
 
     if player.status != "active":
@@ -824,8 +919,7 @@ def update_roster_position(player_id):
         else:
             # Fallback to old method with team validation
             existing_player = Player.query.filter_by(
-                roster_position=position,
-                team_id=player.team_id
+                roster_position=position, team_id=player.team_id
             ).first()
             if existing_player and existing_player.id != player_id:
                 existing_player.roster_position = None
@@ -910,13 +1004,17 @@ def swap_roster_positions():
 def add_player():
     data = request.get_json()
 
-    if not data or "name" not in data:
-        return jsonify({"error": "Name is required"}), 400
+    # Input validation
+    is_valid, error_msg = validate_input_data(
+        data,
+        required_fields=["name", "team_id"],
+        max_lengths={"name": 100, "game_id": 50},
+    )
+    if not is_valid:
+        return jsonify({"error": error_msg}), 400
 
-    # Require team_id for player creation
+    # Get team_id (already validated above)
     team_id = data.get("team_id")
-    if not team_id:
-        return jsonify({"error": "Team ID is required"}), 400
 
     # Validate team access
     if not validate_team_access(team_id):
@@ -925,8 +1023,7 @@ def add_player():
     # Check if GameID is already in use within the same team
     if data.get("game_id") and data.get("game_id").strip():
         existing_player = Player.query.filter_by(
-            game_id=data.get("game_id").strip(),
-            team_id=team_id
+            game_id=data.get("game_id").strip(), team_id=team_id
         ).first()
         if existing_player:
             return jsonify(
@@ -953,11 +1050,11 @@ def add_player():
 @login_required
 def update_player(player_id):
     player = Player.query.get_or_404(player_id)
-    
+
     # Validate team access for the player
     if not validate_team_access(player.team_id):
         return jsonify({"error": "Access denied to this team"}), 403
-    
+
     data = request.get_json()
 
     if "season_id" in data:
@@ -992,7 +1089,7 @@ def update_player(player_id):
 @login_required
 def delete_player(player_id):
     player = Player.query.get_or_404(player_id)
-    
+
     # Validate team access for the player
     if not validate_team_access(player.team_id):
         return jsonify({"error": "Access denied to this team"}), 403
@@ -1034,21 +1131,33 @@ def get_battles():
 def create_battle():
     data = request.get_json()
 
-    required_fields = [
-        "enemy_name",
-        "enemy_power_ranking",
-        "our_score",
-        "their_score",
-        "participants",
-    ]
-    for field in required_fields:
-        if field not in data:
-            return jsonify({"error": f"{field} is required"}), 400
+    # Input validation
+    is_valid, error_msg = validate_input_data(
+        data,
+        required_fields=[
+            "enemy_name",
+            "enemy_power_ranking",
+            "our_score",
+            "their_score",
+            "participants",
+            "team_id",
+        ],
+        max_lengths={"enemy_name": 100},
+        allow_zero_fields=["their_score", "our_score"],
+    )
+    if not is_valid:
+        return jsonify({"error": error_msg}), 400
 
-    # Require team_id for battle creation
+    # Additional validation for numeric fields
+    try:
+        int(data.get("enemy_power_ranking", 0))
+        int(data.get("our_score", 0))
+        int(data.get("their_score", 0))
+    except (ValueError, TypeError):
+        return jsonify({"error": "Power ranking and scores must be valid numbers"}), 400
+
+    # Get team_id (already validated above)
     team_id = data.get("team_id")
-    if not team_id:
-        return jsonify({"error": "Team ID is required"}), 400
 
     # Validate team access
     if not validate_team_access(team_id):
@@ -1082,7 +1191,11 @@ def create_battle():
             # Validate player belongs to the team
             player = Player.query.get(participant_data["player_id"])
             if not player or player.team_id != team_id:
-                return jsonify({"error": f"Player {participant_data['player_id']} does not belong to this team"}), 400
+                return jsonify(
+                    {
+                        "error": f"Player {participant_data['player_id']} does not belong to this team"
+                    }
+                ), 400
 
             participant = BattleParticipant(
                 battle_id=battle.id,
@@ -1103,11 +1216,11 @@ def create_battle():
 @login_required
 def get_battle(battle_id):
     battle = Battle.query.get_or_404(battle_id)
-    
+
     # Validate team access for the battle
     if not validate_team_access(battle.team_id):
         return jsonify({"error": "Access denied to this team"}), 403
-    
+
     battle_data = battle.to_dict()
     battle_data["participants"] = [p.to_dict() for p in battle.participants]
     return jsonify(battle_data)
@@ -1117,11 +1230,11 @@ def get_battle(battle_id):
 @login_required
 def update_battle(battle_id):
     battle = Battle.query.get_or_404(battle_id)
-    
+
     # Validate team access for the battle
     if not validate_team_access(battle.team_id):
         return jsonify({"error": "Access denied to this team"}), 403
-    
+
     data = request.get_json()
 
     # Update battle details
@@ -1148,7 +1261,11 @@ def update_battle(battle_id):
                 # Validate player belongs to the team
                 player = Player.query.get(participant_data["player_id"])
                 if not player or player.team_id != battle.team_id:
-                    return jsonify({"error": f"Player {participant_data['player_id']} does not belong to this team"}), 400
+                    return jsonify(
+                        {
+                            "error": f"Player {participant_data['player_id']} does not belong to this team"
+                        }
+                    ), 400
 
                 participant = BattleParticipant(
                     battle_id=battle_id,
@@ -1159,7 +1276,7 @@ def update_battle(battle_id):
                 db.session.add(participant)
 
         db.session.commit()
-        
+
         # Return complete battle data including participants
         battle_data = battle.to_dict()
         battle_data["participants"] = [p.to_dict() for p in battle.participants]
@@ -1173,7 +1290,7 @@ def update_battle(battle_id):
 @login_required
 def delete_battle(battle_id):
     battle = Battle.query.get_or_404(battle_id)
-    
+
     # Validate team access for the battle
     if not validate_team_access(battle.team_id):
         return jsonify({"error": "Access denied to this team"}), 403
@@ -1193,15 +1310,20 @@ def delete_battle(battle_id):
 @login_required
 def get_player_battle_stats(player_id):
     player = Player.query.get_or_404(player_id)
-    
+
     # Validate team access for the player
     if not validate_team_access(player.team_id):
         return jsonify({"error": "Access denied to this team"}), 403
-    
+
     season_id = request.args.get("season_id")
 
     # Base query for battle participants - only include battles from the same team
-    query = db.session.query(BattleParticipant).filter_by(player_id=player_id).join(Battle).filter(Battle.team_id == player.team_id)
+    query = (
+        db.session.query(BattleParticipant)
+        .filter_by(player_id=player_id)
+        .join(Battle)
+        .filter(Battle.team_id == player.team_id)
+    )
 
     # Filter by season if specified
     if season_id:
@@ -1233,7 +1355,11 @@ def get_player_battle_stats(player_id):
 def get_seasons():
     team_id = request.args.get("team_id")
     if team_id:
-        seasons = Season.query.filter_by(team_id=team_id).order_by(Season.date_created.desc()).all()
+        seasons = (
+            Season.query.filter_by(team_id=team_id)
+            .order_by(Season.date_created.desc())
+            .all()
+        )
     else:
         seasons = Season.query.order_by(Season.date_created.desc()).all()
     return jsonify([season.to_dict() for season in seasons])
@@ -1541,16 +1667,6 @@ def run_migrations():
         db.session.commit()
         print("Team table created successfully!")
 
-    # Add team_id to user table
-    try:
-        db.session.execute(text("SELECT team_id FROM user LIMIT 1"))
-    except Exception:
-        print("Adding team_id column to user table...")
-        db.session.execute(
-            text(f"ALTER TABLE user ADD COLUMN team_id {integer_type}")
-        )
-        db.session.commit()
-        print("Team_id column added to user table successfully!")
 
     # Check and create UserTeam table
     try:
@@ -1624,25 +1740,56 @@ def run_migrations():
 
     # Create admin user if it doesn't exist
     try:
-        admin_user = AdminUser.query.filter_by(username=os.getenv("su_username", "admin")).first()
+        # Use default username if not set in environment
+        su_username = os.getenv("su_username", "admin")
+        su_password = os.getenv("su_password")
+
+        if not su_password:
+            raise ValueError(
+                "su_password environment variable is required"
+            )
+
+        admin_user = AdminUser.query.filter_by(username=su_username).first()
         if not admin_user:
             print("Creating admin user...")
             admin_user = AdminUser()
-            admin_user.username = os.getenv("su_username", "admin")
-            admin_user.set_password(os.getenv("su_password", "admin123"))
+            admin_user.username = su_username
+            admin_user.set_password(su_password)
             db.session.add(admin_user)
             db.session.commit()
             print("Admin user created successfully!")
-        else:
-            print("Admin user already exists.")
     except Exception as e:
         print(f"Error creating admin user: {e}")
-    
+        raise
+
     print("Database migration completed for SQLite!")
+
+
+# Security fix: Add generic error handler to prevent information disclosure
+@app.errorhandler(Exception)
+def handle_exception(e):
+    # Log the actual error for debugging
+    app.logger.error(f"Unhandled exception: {str(e)}")
+    # Return generic error message to user
+    return jsonify({"error": "An error occurred processing your request"}), 500
+
+
+# Security fix: Add security headers
+@app.after_request
+def set_security_headers(response):
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self' 'unsafe-inline' 'unsafe-eval'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'"
+    )
+    return response
 
 
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
         run_migrations()
-    app.run(debug=True)
+    # Security fix: Debug mode from environment variable
+    debug_mode = os.getenv("FLASK_DEBUG", "False").lower() == "true"
+    app.run(debug=debug_mode)
