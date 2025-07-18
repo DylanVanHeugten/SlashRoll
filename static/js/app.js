@@ -60,22 +60,22 @@ function Modal({ isOpen, onClose, title, message, type = "info" }) {
 
   return React.createElement(
     "div",
-    { className: "modal-overlay", onClick: onClose },
+    { className: "fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50", onClick: onClose },
     React.createElement(
       "div",
-      { className: `modal-content ${getModalClass()}`, onClick: (e) => e.stopPropagation() },
+      { className: "bg-white rounded-lg min-w-80 max-w-md mx-5 shadow-2xl modal-fade-in", onClick: (e) => e.stopPropagation() },
       React.createElement(
         "div",
-        { className: "modal-header" },
-        React.createElement("span", { className: "modal-icon" }, getModalIcon()),
-        React.createElement("h3", { className: "modal-title" }, title || "Notification"),
-        React.createElement("button", { className: "modal-close", onClick: onClose }, "×")
+        { className: "flex items-center px-5 py-4 border-b border-gray-200 gap-3" },
+        React.createElement("span", { className: "text-2xl" }, getModalIcon()),
+        React.createElement("h3", { className: "flex-1 text-lg font-semibold text-gray-900" }, title || "Notification"),
+        React.createElement("button", { className: "bg-transparent border-none text-2xl cursor-pointer text-gray-400 p-0 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 hover:text-gray-600 transition-all duration-200", onClick: onClose }, "×")
       ),
-      React.createElement("div", { className: "modal-body" }, message),
+      React.createElement("div", { className: "px-5 py-4 leading-relaxed text-gray-700" }, message),
       React.createElement(
         "div",
-        { className: "modal-footer" },
-        React.createElement("button", { className: "modal-btn", onClick: onClose }, "OK")
+        { className: "px-5 py-4 flex justify-end" },
+        React.createElement("button", { className: "bg-blue-500 hover:bg-blue-600 text-white border-none px-5 py-2 rounded cursor-pointer text-sm font-medium transition-colors duration-200", onClick: onClose }, "OK")
       )
     )
   );
@@ -149,7 +149,7 @@ function SeasonSelector({
         </select>
         {showCreateButton && (
           <button
-            className="create-season-btn"
+            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors min-h-11"
             onClick={() => setShowCreateForm(!showCreateForm)}
           >
             {showCreateForm ? "Cancel" : "New Season"}
@@ -166,7 +166,7 @@ function SeasonSelector({
             placeholder="Enter season name"
             disabled={creating}
           />
-          <button type="submit" disabled={creating || !newSeasonName.trim()}>
+          <button type="submit" disabled={creating || !newSeasonName.trim()} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors min-h-11 disabled:bg-gray-400 disabled:cursor-not-allowed">
             {creating ? "Creating..." : "Create"}
           </button>
         </form>
@@ -246,7 +246,7 @@ function TeamSelector({
       
       {showCreateButton && (
         <button
-          className="create-team-btn"
+          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors min-h-11"
           onClick={() => setShowCreateForm(true)}
         >
           Create Team
@@ -272,7 +272,7 @@ function TeamSelector({
               disabled={creating}
             />
             <div className="form-actions">
-              <button type="submit" disabled={creating}>
+              <button type="submit" disabled={creating} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors min-h-11 disabled:bg-gray-400 disabled:cursor-not-allowed mr-2">
                 {creating ? "Creating..." : "Create"}
               </button>
               <button
@@ -283,6 +283,7 @@ function TeamSelector({
                   setNewTeamDescription("");
                 }}
                 disabled={creating}
+                className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors min-h-11 disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>
@@ -296,11 +297,15 @@ function TeamSelector({
 
 function Navigation({ currentPage, onPageChange, user }) {
   return (
-    <nav className="navigation">
+    <nav className="flex gap-3 mb-5 border-b border-gray-300 pb-4 flex-wrap">
       {user?.is_superadmin ? (
         // Superuser only sees Super Admin panel
         <button
-          className={currentPage === "super-admin" ? "active" : ""}
+          className={`px-5 py-2 rounded text-sm font-medium transition-colors min-h-11 ${
+            currentPage === "super-admin"
+              ? "bg-blue-500 text-white hover:bg-blue-600"
+              : "bg-gray-500 text-white hover:bg-gray-600"
+          }`}
           onClick={() => onPageChange("super-admin")}
         >
           Super Admin
@@ -309,19 +314,31 @@ function Navigation({ currentPage, onPageChange, user }) {
         // Regular users see all other panels
         <>
           <button
-            className={currentPage === "players" ? "active" : ""}
+            className={`px-5 py-2 rounded text-sm font-medium transition-colors min-h-11 ${
+              currentPage === "players"
+                ? "bg-blue-500 text-white hover:bg-blue-600"
+                : "bg-gray-500 text-white hover:bg-gray-600"
+            }`}
             onClick={() => onPageChange("players")}
           >
             Players
           </button>
           <button
-            className={currentPage === "battles" ? "active" : ""}
+            className={`px-5 py-2 rounded text-sm font-medium transition-colors min-h-11 ${
+              currentPage === "battles"
+                ? "bg-blue-500 text-white hover:bg-blue-600"
+                : "bg-gray-500 text-white hover:bg-gray-600"
+            }`}
             onClick={() => onPageChange("battles")}
           >
             Battles
           </button>
           <button
-            className={currentPage === "manage" ? "active" : ""}
+            className={`px-5 py-2 rounded text-sm font-medium transition-colors min-h-11 ${
+              currentPage === "manage"
+                ? "bg-blue-500 text-white hover:bg-blue-600"
+                : "bg-gray-500 text-white hover:bg-gray-600"
+            }`}
             onClick={() => onPageChange("manage")}
           >
             Administrator Dashboard
@@ -443,7 +460,7 @@ function ActiveRoster({
                     </div>
                   )}
                   <button
-                    className="remove-btn"
+                    className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded cursor-pointer text-xs font-medium transition-colors"
                     onClick={() => onRemoveFromRoster(player.id)}
                   >
                     Remove
@@ -510,12 +527,12 @@ function PlayerForm({ onPlayerAdded, currentSeason, currentTeam }) {
   };
 
   return (
-    <div className="form-section">
-      <h2>Add New Player</h2>
+    <div className="bg-gray-50 p-5 rounded-md mb-8">
+      <h2 className="text-xl font-semibold text-gray-800 mb-4">Add New Player</h2>
       {error && <div className="error">{error}</div>}
       <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="name">Name *</label>
+        <div className="mb-4">
+          <label htmlFor="name" className="block mb-1 font-semibold text-gray-600">Name *</label>
           <input
             type="text"
             id="name"
@@ -523,10 +540,11 @@ function PlayerForm({ onPlayerAdded, currentSeason, currentTeam }) {
             onChange={(e) => setName(e.target.value)}
             disabled={loading}
             placeholder="Enter player name"
+            className="w-full px-3 py-2 border border-gray-300 rounded text-sm box-border md:px-3 md:py-3 md:text-base sm:px-4 sm:py-4"
           />
         </div>
-        <div className="form-group">
-          <label htmlFor="gameId">Game ID</label>
+        <div className="mb-4">
+          <label htmlFor="gameId" className="block mb-1 font-semibold text-gray-600">Game ID</label>
           <input
             type="text"
             id="gameId"
@@ -535,9 +553,10 @@ function PlayerForm({ onPlayerAdded, currentSeason, currentTeam }) {
             disabled={loading}
             placeholder="Enter game ID (optional)"
             maxLength={8}
+            className="w-full px-3 py-2 border border-gray-300 rounded text-sm box-border md:px-3 md:py-3 md:text-base sm:px-4 sm:py-4"
           />
         </div>
-        <button type="submit" disabled={loading}>
+        <button type="submit" disabled={loading} className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded cursor-pointer text-sm font-medium mr-3 min-h-11 min-w-11 transition-colors md:px-4 md:py-3 md:text-base md:mr-2 sm:px-5 sm:py-4 sm:mr-1 sm:mb-1">
           {loading ? "Adding..." : "Add Player"}
         </button>
       </form>
@@ -617,7 +636,7 @@ function PlayerList({ players, onPlayerDeleted, onAddToRoster, roster, showModal
             </div>
             <div className="player-actions">
               <button
-                className="add-roster-btn"
+                className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                 onClick={() => handleAddToRoster(player.id)}
                 disabled={roster.length >= 20}
               >
@@ -810,7 +829,7 @@ function BattleForm({ roster, onBattleAdded, currentSeason, currentTeam }) {
           )}
         </div>
 
-        <button type="submit" disabled={loading || roster.length === 0}>
+        <button type="submit" disabled={loading || roster.length === 0} className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded cursor-pointer text-sm font-medium transition-colors min-h-11 disabled:bg-gray-400 disabled:cursor-not-allowed">
           {loading ? "Recording..." : "Record Battle"}
         </button>
       </form>
@@ -1004,10 +1023,10 @@ function BattleEdit({ battle, onBattleUpdated, onCancel, currentSeason }) {
         </div>
 
         <div style={{ display: "flex", gap: "10px" }}>
-          <button type="submit" disabled={loading}>
+          <button type="submit" disabled={loading} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors min-h-11 disabled:bg-gray-400 disabled:cursor-not-allowed">
             {loading ? "Updating..." : "Update Battle"}
           </button>
-          <button type="button" onClick={onCancel} disabled={loading}>
+          <button type="button" onClick={onCancel} disabled={loading} className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors min-h-11 disabled:bg-gray-400 disabled:cursor-not-allowed">
             Cancel
           </button>
         </div>
@@ -1115,14 +1134,13 @@ function BattleList({ battles, onBattleDeleted, onBattleUpdated, currentSeason, 
               </div>
               <div>
                 <button
-                  className="edit-btn"
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors"
                   onClick={() => handleEdit(battle)}
-                  style={{ marginRight: "5px" }}
                 >
                   Edit
                 </button>
                 <button
-                  className="delete-btn"
+                  className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                   onClick={() => handleDelete(battle.id)}
                   disabled={deletingId === battle.id}
                 >
@@ -1393,7 +1411,7 @@ function AdminDashboard({
                           />
                           <div className="season-name-actions">
                             <button
-                              className="save-btn"
+                              className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed mr-2"
                               onClick={() => handleSeasonNameSave(season.id)}
                               disabled={updatingSeasonId === season.id}
                             >
@@ -1402,7 +1420,7 @@ function AdminDashboard({
                                 : "Save"}
                             </button>
                             <button
-                              className="cancel-btn"
+                              className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                               onClick={handleSeasonNameCancel}
                               disabled={updatingSeasonId === season.id}
                             >
@@ -1421,7 +1439,7 @@ function AdminDashboard({
                       {editingSeasonId === season.id ? null : (
                         <>
                           <button
-                            className="edit-btn"
+                            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors mr-2"
                             onClick={() =>
                               handleSeasonRename(season.id, season.name)
                             }
@@ -1429,7 +1447,7 @@ function AdminDashboard({
                             Rename
                           </button>
                           <button
-                            className="delete-btn"
+                            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                             onClick={() => handleSeasonDelete(season.id)}
                             disabled={deletingSeasonId === season.id}
                           >
@@ -1501,14 +1519,14 @@ function AdminDashboard({
                           <button
                             onClick={() => handleGameIdSave(player.id)}
                             disabled={updatingId === player.id}
-                            className="save-btn"
+                            className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed mr-2"
                           >
                             {updatingId === player.id ? "Saving..." : "Save"}
                           </button>
                           <button
                             onClick={handleGameIdCancel}
                             disabled={updatingId === player.id}
-                            className="cancel-btn"
+                            className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                           >
                             Cancel
                           </button>
@@ -1521,7 +1539,7 @@ function AdminDashboard({
                               handleGameIdEdit(player.id, player.game_id)
                             }
                             disabled={updatingId === player.id}
-                            className="edit-btn"
+                            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors"
                           >
                             Edit
                           </button>
@@ -1552,8 +1570,8 @@ function AdminDashboard({
                     </div>
                     <div className="player-actions">
                       <button
-                        className={`status-btn ${
-                          player.status === "active" ? "deactivate" : "activate"
+                        className={`px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed mr-2 ${
+                          player.status === "active" ? "bg-orange-500 hover:bg-orange-600 text-white" : "bg-green-500 hover:bg-green-600 text-white"
                         }`}
                         onClick={() =>
                           handleStatusChange(
@@ -1570,7 +1588,7 @@ function AdminDashboard({
                           : "Activate"}
                       </button>
                       <button
-                        className="delete-btn"
+                        className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                         onClick={() => handleDelete(player.id)}
                         disabled={updatingId === player.id}
                       >
@@ -1600,9 +1618,6 @@ function SuperAdminPanel({ showModal }) {
   const [editingUser, setEditingUser] = useState(null);
   const [editForm, setEditForm] = useState({ username: "", password: "", team_ids: [] });
   const [updating, setUpdating] = useState(false);
-  const [teamDropdownOpen, setTeamDropdownOpen] = useState(false);
-  const [teamSearchTerm, setTeamSearchTerm] = useState("");
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   
   // Team management state
   const [showCreateTeamForm, setShowCreateTeamForm] = useState(false);
@@ -1706,53 +1721,11 @@ function SuperAdminPanel({ showModal }) {
       password: "", 
       team_ids: user.teams ? user.teams.map(team => team.id) : [] 
     });
-    setTeamSearchTerm(""); // Reset search term when starting to edit
   };
 
   const handleCancelEdit = () => {
     setEditingUser(null);
     setEditForm({ username: "", password: "", team_ids: [] });
-    setTeamDropdownOpen(false);
-    setTeamSearchTerm("");
-  };
-
-  const handleTeamToggle = (teamId) => {
-    if (editForm.team_ids.includes(teamId)) {
-      setEditForm({...editForm, team_ids: editForm.team_ids.filter(id => id !== teamId)});
-    } else {
-      setEditForm({...editForm, team_ids: [...editForm.team_ids, teamId]});
-    }
-  };
-
-  const handleDropdownToggle = (event) => {
-    if (!teamDropdownOpen) {
-      const rect = event.currentTarget.getBoundingClientRect();
-      const dropdownWidth = 250;
-      const viewportWidth = window.innerWidth;
-      
-      // Calculate left position, ensuring dropdown doesn't go off-screen
-      let left = rect.left + window.scrollX;
-      if (left + dropdownWidth > viewportWidth) {
-        left = viewportWidth - dropdownWidth - 20; // 20px margin from edge
-      }
-      
-      setDropdownPosition({
-        top: rect.bottom + window.scrollY + 2,
-        left: Math.max(10, left) // Minimum 10px from left edge
-      });
-    }
-    setTeamDropdownOpen(!teamDropdownOpen);
-  };
-
-  const filteredTeams = teams.filter(team => 
-    team.name.toLowerCase().includes(teamSearchTerm.toLowerCase())
-  );
-
-  const getSelectedTeamNames = () => {
-    return teams
-      .filter(team => editForm.team_ids.includes(team.id))
-      .map(team => team.name)
-      .join(", ");
   };
 
   const handleUpdateUser = async (userId) => {
@@ -1922,16 +1895,6 @@ function SuperAdminPanel({ showModal }) {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (teamDropdownOpen && !event.target.closest('.team-multiselect-container')) {
-        setTeamDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, [teamDropdownOpen]);
 
   if (loading) {
     return <div className="loading">Loading users...</div>;
@@ -1946,7 +1909,7 @@ function SuperAdminPanel({ showModal }) {
         <div className="section-header">
           <h3>User Management</h3>
           <button 
-            className="btn btn-primary"
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors"
             onClick={() => setShowCreateForm(!showCreateForm)}
           >
             {showCreateForm ? "Cancel" : "Create New User"}
@@ -1976,7 +1939,7 @@ function SuperAdminPanel({ showModal }) {
               />
             </div>
             <div className="form-actions">
-              <button type="submit" disabled={creating}>
+              <button type="submit" disabled={creating} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
                 {creating ? "Creating..." : "Create User"}
               </button>
             </div>
@@ -2016,66 +1979,21 @@ function SuperAdminPanel({ showModal }) {
                     </td>
                     <td>
                       {editingUser === user.id ? (
-                        <div className="team-multiselect-container">
-                          <div className="team-multiselect-trigger" onClick={handleDropdownToggle}>
-                            <div className="selected-teams-display">
-                              {editForm.team_ids.length > 0 ? (
-                                <span className="selected-count">{editForm.team_ids.length} team(s) selected</span>
-                              ) : (
-                                <span className="no-selection">Select teams...</span>
-                              )}
-                            </div>
-                            <div className="dropdown-arrow">{teamDropdownOpen ? "▲" : "▼"}</div>
-                          </div>
-                          
-                          {teamDropdownOpen && (
-                            <div 
-                              className="team-multiselect-dropdown"
-                              style={{
-                                top: `${dropdownPosition.top}px`,
-                                left: `${dropdownPosition.left}px`
-                              }}
-                            >
-                              <div className="team-search-container">
-                                <input
-                                  type="text"
-                                  placeholder="Search teams..."
-                                  value={teamSearchTerm}
-                                  onChange={(e) => setTeamSearchTerm(e.target.value)}
-                                  className="team-search-input"
-                                  onClick={(e) => e.stopPropagation()}
-                                />
-                              </div>
-                              <div className="team-options-container">
-                                {filteredTeams.length > 0 ? (
-                                  filteredTeams.map(team => (
-                                    <label key={team.id} className="team-option">
-                                      <input
-                                        type="checkbox"
-                                        checked={editForm.team_ids.includes(team.id)}
-                                        onChange={() => handleTeamToggle(team.id)}
-                                        onClick={(e) => e.stopPropagation()}
-                                      />
-                                      <span className="team-option-label">{team.name}</span>
-                                    </label>
-                                  ))
-                                ) : (
-                                  <div className="no-teams-found">No teams found</div>
-                                )}
-                              </div>
-                            </div>
-                          )}
-                          
-                          {editForm.team_ids.length > 0 && (
-                            <div className="selected-teams-preview">
-                              {teams
-                                .filter(team => editForm.team_ids.includes(team.id))
-                                .map(team => (
-                                  <span key={team.id} className="team-badge-small">{team.name}</span>
-                                ))}
-                            </div>
-                          )}
-                        </div>
+                        <select
+                          multiple
+                          value={editForm.team_ids.map(id => id.toString())}
+                          onChange={(e) => {
+                            const selectedValues = Array.from(e.target.selectedOptions, option => parseInt(option.value));
+                            setEditForm({...editForm, team_ids: selectedValues});
+                          }}
+                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-20 max-h-32"
+                        >
+                          {teams.map(team => (
+                            <option key={team.id} value={team.id}>
+                              {team.name}
+                            </option>
+                          ))}
+                        </select>
                       ) : (
                         <div className="user-teams">
                           {user.teams && user.teams.length > 0 ? (
@@ -2108,14 +2026,14 @@ function SuperAdminPanel({ showModal }) {
                       {editingUser === user.id ? (
                         <div className="edit-actions">
                           <button 
-                            className="btn btn-success btn-sm"
+                            className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed mr-2"
                             onClick={() => handleUpdateUser(user.id)}
                             disabled={updating}
                           >
                             {updating ? "Saving..." : "Save"}
                           </button>
                           <button 
-                            className="btn btn-secondary btn-sm"
+                            className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                             onClick={handleCancelEdit}
                             disabled={updating}
                           >
@@ -2125,13 +2043,13 @@ function SuperAdminPanel({ showModal }) {
                       ) : (
                         <div className="user-actions">
                           <button 
-                            className="btn btn-primary btn-sm"
+                            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors mr-2"
                             onClick={() => handleEditUser(user)}
                           >
                             Edit
                           </button>
                           <button 
-                            className="btn btn-danger btn-sm"
+                            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors"
                             onClick={() => handleDeleteUser(user.id)}
                           >
                             Delete
@@ -2151,7 +2069,7 @@ function SuperAdminPanel({ showModal }) {
         <div className="section-header">
           <h3>Team Management</h3>
           <button 
-            className="btn btn-primary"
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors"
             onClick={() => setShowCreateTeamForm(!showCreateTeamForm)}
           >
             {showCreateTeamForm ? "Cancel" : "Create New Team"}
@@ -2180,7 +2098,7 @@ function SuperAdminPanel({ showModal }) {
               />
             </div>
             <div className="form-actions">
-              <button type="submit" disabled={creatingTeam}>
+              <button type="submit" disabled={creatingTeam} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
                 {creatingTeam ? "Creating..." : "Create Team"}
               </button>
             </div>
@@ -2237,14 +2155,14 @@ function SuperAdminPanel({ showModal }) {
                       {editingTeam === team.id ? (
                         <div className="edit-actions">
                           <button 
-                            className="btn btn-success btn-sm"
+                            className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed mr-2"
                             onClick={() => handleUpdateTeam(team.id)}
                             disabled={updatingTeam}
                           >
                             {updatingTeam ? "Saving..." : "Save"}
                           </button>
                           <button 
-                            className="btn btn-secondary btn-sm"
+                            className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                             onClick={handleCancelTeamEdit}
                             disabled={updatingTeam}
                           >
@@ -2254,13 +2172,13 @@ function SuperAdminPanel({ showModal }) {
                       ) : (
                         <div className="team-actions">
                           <button 
-                            className="btn btn-primary btn-sm"
+                            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors mr-2"
                             onClick={() => handleEditTeam(team)}
                           >
                             Edit
                           </button>
                           <button 
-                            className="btn btn-danger btn-sm"
+                            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors"
                             onClick={() => handleDeleteTeam(team.id)}
                           >
                             Delete
@@ -2844,7 +2762,7 @@ function App() {
           <div className="user-info">
             <span>Welcome, {user?.username}</span>
             {user?.is_superadmin && <span className="superadmin-badge">Super Admin</span>}
-            <button onClick={handleLogout} className="logout-btn">
+            <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors">
               Logout
             </button>
           </div>
