@@ -829,7 +829,7 @@ function BattleEdit({ battle, onBattleUpdated, onCancel, currentSeason }) {
   );
 }
 
-function BattleList({ battles, onBattleDeleted, onBattleUpdated }) {
+function BattleList({ battles, onBattleDeleted, onBattleUpdated, currentSeason }) {
   const [deletingId, setDeletingId] = useState(null);
   const [editingBattle, setEditingBattle] = useState(null);
 
@@ -878,6 +878,7 @@ function BattleList({ battles, onBattleDeleted, onBattleUpdated }) {
         battle={editingBattle}
         onBattleUpdated={handleBattleUpdated}
         onCancel={handleCancelEdit}
+        currentSeason={currentSeason}
       />
     );
   }
@@ -1267,6 +1268,7 @@ function AdminDashboard({
                 battles={battles}
                 onBattleDeleted={() => {}}
                 onBattleUpdated={onBattleUpdated}
+                currentSeason={currentSeason}
               />
             )}
           </div>
@@ -2058,6 +2060,8 @@ function App() {
             <BattleList
               battles={battles}
               onBattleDeleted={handleBattleDeleted}
+              onBattleUpdated={handleBattleUpdated}
+              currentSeason={currentSeason}
             />
           </div>
         )

@@ -544,7 +544,11 @@ def update_battle(battle_id):
                 db.session.add(participant)
 
         db.session.commit()
-        return jsonify(battle.to_dict()), 200
+        
+        # Return complete battle data including participants
+        battle_data = battle.to_dict()
+        battle_data["participants"] = [p.to_dict() for p in battle.participants]
+        return jsonify(battle_data), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": "Failed to update battle"}), 500
