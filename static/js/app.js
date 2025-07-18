@@ -1,5 +1,6 @@
 const { useState, useEffect } = React;
 
+
 // Utility function to format damage numbers with abbreviations
 function formatDamage(number) {
   if (number < 1000) {
@@ -184,8 +185,10 @@ function ActiveRoster({
     e.preventDefault();
     if (draggedPlayer && draggedPlayer.roster_position !== targetPosition) {
       // Check if there's a player at the target position
-      const targetPlayer = roster.find((p) => p.roster_position === targetPosition);
-      
+      const targetPlayer = roster.find(
+        (p) => p.roster_position === targetPosition
+      );
+
       if (targetPlayer) {
         // Swap the two players
         onSwapPlayers(draggedPlayer.id, targetPlayer.id);
@@ -213,57 +216,63 @@ function ActiveRoster({
         onSeasonChange={onSeasonChange}
         onCreateSeason={onCreateSeason}
       />
-      <div className="roster-grid">
-        {rosterSlots.map(({ position, player }) => (
-          <div
-            key={position}
-            className={`roster-slot ${player ? "filled" : "empty"} ${
-              dragOverSlot === position ? "drag-over" : ""
-            } ${
-              draggedPlayer && draggedPlayer.roster_position === position ? "being-dragged" : ""
-            }`}
-            onDragOver={handleDragOver}
-            onDragEnter={(e) => handleDragEnter(e, position)}
-            onDragLeave={handleDragLeave}
-            onDrop={(e) => handleDrop(e, position)}
-          >
-            <div className="slot-number">{position}</div>
-            {player ? (
-              <div
-                className="roster-player"
-                draggable
-                onDragStart={(e) => handleDragStart(e, player)}
-              >
-                <div className="player-name">{player.name}</div>
-                {playerStats[player.id] && (
-                  <div className="player-battle-stats">
-                    <div className="stat">
-                      DMG: {formatDamage(playerStats[player.id].total_damage)}
-                    </div>
-                    <div className="stat">
-                      Shields:{" "}
-                      {formatDamage(
-                        playerStats[player.id].total_shields_broken
-                      )}
-                    </div>
-                    <div className="stat">
-                      Battles: {playerStats[player.id].battles_participated}
-                    </div>
-                  </div>
-                )}
-                <button
-                  className="remove-btn"
-                  onClick={() => onRemoveFromRoster(player.id)}
+      {currentSeason ? (
+        <div className="roster-grid">
+          {rosterSlots.map(({ position, player }) => (
+            <div
+              key={position}
+              className={`roster-slot ${player ? "filled" : "empty"} ${
+                dragOverSlot === position ? "drag-over" : ""
+              } ${
+                draggedPlayer && draggedPlayer.roster_position === position
+                  ? "being-dragged"
+                  : ""
+              }`}
+              onDragOver={handleDragOver}
+              onDragEnter={(e) => handleDragEnter(e, position)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, position)}
+            >
+              <div className="slot-number">{position}</div>
+              {player ? (
+                <div
+                  className="roster-player"
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, player)}
                 >
-                  Remove
-                </button>
-              </div>
-            ) : (
-              <div className="empty-slot">Empty</div>
-            )}
-          </div>
-        ))}
-      </div>
+                  <div className="player-name">{player.name}</div>
+                  {playerStats[player.id] && (
+                    <div className="player-battle-stats">
+                      <div className="stat">
+                        DMG: {formatDamage(playerStats[player.id].total_damage)}
+                      </div>
+                      <div className="stat">
+                        Shields:{" "}
+                        {formatDamage(
+                          playerStats[player.id].total_shields_broken
+                        )}
+                      </div>
+                      <div className="stat">
+                        Battles: {playerStats[player.id].battles_participated}
+                      </div>
+                    </div>
+                  )}
+                  <button
+                    className="remove-btn"
+                    onClick={() => onRemoveFromRoster(player.id)}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <div className="empty-slot">Empty</div>
+              )}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p>Please select a season to view the active roster.</p>
+      )}
     </div>
   );
 }
@@ -378,18 +387,20 @@ function PlayerList({ players, onPlayerDeleted, onAddToRoster, roster }) {
       alert("Roster is full (20 players maximum)");
       return;
     }
-    
+
     // Find the first empty position between 1 and 20
-    const occupiedPositions = roster.map(p => p.roster_position).filter(pos => pos != null);
+    const occupiedPositions = roster
+      .map((p) => p.roster_position)
+      .filter((pos) => pos != null);
     let nextPosition = 1;
-    
+
     for (let i = 1; i <= 20; i++) {
       if (!occupiedPositions.includes(i)) {
         nextPosition = i;
         break;
       }
     }
-    
+
     onAddToRoster(playerId, nextPosition);
   };
 
@@ -398,13 +409,15 @@ function PlayerList({ players, onPlayerDeleted, onAddToRoster, roster }) {
   };
 
   // Filter out players that are already in the current season's roster
-  const availablePlayers = players.filter(player => !isInRoster(player.id));
+  const availablePlayers = players.filter((player) => !isInRoster(player.id));
 
   return (
     <div className="players-list">
       <h2>Available Players ({availablePlayers.length})</h2>
       {availablePlayers.length === 0 ? (
-        <p>No available players. All active players are already in the roster.</p>
+        <p>
+          No available players. All active players are already in the roster.
+        </p>
       ) : (
         availablePlayers.map((player) => (
           <div key={player.id} className="player-item">
@@ -942,6 +955,7 @@ function AdminDashboard({
   onPlayerAdded,
   seasons,
   onSeasonDeleted,
+  onSeasonUpdated,
   currentSeason,
   onSeasonChange,
   onCreateSeason,
@@ -953,6 +967,9 @@ function AdminDashboard({
   const [gameIdValues, setGameIdValues] = useState({});
   const [error, setError] = useState("");
   const [deletingSeasonId, setDeletingSeasonId] = useState(null);
+  const [editingSeasonId, setEditingSeasonId] = useState(null);
+  const [seasonNameValues, setSeasonNameValues] = useState({});
+  const [updatingSeasonId, setUpdatingSeasonId] = useState(null);
 
   const handleStatusChange = async (playerId, newStatus) => {
     setUpdatingId(playerId);
@@ -1022,6 +1039,56 @@ function AdminDashboard({
   const handleGameIdCancel = () => {
     setEditingGameId(null);
     setGameIdValues({});
+    setError("");
+  };
+
+  const handleSeasonRename = (seasonId, currentName) => {
+    setEditingSeasonId(seasonId);
+    setError("");
+    setSeasonNameValues((prev) => ({
+      ...prev,
+      [seasonId]: currentName,
+    }));
+  };
+
+  const handleSeasonNameSave = async (seasonId) => {
+    const newName = seasonNameValues[seasonId]?.trim();
+    if (!newName) {
+      setError("Season name cannot be empty");
+      return;
+    }
+
+    setUpdatingSeasonId(seasonId);
+    setError("");
+
+    try {
+      const response = await fetch(`/api/seasons/${seasonId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name: newName }),
+      });
+
+      if (response.ok) {
+        const updatedSeason = await response.json();
+        onSeasonUpdated(updatedSeason);
+        setEditingSeasonId(null);
+        setSeasonNameValues({});
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || "Failed to update season name");
+      }
+    } catch (error) {
+      setError("Network error occurred");
+    } finally {
+      setUpdatingSeasonId(null);
+    }
+  };
+
+  const handleSeasonNameCancel = () => {
+    setEditingSeasonId(null);
+    setSeasonNameValues({});
     setError("");
   };
 
@@ -1117,20 +1184,69 @@ function AdminDashboard({
                 </div>
                 {seasons.map((season) => (
                   <div key={season.id} className="table-row">
-                    <div className="season-name">{season.name}</div>
+                    <div className="season-name">
+                      {editingSeasonId === season.id ? (
+                        <div className="season-name-edit">
+                          <input
+                            type="text"
+                            value={seasonNameValues[season.id] || ""}
+                            onChange={(e) =>
+                              setSeasonNameValues((prev) => ({
+                                ...prev,
+                                [season.id]: e.target.value,
+                              }))
+                            }
+                            className="season-name-input"
+                            placeholder="Enter season name"
+                          />
+                          <div className="season-name-actions">
+                            <button
+                              className="save-btn"
+                              onClick={() => handleSeasonNameSave(season.id)}
+                              disabled={updatingSeasonId === season.id}
+                            >
+                              {updatingSeasonId === season.id
+                                ? "Saving..."
+                                : "Save"}
+                            </button>
+                            <button
+                              className="cancel-btn"
+                              onClick={handleSeasonNameCancel}
+                              disabled={updatingSeasonId === season.id}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        season.name
+                      )}
+                    </div>
                     <div className="season-date">
                       {new Date(season.date_created).toLocaleDateString()}
                     </div>
                     <div className="season-actions">
-                      <button
-                        className="delete-btn"
-                        onClick={() => handleSeasonDelete(season.id)}
-                        disabled={deletingSeasonId === season.id}
-                      >
-                        {deletingSeasonId === season.id
-                          ? "Deleting..."
-                          : "Delete"}
-                      </button>
+                      {editingSeasonId === season.id ? null : (
+                        <>
+                          <button
+                            className="edit-btn"
+                            onClick={() =>
+                              handleSeasonRename(season.id, season.name)
+                            }
+                          >
+                            Rename
+                          </button>
+                          <button
+                            className="delete-btn"
+                            onClick={() => handleSeasonDelete(season.id)}
+                            disabled={deletingSeasonId === season.id}
+                          >
+                            {deletingSeasonId === season.id
+                              ? "Deleting..."
+                              : "Delete"}
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -1540,7 +1656,7 @@ function App() {
         if (!currentSeason && data.length > 0) {
           setCurrentSeason(data[0]); // First item is newest due to desc order
         }
-        
+
         // If no seasons exist, set loading to false here
         if (data.length === 0) {
           setLoading(false);
@@ -1731,7 +1847,11 @@ function App() {
         fetchPlayers();
       } else {
         const errorData = await response.json();
-        alert(`Failed to add player to roster: ${errorData.error || 'Unknown error'}`);
+        alert(
+          `Failed to add player to roster: ${
+            errorData.error || "Unknown error"
+          }`
+        );
       }
     } catch (error) {
       alert("Network error occurred");
@@ -1762,7 +1882,11 @@ function App() {
         fetchPlayers();
       } else {
         const errorData = await response.json();
-        alert(`Failed to remove player from roster: ${errorData.error || 'Unknown error'}`);
+        alert(
+          `Failed to remove player from roster: ${
+            errorData.error || "Unknown error"
+          }`
+        );
       }
     } catch (error) {
       alert("Network error occurred");
@@ -1795,16 +1919,16 @@ function App() {
   const handleSwapPlayers = async (playerId1, playerId2) => {
     try {
       // Get the current positions of both players
-      const player1 = roster.find(p => p.id === playerId1);
-      const player2 = roster.find(p => p.id === playerId2);
-      
+      const player1 = roster.find((p) => p.id === playerId1);
+      const player2 = roster.find((p) => p.id === playerId2);
+
       if (!player1 || !player2) {
         alert("Error: Could not find players to swap");
         return;
       }
 
       // Use the new swap endpoint
-      const response = await fetch('/api/players/swap-roster', {
+      const response = await fetch("/api/players/swap-roster", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -1820,7 +1944,7 @@ function App() {
         fetchRoster();
       } else {
         const errorData = await response.json();
-        alert(`Failed to swap players: ${errorData.error || 'Unknown error'}`);
+        alert(`Failed to swap players: ${errorData.error || "Unknown error"}`);
       }
     } catch (error) {
       alert("Network error occurred");
@@ -1860,6 +1984,18 @@ function App() {
     // If the deleted season was the current season, set current season to null
     if (currentSeason && currentSeason.id === seasonId) {
       setCurrentSeason(null);
+    }
+  };
+
+  const handleSeasonUpdated = (updatedSeason) => {
+    setSeasons((prev) =>
+      prev.map((season) =>
+        season.id === updatedSeason.id ? updatedSeason : season
+      )
+    );
+    // If the updated season is the current season, update it too
+    if (currentSeason && currentSeason.id === updatedSeason.id) {
+      setCurrentSeason(updatedSeason);
     }
   };
 
@@ -1943,6 +2079,7 @@ function App() {
           onPlayerAdded={handlePlayerAdded}
           seasons={seasons}
           onSeasonDeleted={handleSeasonDeleted}
+          onSeasonUpdated={handleSeasonUpdated}
           currentSeason={currentSeason}
           onSeasonChange={handleSeasonChange}
           onCreateSeason={handleSeasonCreated}
@@ -1954,4 +2091,5 @@ function App() {
   );
 }
 
-ReactDOM.render(<App />, document.getElementById("root"));
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);

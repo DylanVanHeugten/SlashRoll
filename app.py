@@ -85,11 +85,18 @@ class Battle(db.Model):
     their_score = db.Column(db.Integer, nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
     season_id = db.Column(db.Integer, db.ForeignKey("season.id"), nullable=True)
+    # team_id = db.Column(db.Integer, db.ForeignKey("team.id"), nullable=True)
 
     season = db.relationship("Season", backref="battles")
 
     def to_dict(self):
-        total_damage = sum(p.damage_done for p in self.participants)
+        try:
+            total_damage = sum(p.damage_done for p in self.participants)
+        except:
+            # If participants aren't loaded, query them directly
+            participants = BattleParticipant.query.filter_by(battle_id=self.id).all()
+            total_damage = sum(p.damage_done for p in participants)
+        
         return {
             "id": self.id,
             "enemy_name": self.enemy_name,
@@ -538,7 +545,7 @@ def update_battle(battle_id):
 
         db.session.commit()
         return jsonify(battle.to_dict()), 200
-    except Exception:
+    except Exception as e:
         db.session.rollback()
         return jsonify({"error": "Failed to update battle"}), 500
 
@@ -615,6 +622,23 @@ def create_season():
         return jsonify({"error": "Failed to create season"}), 500
 
 
+@app.route("/api/seasons/<int:season_id>", methods=["PUT"])
+def update_season(season_id):
+    season = Season.query.get_or_404(season_id)
+    data = request.get_json()
+
+    if not data or "name" not in data:
+        return jsonify({"error": "Name is required"}), 400
+
+    try:
+        season.name = data["name"]
+        db.session.commit()
+        return jsonify(season.to_dict()), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": f"Failed to update season: {str(e)}"}), 500
+
+
 @app.route("/api/seasons/<int:season_id>", methods=["DELETE"])
 def delete_season(season_id):
     season = Season.query.get_or_404(season_id)
@@ -662,7 +686,6 @@ def run_migrations():
     # SQLite-specific SQL syntax
     auto_increment = "AUTOINCREMENT"
     datetime_default = "DEFAULT CURRENT_TIMESTAMP"
-    text_type = "TEXT"
     varchar_type = "VARCHAR"
     integer_type = "INTEGER"
     primary_key = "PRIMARY KEY"
