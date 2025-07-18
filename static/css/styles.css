@@ -20,6 +20,71 @@ body {
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.header h1 {
+    margin: 0;
+    color: #333;
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-info span {
+    color: #666;
+    font-size: 14px;
+}
+
+.logout-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.logout-btn:hover {
+    background: #c82333;
+}
+
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    .header-controls {
+        flex-direction: column;
+        gap: 15px;
+        width: 100%;
+    }
+    
+    .user-info {
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+
 @media (max-width: 768px) {
     .container {
         padding: 15px;
@@ -2247,5 +2312,141 @@ button:hover {
     
     .dropdown-arrow {
         font-size: 10px;
+    }
+}
+
+/* Team Selector Styles */
+.team-selector {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+/* Header Team Selector - when used in header */
+.header-controls .team-selector {
+    margin-bottom: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-controls .team-selector label {
+    margin-bottom: 0;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.team-selector label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+
+.team-selector select {
+    width: 200px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-right: 10px;
+}
+
+.create-team-btn {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.create-team-btn:hover {
+    background: #218838;
+}
+
+.create-team-form {
+    margin-top: 15px;
+    padding: 15px;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.create-team-form input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.create-team-form .form-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.create-team-form .form-actions button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.create-team-form .form-actions button[type="submit"] {
+    background: #007bff;
+    color: white;
+}
+
+.create-team-form .form-actions button[type="submit"]:hover {
+    background: #0056b3;
+}
+
+.create-team-form .form-actions button[type="button"] {
+    background: #6c757d;
+    color: white;
+}
+
+.create-team-form .form-actions button[type="button"]:hover {
+    background: #545b62;
+}
+
+.no-team-message {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    font-size: 16px;
+}
+
+@media (max-width: 768px) {
+    .team-selector select {
+        width: 100%;
+        margin-bottom: 10px;
+        margin-right: 0;
+    }
+    
+    .header-controls .team-selector {
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+    }
+    
+    .header-controls .team-selector select {
+        width: 100%;
+        margin-right: 0;
+    }
+    
+    .create-team-form .form-actions {
+        flex-direction: column;
     }
 }

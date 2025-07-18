@@ -35,6 +35,7 @@ function SeasonSelector({
   onSeasonChange,
   onCreateSeason,
   showCreateButton = false,
+  currentTeam,
 }) {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newSeasonName, setNewSeasonName] = useState("");
@@ -51,7 +52,10 @@ function SeasonSelector({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name: newSeasonName.trim() }),
+        body: JSON.stringify({ 
+          name: newSeasonName.trim(),
+          team_id: currentTeam?.id
+        }),
       });
 
       if (response.ok) {
@@ -118,7 +122,125 @@ function SeasonSelector({
   );
 }
 
-function Navigation({ currentPage, onPageChange }) {
+function TeamSelector({
+  teams,
+  currentTeam,
+  onTeamChange,
+  onCreateTeam,
+  showCreateButton = false,
+}) {
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [newTeamName, setNewTeamName] = useState("");
+  const [newTeamDescription, setNewTeamDescription] = useState("");
+  const [creating, setCreating] = useState(false);
+
+  const handleCreateTeam = async (e) => {
+    e.preventDefault();
+    if (!newTeamName.trim()) return;
+
+    setCreating(true);
+    try {
+      const response = await fetch("/api/teams", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+          name: newTeamName.trim(),
+          description: newTeamDescription.trim() || null
+        }),
+      });
+
+      if (response.ok) {
+        const newTeam = await response.json();
+        onCreateTeam(newTeam);
+        setNewTeamName("");
+        setNewTeamDescription("");
+        setShowCreateForm(false);
+      } else {
+        const error = await response.json();
+        alert(`Failed to create team: ${error.error}`);
+      }
+    } catch (error) {
+      console.error("Error creating team:", error);
+      alert("Error creating team");
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  return (
+    <div className="team-selector">
+      <label htmlFor="team-select">Team:</label>
+      <select
+        id="team-select"
+        value={currentTeam?.id || ""}
+        onChange={(e) => {
+          const selectedTeam = teams.find(
+            (team) => team.id === parseInt(e.target.value)
+          );
+          onTeamChange(selectedTeam);
+        }}
+      >
+        <option value="">Select a team</option>
+        {teams.map((team) => (
+          <option key={team.id} value={team.id}>
+            {team.name}
+          </option>
+        ))}
+      </select>
+      
+      {showCreateButton && (
+        <button
+          className="create-team-btn"
+          onClick={() => setShowCreateForm(true)}
+        >
+          Create Team
+        </button>
+      )}
+
+      {showCreateForm && (
+        <div className="create-team-form">
+          <form onSubmit={handleCreateTeam}>
+            <input
+              type="text"
+              placeholder="Team name"
+              value={newTeamName}
+              onChange={(e) => setNewTeamName(e.target.value)}
+              required
+              disabled={creating}
+            />
+            <input
+              type="text"
+              placeholder="Team description (optional)"
+              value={newTeamDescription}
+              onChange={(e) => setNewTeamDescription(e.target.value)}
+              disabled={creating}
+            />
+            <div className="form-actions">
+              <button type="submit" disabled={creating}>
+                {creating ? "Creating..." : "Create"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowCreateForm(false);
+                  setNewTeamName("");
+                  setNewTeamDescription("");
+                }}
+                disabled={creating}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Navigation({ currentPage, onPageChange, user }) {
   return (
     <nav className="navigation">
       <button
@@ -134,23 +256,19 @@ function Navigation({ currentPage, onPageChange }) {
         Battles
       </button>
       <button
-        className={currentPage === "statistics" ? "active" : ""}
-        onClick={() => onPageChange("statistics")}
-      >
-        Statistics
-      </button>
-      <button
         className={currentPage === "manage" ? "active" : ""}
         onClick={() => onPageChange("manage")}
       >
         Administrator Dashboard
       </button>
-      <button
-        className={currentPage === "super-admin" ? "active" : ""}
-        onClick={() => onPageChange("super-admin")}
-      >
-        Super Admin
-      </button>
+      {user?.is_superadmin && (
+        <button
+          className={currentPage === "super-admin" ? "active" : ""}
+          onClick={() => onPageChange("super-admin")}
+        >
+          Super Admin
+        </button>
+      )}
     </nav>
   );
 }
@@ -165,6 +283,7 @@ function ActiveRoster({
   currentSeason,
   onSeasonChange,
   onCreateSeason,
+  currentTeam,
 }) {
   const [draggedPlayer, setDraggedPlayer] = useState(null);
   const [dragOverSlot, setDragOverSlot] = useState(null);
@@ -221,6 +340,7 @@ function ActiveRoster({
         currentSeason={currentSeason}
         onSeasonChange={onSeasonChange}
         onCreateSeason={onCreateSeason}
+        currentTeam={currentTeam}
       />
       {currentSeason ? (
         <div className="roster-grid">
@@ -283,7 +403,7 @@ function ActiveRoster({
   );
 }
 
-function PlayerForm({ onPlayerAdded, currentSeason }) {
+function PlayerForm({ onPlayerAdded, currentSeason, currentTeam }) {
   const [name, setName] = useState("");
   const [gameId, setGameId] = useState("");
   const [loading, setLoading] = useState(false);
@@ -310,6 +430,7 @@ function PlayerForm({ onPlayerAdded, currentSeason }) {
           name: name.trim(),
           game_id: gameId.trim() || null,
           season_id: currentSeason?.id,
+          team_id: currentTeam?.id,
         }),
       });
 
@@ -451,7 +572,7 @@ function PlayerList({ players, onPlayerDeleted, onAddToRoster, roster }) {
   );
 }
 
-function BattleForm({ roster, onBattleAdded, currentSeason }) {
+function BattleForm({ roster, onBattleAdded, currentSeason, currentTeam }) {
   const [enemyName, setEnemyName] = useState("");
   const [enemyPowerRanking, setEnemyPowerRanking] = useState("");
   const [ourScore, setOurScore] = useState("");
@@ -502,6 +623,7 @@ function BattleForm({ roster, onBattleAdded, currentSeason }) {
           our_score: parseInt(ourScore),
           their_score: parseInt(theirScore),
           season_id: currentSeason?.id,
+          team_id: currentTeam?.id,
           participants: participants,
         }),
       });
@@ -968,6 +1090,7 @@ function AdminDashboard({
   onCreateSeason,
   battles,
   onBattleUpdated,
+  currentTeam,
 }) {
   const [updatingId, setUpdatingId] = useState(null);
   const [editingGameId, setEditingGameId] = useState(null);
@@ -1163,6 +1286,7 @@ function AdminDashboard({
             <PlayerForm
               onPlayerAdded={onPlayerAdded}
               currentSeason={currentSeason}
+              currentTeam={currentTeam}
             />
           </div>
 
@@ -1174,6 +1298,7 @@ function AdminDashboard({
               onSeasonChange={onSeasonChange}
               onCreateSeason={onCreateSeason}
               showCreateButton={true}
+              currentTeam={currentTeam}
             />
           </div>
         </div>
@@ -1403,244 +1528,6 @@ function AdminDashboard({
   );
 }
 
-function Statistics({
-  roster,
-  players,
-  battles,
-  currentSeason,
-  seasons,
-  onSeasonChange,
-  onCreateSeason,
-}) {
-  const [selectedPlayer, setSelectedPlayer] = useState(null);
-  const [playerStats, setPlayerStats] = useState({});
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (currentSeason && roster.length > 0) {
-      fetchAllPlayerStats();
-    }
-  }, [currentSeason, roster]);
-
-  const fetchAllPlayerStats = async () => {
-    setLoading(true);
-    try {
-      const stats = {};
-      await Promise.all(
-        roster.map(async (player) => {
-          const response = await fetch(
-            `/api/players/${player.id}/battle-stats?season_id=${currentSeason.id}`
-          );
-          if (response.ok) {
-            const data = await response.json();
-            stats[player.id] = data;
-          }
-        })
-      );
-      setPlayerStats(stats);
-    } catch (error) {
-      console.error("Failed to fetch player stats:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const calculateSeasonStats = () => {
-    if (!currentSeason || battles.length === 0) return null;
-
-    const wins = battles.filter((b) => b.our_score > b.their_score).length;
-    const losses = battles.filter((b) => b.our_score < b.their_score).length;
-    const totalDamage = battles.reduce(
-      (sum, battle) => sum + (battle.total_damage || 0),
-      0
-    );
-    const avgDamage = battles.length > 0 ? totalDamage / battles.length : 0;
-
-    return {
-      totalBattles: battles.length,
-      wins,
-      losses,
-      winRate:
-        battles.length > 0 ? ((wins / battles.length) * 100).toFixed(1) : 0,
-      totalDamage,
-      avgDamage,
-    };
-  };
-
-  const getTopPlayers = () => {
-    const players = Object.entries(playerStats)
-      .map(([playerId, stats]) => ({
-        playerId,
-        name:
-          roster.find((p) => p.id === parseInt(playerId))?.name || "Unknown",
-        ...stats,
-      }))
-      .sort((a, b) => b.total_damage - a.total_damage);
-
-    return players.slice(0, 10);
-  };
-
-  const seasonStats = calculateSeasonStats();
-  const topPlayers = getTopPlayers();
-
-  return (
-    <div className="statistics-content">
-      <h2>Statistics</h2>
-
-      <SeasonSelector
-        seasons={seasons}
-        currentSeason={currentSeason}
-        onSeasonChange={onSeasonChange}
-        onCreateSeason={onCreateSeason}
-      />
-
-      {!currentSeason ? (
-        <div className="no-season">
-          <p>Please select a season to view statistics.</p>
-        </div>
-      ) : (
-        <div className="stats-dashboard">
-          <div className="dashboard-sections">
-            <div className="dashboard-section">
-              <h3>Season Overview</h3>
-              {seasonStats ? (
-                <div className="season-stats">
-                  <div className="stat-cards">
-                    <div className="stat-card">
-                      <h4>Total Battles</h4>
-                      <span className="stat-value">
-                        {seasonStats.totalBattles}
-                      </span>
-                    </div>
-                    <div className="stat-card">
-                      <h4>Win Rate</h4>
-                      <span className="stat-value">{seasonStats.winRate}%</span>
-                    </div>
-                    <div className="stat-card">
-                      <h4>Wins</h4>
-                      <span className="stat-value wins">
-                        {seasonStats.wins}
-                      </span>
-                    </div>
-                    <div className="stat-card">
-                      <h4>Losses</h4>
-                      <span className="stat-value losses">
-                        {seasonStats.losses}
-                      </span>
-                    </div>
-                    <div className="stat-card">
-                      <h4>Total Damage</h4>
-                      <span className="stat-value">
-                        {formatDamage(seasonStats.totalDamage)}
-                      </span>
-                    </div>
-                    <div className="stat-card">
-                      <h4>Avg Damage/Battle</h4>
-                      <span className="stat-value">
-                        {formatDamage(Math.round(seasonStats.avgDamage))}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <p>No battles recorded for this season.</p>
-              )}
-            </div>
-
-            <div className="dashboard-section">
-              <h3>Top Players</h3>
-              {loading ? (
-                <p>Loading player statistics...</p>
-              ) : topPlayers.length > 0 ? (
-                <div className="top-players">
-                  <div className="players-stats-table">
-                    <div className="table-header">
-                      <div>Rank</div>
-                      <div>Player</div>
-                      <div>Total Damage</div>
-                      <div>Shields Broken</div>
-                      <div>Battles</div>
-                      <div>Avg Damage</div>
-                    </div>
-                    {topPlayers.map((player, index) => (
-                      <div key={player.playerId} className="table-row">
-                        <div className="rank">#{index + 1}</div>
-                        <div className="player-name">{player.name}</div>
-                        <div className="total-damage">
-                          {formatDamage(player.total_damage)}
-                        </div>
-                        <div>{formatDamage(player.total_shields_broken)}</div>
-                        <div>{player.battles_participated}</div>
-                        <div>
-                          {formatDamage(
-                            Math.round(
-                              player.total_damage /
-                                Math.max(1, player.battles_participated)
-                            )
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <p>No player statistics available.</p>
-              )}
-            </div>
-
-            <div className="dashboard-section">
-              <h3>Recent Battles</h3>
-              {battles.length > 0 ? (
-                <div className="recent-battles">
-                  <div className="battles-table">
-                    <div className="table-header">
-                      <div>Date</div>
-                      <div>Enemy</div>
-                      <div>Score</div>
-                      <div>Result</div>
-                      <div>Total Damage</div>
-                    </div>
-                    {battles.slice(0, 10).map((battle) => (
-                      <div key={battle.id} className="table-row">
-                        <div>
-                          {new Date(battle.date_created).toLocaleDateString()}
-                        </div>
-                        <div>{battle.enemy_name}</div>
-                        <div>
-                          {battle.our_score} - {battle.their_score}
-                        </div>
-                        <div
-                          className={`battle-result ${
-                            battle.our_score > battle.their_score
-                              ? "win"
-                              : battle.our_score < battle.their_score
-                              ? "loss"
-                              : "tie"
-                          }`}
-                        >
-                          {battle.our_score > battle.their_score
-                            ? "Win"
-                            : battle.our_score < battle.their_score
-                            ? "Loss"
-                            : "Tie"}
-                        </div>
-                        <div className="total-damage">
-                          {formatDamage(battle.total_damage || 0)}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <p>No battles recorded for this season.</p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
 
 function SuperAdminPanel() {
   const [users, setUsers] = useState([]);
@@ -1886,7 +1773,7 @@ function SuperAdminPanel() {
 
       if (response.ok) {
         const createdTeam = await response.json();
-        setTeams([...teams, createdTeam]);
+        onTeamCreated(createdTeam);
         setNewTeam({ name: "", description: "" });
         setShowCreateTeamForm(false);
         alert("Team created successfully");
@@ -2343,9 +2230,80 @@ function App() {
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState("players");
 
+  const handlePageChange = (page) => {
+    // Prevent non-superadmins from accessing super-admin page
+    if (page === "super-admin" && !user?.is_superadmin) {
+      alert("Access denied: Super Admin privileges required");
+      return;
+    }
+    setCurrentPage(page);
+  };
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [teams, setTeams] = useState([]);
+  const [currentTeam, setCurrentTeam] = useState(null);
+
+  const checkAuth = async () => {
+    try {
+      const response = await fetch("/api/auth/status");
+      if (response.ok) {
+        const data = await response.json();
+        setIsAuthenticated(data.authenticated);
+        setUser(data.user);
+      } else {
+        setIsAuthenticated(false);
+        setUser(null);
+      }
+    } catch (error) {
+      console.error("Error checking auth:", error);
+      setIsAuthenticated(false);
+      setUser(null);
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("/logout", {
+        method: "POST",
+      });
+      if (response.ok) {
+        window.location.href = "/login";
+      }
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
+
+  const fetchTeams = async () => {
+    try {
+      const response = await fetch("/api/auth/teams");
+      if (response.ok) {
+        const data = await response.json();
+        setTeams(data);
+
+        // Set current team to first if not already set
+        if (!currentTeam && data.length > 0) {
+          setCurrentTeam(data[0]);
+        }
+      } else {
+        if (response.status === 401) {
+          window.location.href = "/login";
+          return;
+        }
+        setError("Failed to fetch teams");
+      }
+    } catch (error) {
+      setError("Network error occurred");
+    }
+  };
+
   const fetchSeasons = async () => {
     try {
-      const response = await fetch("/api/seasons");
+      const url = currentTeam ? `/api/seasons?team_id=${currentTeam.id}` : "/api/seasons";
+      const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
         setSeasons(data);
@@ -2360,6 +2318,10 @@ function App() {
           setLoading(false);
         }
       } else {
+        if (response.status === 401) {
+          window.location.href = "/login";
+          return;
+        }
         setError("Failed to fetch seasons");
         setLoading(false);
       }
@@ -2371,12 +2333,21 @@ function App() {
 
   const fetchPlayers = async () => {
     try {
-      const url = `/api/players?status=active`;
+      if (!currentTeam) {
+        setError("Please select a team first");
+        return;
+      }
+      setError(""); // Clear any previous errors
+      const url = `/api/players?status=active&team_id=${currentTeam.id}`;
       const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
         setPlayers(data);
       } else {
+        if (response.status === 401) {
+          window.location.href = "/login";
+          return;
+        }
         setError("Failed to fetch players");
       }
     } catch (error) {
@@ -2386,12 +2357,21 @@ function App() {
 
   const fetchAllPlayers = async () => {
     try {
-      const url = `/api/players?status=all`;
+      if (!currentTeam) {
+        setError("Please select a team first");
+        return;
+      }
+      setError(""); // Clear any previous errors
+      const url = `/api/players?status=all&team_id=${currentTeam.id}`;
       const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
         setPlayers(data);
       } else {
+        if (response.status === 401) {
+          window.location.href = "/login";
+          return;
+        }
         setError("Failed to fetch players");
       }
     } catch (error) {
@@ -2400,15 +2380,19 @@ function App() {
   };
 
   const fetchRoster = async () => {
-    if (!currentSeason) return;
+    if (!currentSeason || !currentTeam) return;
 
     try {
-      const url = `/api/players/roster?season_id=${currentSeason.id}`;
+      const url = `/api/players/roster?season_id=${currentSeason.id}&team_id=${currentTeam.id}`;
       const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
         setRoster(data);
       } else {
+        if (response.status === 401) {
+          window.location.href = "/login";
+          return;
+        }
         setError("Failed to fetch roster");
       }
     } catch (error) {
@@ -2422,7 +2406,10 @@ function App() {
     if (!currentSeason) return;
 
     try {
-      const url = `/api/battles?season_id=${currentSeason.id}`;
+      let url = `/api/battles?season_id=${currentSeason.id}`;
+      if (currentTeam) {
+        url += `&team_id=${currentTeam.id}`;
+      }
       const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
@@ -2436,11 +2423,11 @@ function App() {
   };
 
   const fetchPlayerStats = async () => {
-    if (!currentSeason) return;
+    if (!currentSeason || !currentTeam) return;
 
     try {
       const rosterResponse = await fetch(
-        `/api/players/roster?season_id=${currentSeason.id}`
+        `/api/players/roster?season_id=${currentSeason.id}&team_id=${currentTeam.id}`
       );
       if (rosterResponse.ok) {
         const rosterData = await rosterResponse.json();
@@ -2466,10 +2453,31 @@ function App() {
   };
 
   useEffect(() => {
-    fetchSeasons();
+    checkAuth();
   }, []);
 
   useEffect(() => {
+    if (isAuthenticated && !authLoading) {
+      fetchTeams();
+    }
+  }, [isAuthenticated, authLoading]);
+
+  useEffect(() => {
+    // Redirect non-superadmins away from super-admin page
+    if (currentPage === "super-admin" && user && !user.is_superadmin) {
+      setCurrentPage("players");
+    }
+  }, [user, currentPage]);
+
+  useEffect(() => {
+    if (currentTeam) {
+      fetchSeasons();
+    }
+  }, [currentTeam]);
+
+  useEffect(() => {
+    if (!currentTeam) return; // Don't fetch data if no team is selected
+    
     if (currentPage === "players") {
       fetchPlayers();
       if (currentSeason) {
@@ -2480,18 +2488,28 @@ function App() {
       if (!currentSeason) return;
       fetchBattles();
       fetchRoster();
-    } else if (currentPage === "statistics") {
-      if (currentSeason) {
-        fetchBattles();
-        fetchRoster();
-      }
     } else {
       fetchAllPlayers();
       if (currentSeason) {
         fetchBattles();
       }
     }
-  }, [currentPage, currentSeason]);
+  }, [currentPage, currentSeason, currentTeam]);
+
+  const handleTeamChange = (team) => {
+    setCurrentTeam(team);
+    setCurrentSeason(null); // Reset season when team changes
+    setPlayers([]);
+    setBattles([]);
+    setRoster([]);
+    setPlayerStats({});
+    setError(""); // Clear any previous errors when team changes
+  };
+
+  const handleTeamCreated = (newTeam) => {
+    setTeams((prev) => [...prev, newTeam]);
+    setCurrentTeam(newTeam);
+  };
 
   const handlePlayerAdded = (newPlayer) => {
     setPlayers((prev) => [...prev, newPlayer]);
@@ -2701,13 +2719,47 @@ function App() {
     return <div className="loading">Loading...</div>;
   }
 
+  if (authLoading) {
+    return (
+      <div className="container">
+        <div className="loading">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    window.location.href = "/login";
+    return null;
+  }
+
   return (
     <div className="container">
-      <h1>Player Management System</h1>
-      <Navigation currentPage={currentPage} onPageChange={setCurrentPage} />
+      <div className="header">
+        <h1>Player Management System</h1>
+        <div className="header-controls">
+          <TeamSelector
+            teams={teams}
+            currentTeam={currentTeam}
+            onTeamChange={handleTeamChange}
+            onCreateTeam={handleTeamCreated}
+            showCreateButton={false}
+          />
+          <div className="user-info">
+            <span>Welcome, {user?.username}</span>
+            <button onClick={handleLogout} className="logout-btn">
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+      <Navigation currentPage={currentPage} onPageChange={handlePageChange} user={user} />
       {error && <div className="error">{error}</div>}
 
-      {currentPage === "players" ? (
+      {!currentTeam ? (
+        <div className="no-team-message">
+          <p>Please select a team to continue.</p>
+        </div>
+      ) : currentPage === "players" ? (
         <div className="main-content">
           <div className="columns">
             <PlayerList
@@ -2726,6 +2778,7 @@ function App() {
               currentSeason={currentSeason}
               onSeasonChange={handleSeasonChange}
               onCreateSeason={handleSeasonCreated}
+              currentTeam={currentTeam}
             />
           </div>
         </div>
@@ -2738,6 +2791,7 @@ function App() {
               currentSeason={currentSeason}
               onSeasonChange={handleSeasonChange}
               onCreateSeason={handleSeasonCreated}
+              currentTeam={currentTeam}
             />
           </div>
         ) : (
@@ -2747,11 +2801,13 @@ function App() {
               currentSeason={currentSeason}
               onSeasonChange={handleSeasonChange}
               onCreateSeason={handleSeasonCreated}
+              currentTeam={currentTeam}
             />
             <BattleForm
               roster={roster}
               onBattleAdded={handleBattleAdded}
               currentSeason={currentSeason}
+              currentTeam={currentTeam}
             />
             <BattleList
               battles={battles}
@@ -2761,16 +2817,6 @@ function App() {
             />
           </div>
         )
-      ) : currentPage === "statistics" ? (
-        <Statistics
-          roster={roster}
-          players={players}
-          battles={battles}
-          currentSeason={currentSeason}
-          seasons={seasons}
-          onSeasonChange={handleSeasonChange}
-          onCreateSeason={handleSeasonCreated}
-        />
       ) : currentPage === "super-admin" ? (
         <SuperAdminPanel />
       ) : (
@@ -2787,6 +2833,7 @@ function App() {
           onCreateSeason={handleSeasonCreated}
           battles={battles}
           onBattleUpdated={handleBattleUpdated}
+          currentTeam={currentTeam}
         />
       )}
     </div>
