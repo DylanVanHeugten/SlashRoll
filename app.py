@@ -30,6 +30,9 @@ if not SECRET_KEY:
     raise ValueError("SECRET_KEY environment variable is required for security")
 app.config["SECRET_KEY"] = SECRET_KEY
 
+# Production mode configuration
+PRODUCTION_MODE = os.getenv("PRODUCTION_MODE", "false").lower() == "true"
+
 # Security fix: Session timeout configuration
 app.permanent_session_lifetime = timedelta(hours=2)
 
@@ -403,8 +406,10 @@ class BattleParticipant(db.Model):
 @app.route("/")
 def index():
     if not current_user.is_authenticated:
-        return render_template("login.html")
-    return render_template("index.html")
+        template = "login.prod.html" if PRODUCTION_MODE else "login.html"
+        return render_template(template)
+    template = "index.prod.html" if PRODUCTION_MODE else "index.html"
+    return render_template(template)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -435,7 +440,8 @@ def login():
                 {"success": False, "message": "Invalid username or password"}
             ), 401
 
-    return render_template("login.html")
+    template = "login.prod.html" if PRODUCTION_MODE else "login.html"
+    return render_template(template)
 
 
 @app.route("/logout", methods=["POST"])

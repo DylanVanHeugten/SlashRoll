@@ -1,0 +1,24 @@
+{
+  "name": "slashroll",
+  "version": "1.0.0",
+  "description": "Multi-user team-based player management system",
+  "scripts": {
+    "build": "npm run build:css && npm run build:js",
+    "postinstall": "npx update-browserslist-db@latest || true",
+    "build:css": "tailwindcss -i ./static/css/styles.css -o ./static/css/styles.min.css --minify",
+    "build:js": "babel static/js/app.js --out-file static/js/app.min.js --presets=@babel/preset-react && babel static/js/login.js --out-file static/js/login.min.js --presets=@babel/preset-react",
+    "watch": "npm run watch:css & npm run watch:js",
+    "watch:css": "tailwindcss -i ./static/css/styles.css -o ./static/css/styles.min.css --watch",
+    "watch:js": "babel static/js/app.js --out-file static/js/app.min.js --presets=@babel/preset-react --watch & babel static/js/login.js --out-file static/js/login.min.js --presets=@babel/preset-react --watch"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.22.0",
+    "@babel/core": "^7.22.0",
+    "@babel/preset-react": "^7.22.0",
+    "tailwindcss": "^3.3.0",
+    "update-browserslist-db": "^1.0.0"
+  },
+  "dependencies": {
+    "caniuse-lite": "^1.0.30001727"
+  }
+}
