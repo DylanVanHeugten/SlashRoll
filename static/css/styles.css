@@ -1,35 +1,18 @@
-body {
-    font-family: Arial, sans-serif;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f5f5f5;
+/* Base styles - Inter font applied globally */
+body, html {
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif !important;
 }
 
-/* Modal Styles */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+*, *::before, *::after {
+    font-family: inherit;
 }
 
-.modal-content {
-    background: white;
-    border-radius: 8px;
-    min-width: 320px;
-    max-width: 500px;
-    margin: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    animation: modalFadeIn 0.3s ease-out;
+/* Ensure Tailwind classes work with Inter */
+.font-sans {
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif !important;
 }
 
+/* Modal custom animation - keep for smooth transitions */
 @keyframes modalFadeIn {
     from {
         opacity: 0;
@@ -41,63 +24,9 @@ body {
     }
 }
 
-.modal-header {
-    display: flex;
-    align-items: center;
-    padding: 20px 20px 15px;
-    border-bottom: 1px solid #eee;
-    gap: 10px;
+.modal-fade-in {
+    animation: modalFadeIn 0.3s ease-out;
 }
-
-.modal-icon {
-    font-size: 24px;
-}
-
-.modal-title {
-    margin: 0;
-    flex-grow: 1;
-    font-size: 18px;
-    font-weight: 600;
-}
-
-.modal-close {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: #999;
-    padding: 0;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-}
-
-.modal-close:hover {
-    background-color: #f0f0f0;
-    color: #333;
-}
-
-.modal-body {
-    padding: 20px;
-    line-height: 1.5;
-    color: #333;
-}
-
-.modal-footer {
-    padding: 15px 20px 20px;
-    display: flex;
-    justify-content: flex-end;
-}
-
-.modal-btn {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 20px;
     border-radius: 4px;
     cursor: pointer;
     font-size: 14px;
@@ -106,19 +35,19 @@ body {
 }
 
 .modal-btn:hover {
-    background-color: #0056b3;
+    background-color: #072f8a;
 }
 
 .modal-error .modal-title {
-    color: #dc3545;
+    color: #ed3500;
 }
 
 .modal-error .modal-btn {
-    background-color: #dc3545;
+    background-color: #ed3500;
 }
 
 .modal-error .modal-btn:hover {
-    background-color: #c82333;
+    background-color: #c22e00;
 }
 
 .modal-success .modal-title {
@@ -210,7 +139,7 @@ body {
 }
 
 .superadmin-badge {
-    background-color: #dc3545;
+    background-color: #ed3500;
     color: white;
     padding: 4px 8px;
     border-radius: 12px;
@@ -220,7 +149,7 @@ body {
 }
 
 .logout-btn {
-    background: #dc3545;
+    background: #ed3500;
     color: white;
     border: none;
     padding: 8px 16px;
@@ -231,7 +160,7 @@ body {
 }
 
 .logout-btn:hover {
-    background: #c82333;
+    background: #c22e00;
 }
 
 @media (max-width: 768px) {
@@ -274,46 +203,7 @@ h1 {
     margin-bottom: 30px;
 }
 
-.form-section {
-    background-color: #f8f9fa;
-    padding: 20px;
-    border-radius: 6px;
-    margin-bottom: 30px;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #555;
-}
-
-input[type="text"], input[type="email"], input[type="number"] {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-sizing: border-box;
-    font-size: 14px;
-}
-
-@media (max-width: 768px) {
-    input[type="text"], input[type="email"], input[type="number"] {
-        padding: 12px;
-        font-size: 16px; /* Prevents zoom on iOS */
-    }
-}
-
-@media (max-width: 480px) {
-    input[type="text"], input[type="email"], input[type="number"] {
-        padding: 14px;
-        font-size: 16px;
-    }
-}
+/* Form styles moved to Tailwind classes */
 
 input[type="number"] {
     -moz-appearance: textfield;
@@ -325,52 +215,10 @@ input[type="number"]::-webkit-inner-spin-button {
     margin: 0;
 }
 
-button {
-    background-color: #007bff;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    margin-right: 10px;
-    /* Better touch targets */
-    min-height: 44px;
-    min-width: 44px;
-}
-
-@media (max-width: 768px) {
-    button {
-        padding: 12px 16px;
-        font-size: 16px;
-        margin-right: 8px;
-    }
-}
-
-@media (max-width: 480px) {
-    button {
-        padding: 14px 18px;
-        margin-right: 5px;
-        margin-bottom: 5px;
-    }
-}
-
-button:hover {
-    background-color: #0056b3;
-}
-
-.delete-btn {
-    background-color: #dc3545;
-    padding: 5px 10px;
-    font-size: 12px;
-}
-
-.delete-btn:hover {
-    background-color: #c82333;
-}
+/* Button styles moved to Tailwind classes */
 
 .players-list {
-    background-color: #f8f9fa;
+    background-color: #fef9f8;
     padding: 20px;
     border-radius: 6px;
 }
@@ -478,57 +326,22 @@ button:hover {
 }
 
 .error {
-    color: #dc3545;
-    background-color: #f8d7da;
+    color: #ed3500;
+    background-color: #fad8d8;
     padding: 10px;
     border-radius: 4px;
     margin-bottom: 15px;
 }
 
-/* Navigation */
-.navigation {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #dee2e6;
-    padding-bottom: 15px;
-    flex-wrap: wrap;
-}
-
-@media (max-width: 768px) {
-    .navigation {
-        gap: 8px;
-        margin-bottom: 15px;
-        padding-bottom: 10px;
-    }
-    
-    .navigation button {
-        flex: 1;
-        min-width: 0;
-        font-size: 12px;
-        padding: 8px 12px;
-    }
-}
-
-@media (max-width: 480px) {
-    .navigation {
-        flex-direction: column;
-        gap: 5px;
-    }
-    
-    .navigation button {
-        width: 100%;
-        text-align: center;
-    }
-}
+/* Navigation styles moved to Tailwind classes */
 
 /* Season Selector */
 .season-selector {
     margin-bottom: 30px;
     padding: 20px;
-    background-color: #f8f9fa;
+    background-color: #fef9f8;
     border-radius: 6px;
-    border: 1px solid #dee2e6;
+    border: 1px solid #fce8e4;
 }
 
 .season-controls {
@@ -624,22 +437,7 @@ button:hover {
     font-style: italic;
 }
 
-.navigation button {
-    background-color: #6c757d;
-    margin-right: 0;
-}
-
-.navigation button.active {
-    background-color: #007bff;
-}
-
-.navigation button:hover {
-    background-color: #5a6268;
-}
-
-.navigation button.active:hover {
-    background-color: #0056b3;
-}
+/* Navigation button styles moved to Tailwind classes */
 
 /* Main content layout */
 .main-content {
@@ -701,7 +499,7 @@ button:hover {
 
 /* Active Roster */
 .active-roster {
-    background-color: #e9ecef;
+    background-color: #fdf2f0;
     padding: 20px;
     border-radius: 6px;
 }
@@ -760,8 +558,8 @@ button:hover {
 }
 
 .roster-slot.filled {
-    border: 2px solid #007bff;
-    background-color: #f8f9fa;
+    border: 2px solid #093fb4;
+    background-color: #fef9f8;
 }
 
 .roster-slot.empty {
@@ -769,8 +567,8 @@ button:hover {
 }
 
 .roster-slot.drag-over {
-    border: 3px solid #007bff;
-    background-color: #e3f2fd;
+    border: 3px solid #093fb4;
+    background-color: #eff6ff;
 }
 
 .roster-slot.drag-over.filled {
@@ -788,7 +586,7 @@ button:hover {
     position: absolute;
     top: 5px;
     right: 5px;
-    background-color: #007bff;
+    background-color: #093fb4;
     color: white;
     width: 20px;
     height: 20px;
@@ -836,7 +634,7 @@ button:hover {
 }
 
 .remove-btn {
-    background-color: #dc3545;
+    background-color: #ed3500;
     padding: 3px 6px;
     font-size: 10px;
     margin-top: auto;
@@ -861,7 +659,7 @@ button:hover {
 }
 
 .remove-btn:hover {
-    background-color: #c82333;
+    background-color: #c22e00;
 }
 
 .empty-slot {
@@ -875,7 +673,7 @@ button:hover {
 
 /* Admin Dashboard */
 .admin-dashboard {
-    background-color: #f8f9fa;
+    background-color: #fef9f8;
     padding: 20px;
     border-radius: 6px;
 }
@@ -888,15 +686,17 @@ button:hover {
 
 .dashboard-row {
     display: flex;
+    flex-wrap: wrap;
     gap: 30px;
     align-items: flex-start;
 }
 
 .dashboard-row .dashboard-section {
     flex: 1;
+    min-width: 300px;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
     .dashboard-row {
         flex-direction: column;
         gap: 25px;
@@ -915,7 +715,7 @@ button:hover {
     margin-top: 0;
     margin-bottom: 20px;
     color: #333;
-    border-bottom: 2px solid #007bff;
+    border-bottom: 2px solid #093fb4;
     padding-bottom: 10px;
 }
 
@@ -933,7 +733,7 @@ button:hover {
 .seasons-table .table-header {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr;
-    background-color: #28a745;
+    background-color: #093fb4;
     color: white;
     padding: 15px;
     font-weight: bold;
@@ -989,17 +789,17 @@ button:hover {
     overflow: hidden;
 }
 
-.table-header {
+.players-table .table-header {
     display: grid;
     grid-template-columns: 2fr 1.5fr 2fr 1fr 2fr;
-    background-color: #007bff;
+    background-color: #093fb4;
     color: white;
     padding: 15px;
     font-weight: bold;
     gap: 15px;
 }
 
-.table-row {
+.players-table .table-row {
     display: grid;
     grid-template-columns: 2fr 1.5fr 2fr 1fr 2fr;
     padding: 15px;
@@ -1243,7 +1043,7 @@ button:hover {
 .participant-stats {
     margin-top: 20px;
     padding: 20px;
-    background-color: #f8f9fa;
+    background-color: #fef9f8;
     border-radius: 6px;
 }
 
@@ -1301,7 +1101,7 @@ button:hover {
 .battles-table .table-header {
     display: grid;
     grid-template-columns: 1fr 2fr 1fr 1fr 1fr 1fr 1fr;
-    background-color: #007bff;
+    background-color: #093fb4;
     color: white;
     padding: 15px;
     font-weight: bold;
@@ -1315,6 +1115,13 @@ button:hover {
     border-bottom: 1px solid #dee2e6;
     gap: 15px;
     align-items: center;
+}
+
+.battles-table .table-row > div:last-child {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-start;
 }
 
 .battle-result {
@@ -1358,7 +1165,7 @@ button:hover {
 
 .total-damage {
     font-weight: bold;
-    color: #dc3545;
+    color: #ed3500;
     text-align: center;
 }
 
@@ -1379,35 +1186,48 @@ button:hover {
         gap: 20px;
     }
     
-    .table-header,
-    .table-row {
+    /* Only apply mobile table styles to battles and seasons tables, not players table */
+    .battles-table .table-header,
+    .battles-table .table-row,
+    .seasons-table .table-header,
+    .seasons-table .table-row {
         display: block;
         padding: 10px;
         border-bottom: 1px solid #dee2e6;
     }
     
-    .table-header {
+    .battles-table .table-header,
+    .seasons-table .table-header {
         display: none; /* Hide table headers on mobile */
     }
     
-    .table-row {
+    .battles-table .table-row,
+    .seasons-table .table-row {
         margin-bottom: 10px;
         border: 1px solid #dee2e6;
         border-radius: 4px;
     }
     
-    .table-row > div {
+    .battles-table .table-row > div,
+    .seasons-table .table-row > div {
         display: flex;
         justify-content: space-between;
         padding: 8px 0;
         border-bottom: 1px solid #f0f0f0;
     }
     
-    .table-row > div:last-child {
+    .battles-table .table-row > div:last-child {
+        justify-content: flex-start;
+        gap: 8px;
+    }
+    
+    .battles-table .table-row > div:last-child,
+    .seasons-table .table-row > div:last-child {
         border-bottom: none;
     }
     
-    .table-row > div:before {
+    .battles-table .table-row > div:before,
+    .seasons-table .table-row > div:before {
         content: attr(data-label);
         font-weight: bold;
         color: #333;
@@ -1415,15 +1235,24 @@ button:hover {
         display: inline-block;
     }
     
-    .players-table .table-header,
-    .players-table .table-row {
-        display: block;
-    }
-    
+    /* Keep players table as grid layout even on mobile for better usability */
     .players-table .table-header {
-        display: none;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+        gap: 8px;
+        padding: 8px;
+        font-size: 12px;
     }
     
+    .players-table .table-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+        gap: 8px;
+        padding: 8px;
+        font-size: 12px;
+    }
+}
+
     .stats-grid {
         grid-template-columns: 1fr;
     }
@@ -1431,18 +1260,6 @@ button:hover {
     .stat-inputs {
         flex-direction: column;
         gap: 8px;
-    }
-    
-    .battles-table .table-header,
-    .battles-table .table-row,
-    .seasons-table .table-header,
-    .seasons-table .table-row {
-        display: block;
-    }
-    
-    .battles-table .table-header,
-    .seasons-table .table-header {
-        display: none;
     }
     
     .dashboard-section {
@@ -1453,11 +1270,6 @@ button:hover {
         gap: 20px;
     }
     
-    .dashboard-row {
-        flex-direction: column;
-        gap: 20px;
-    }
-    
     .form-section {
         padding: 15px;
     }
@@ -1465,7 +1277,7 @@ button:hover {
 
 /* Statistics Page */
 .statistics-content {
-    background-color: #f8f9fa;
+    background-color: #fef9f8;
     padding: 20px;
     border-radius: 6px;
 }
@@ -1532,7 +1344,7 @@ button:hover {
 }
 
 .stat-value.losses {
-    color: #dc3545;
+    color: #ed3500;
 }
 
 
@@ -1546,7 +1358,7 @@ button:hover {
 .players-stats-table .table-header {
     display: grid;
     grid-template-columns: 60px 2fr 1.5fr 1.5fr 1fr 1.5fr;
-    background-color: #007bff;
+    background-color: #093fb4;
     color: white;
     padding: 15px;
     font-weight: bold;
@@ -1568,7 +1380,7 @@ button:hover {
 
 .rank {
     font-weight: bold;
-    color: #007bff;
+    color: #093fb4;
     text-align: center;
 }
 
@@ -1599,12 +1411,12 @@ button:hover {
 
 /* EXPERIMENTAL GRAPHS SECTION - CAN BE EASILY REMOVED */
 .experimental-graphs {
-    border: 2px dashed #007bff;
-    background-color: #f8f9ff;
+    border: 2px dashed #093fb4;
+    background-color: #eff6ff;
 }
 
 .experimental-badge {
-    background-color: #007bff;
+    background-color: #093fb4;
     color: white;
     padding: 2px 8px;
     border-radius: 12px;
@@ -1797,7 +1609,7 @@ button:hover {
 }
 
 .user-management {
-    background-color: #f8f9fa;
+    background-color: #fef9f8;
     padding: 30px;
     border-radius: 8px;
     margin-bottom: 30px;
@@ -1844,8 +1656,8 @@ button:hover {
 
 .form-group input:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    border-color: #093fb4;
+    box-shadow: 0 0 0 2px rgba(9, 63, 180, 0.25);
 }
 
 .form-actions {
@@ -1916,12 +1728,12 @@ button:hover {
 }
 
 .btn-primary {
-    background-color: #007bff;
+    background-color: #093fb4;
     color: white;
 }
 
 .btn-danger {
-    background-color: #dc3545;
+    background-color: #ed3500;
     color: white;
 }
 
@@ -1974,8 +1786,8 @@ button:hover {
 
 .edit-input:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    border-color: #093fb4;
+    box-shadow: 0 0 0 2px rgba(9, 63, 180, 0.25);
 }
 
 .password-edit {
@@ -2048,7 +1860,7 @@ button:hover {
 
 /* Team Management Styles */
 .team-management {
-    background-color: #f8f9fa;
+    background-color: #fef9f8;
     padding: 30px;
     border-radius: 8px;
     margin-top: 30px;
@@ -2074,8 +1886,8 @@ button:hover {
 
 .create-team-form textarea:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    border-color: #093fb4;
+    box-shadow: 0 0 0 2px rgba(9, 63, 180, 0.25);
 }
 
 .teams-list h4 {
@@ -2126,8 +1938,8 @@ button:hover {
 
 .edit-input textarea:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    border-color: #093fb4;
+    box-shadow: 0 0 0 2px rgba(9, 63, 180, 0.25);
 }
 
 .team-actions {
@@ -2230,7 +2042,7 @@ button:hover {
 }
 
 .team-badge {
-    background-color: #007bff;
+    background-color: #093fb4;
     color: white;
     padding: 2px 8px;
     border-radius: 12px;
@@ -2279,217 +2091,15 @@ button:hover {
     }
 }
 
-/* Searchable Multi-Select Dropdown Styles */
-.team-multiselect-container {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    min-width: 200px;
-}
-
-.team-multiselect-trigger {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: white;
-    cursor: pointer;
-    transition: border-color 0.2s;
-}
-
-.team-multiselect-trigger:hover {
-    border-color: #007bff;
-}
-
-.team-multiselect-trigger:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-}
-
-.selected-teams-display {
-    flex: 1;
-    text-align: left;
-}
-
-.selected-count {
-    color: #333;
-    font-weight: 500;
-}
-
-.no-selection {
-    color: #999;
-    font-style: italic;
-}
-
-.dropdown-arrow {
-    color: #666;
-    font-size: 12px;
-    margin-left: 8px;
-}
-
-.team-multiselect-dropdown {
-    position: fixed;
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    z-index: 9999;
-    max-height: 200px;
-    overflow: hidden;
-    margin-top: 2px;
-    width: 250px;
-    max-width: 90vw;
-}
-
-.team-search-container {
-    padding: 8px;
-    border-bottom: 1px solid #eee;
-}
-
-.team-search-input {
-    width: 100%;
-    padding: 6px 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-    outline: none;
-}
-
-.team-search-input:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-}
-
-.team-options-container {
-    max-height: 140px;
-    overflow-y: auto;
-}
-
-.team-option {
-    display: flex;
-    align-items: center;
-    padding: 8px 12px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    border: none;
-    background: none;
-    width: 100%;
-}
-
-.team-option:hover {
-    background-color: #f8f9fa;
-}
-
-.team-option input[type="checkbox"] {
-    margin: 0 8px 0 0;
-    cursor: pointer;
-}
-
-.team-option-label {
-    flex: 1;
-    cursor: pointer;
-    font-size: 14px;
-    color: #333;
-}
-
-.no-teams-found {
-    padding: 12px;
-    text-align: center;
-    color: #666;
-    font-style: italic;
-}
-
-.selected-teams-preview {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    margin-top: 4px;
-}
-
-.team-badge-small {
-    background-color: #007bff;
-    color: white;
-    padding: 2px 6px;
-    border-radius: 8px;
-    font-size: 10px;
-    font-weight: bold;
-}
-
-/* Mobile responsiveness for multi-select dropdown */
-@media (max-width: 768px) {
-    .team-multiselect-container {
-        min-width: 150px;
-    }
-    
-    .team-multiselect-trigger {
-        padding: 6px 8px;
-    }
-    
-    .team-multiselect-dropdown {
-        max-height: 150px;
-    }
-    
-    .team-options-container {
-        max-height: 100px;
-    }
-    
-    .team-option {
-        padding: 6px 8px;
-    }
-    
-    .team-option-label {
-        font-size: 12px;
-    }
-    
-    .team-badge-small {
-        font-size: 9px;
-        padding: 1px 4px;
-    }
-}
-
-@media (max-width: 480px) {
-    .team-multiselect-container {
-        min-width: 120px;
-    }
-    
-    .team-multiselect-trigger {
-        padding: 4px 6px;
-    }
-    
-    .team-search-input {
-        padding: 4px 6px;
-        font-size: 12px;
-    }
-    
-    .team-option {
-        padding: 4px 6px;
-    }
-    
-    .team-option-label {
-        font-size: 11px;
-    }
-    
-    .selected-count,
-    .no-selection {
-        font-size: 12px;
-    }
-    
-    .dropdown-arrow {
-        font-size: 10px;
-    }
-}
+/* Team multiselect styles replaced with basic HTML5 select */
 
 /* Team Selector Styles */
 .team-selector {
     margin-bottom: 20px;
     padding: 15px;
-    background: #f8f9fa;
+    background: #fef9f8;
     border-radius: 8px;
-    border: 1px solid #dee2e6;
+    border: 1px solid #fce8e4;
 }
 
 /* Header Team Selector - when used in header */
@@ -2572,12 +2182,12 @@ button:hover {
 }
 
 .create-team-form .form-actions button[type="submit"] {
-    background: #007bff;
+    background: #093fb4;
     color: white;
 }
 
 .create-team-form .form-actions button[type="submit"]:hover {
-    background: #0056b3;
+    background: #072f8a;
 }
 
 .create-team-form .form-actions button[type="button"] {
