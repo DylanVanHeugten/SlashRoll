@@ -75,7 +75,7 @@ function Modal({ isOpen, onClose, title, message, type = "info" }) {
       React.createElement(
         "div",
         { className: "px-5 py-4 flex justify-end" },
-        React.createElement("button", { className: "bg-blue-500 hover:bg-blue-600 text-white border-none px-5 py-2 rounded cursor-pointer text-sm font-medium transition-colors duration-200", onClick: onClose }, "OK")
+        React.createElement("button", { className: "bg-primary-600 hover:bg-primary-700 text-white border-none px-5 py-2 rounded cursor-pointer text-sm font-medium transition-colors duration-200", onClick: onClose }, "OK")
       )
     )
   );
@@ -149,7 +149,7 @@ function SeasonSelector({
         </select>
         {showCreateButton && (
           <button
-            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors min-h-11"
+            className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors min-h-11"
             onClick={() => setShowCreateForm(!showCreateForm)}
           >
             {showCreateForm ? "Cancel" : "New Season"}
@@ -166,7 +166,7 @@ function SeasonSelector({
             placeholder="Enter season name"
             disabled={creating}
           />
-          <button type="submit" disabled={creating || !newSeasonName.trim()} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors min-h-11 disabled:bg-gray-400 disabled:cursor-not-allowed">
+          <button type="submit" disabled={creating || !newSeasonName.trim()} className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors min-h-11 disabled:bg-neutral-400 disabled:cursor-not-allowed">
             {creating ? "Creating..." : "Create"}
           </button>
         </form>
@@ -246,7 +246,7 @@ function TeamSelector({
       
       {showCreateButton && (
         <button
-          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors min-h-11"
+          className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors min-h-11"
           onClick={() => setShowCreateForm(true)}
         >
           Create Team
@@ -272,7 +272,7 @@ function TeamSelector({
               disabled={creating}
             />
             <div className="form-actions">
-              <button type="submit" disabled={creating} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors min-h-11 disabled:bg-gray-400 disabled:cursor-not-allowed mr-2">
+              <button type="submit" disabled={creating} className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors min-h-11 disabled:bg-neutral-400 disabled:cursor-not-allowed mr-2">
                 {creating ? "Creating..." : "Create"}
               </button>
               <button
@@ -283,7 +283,7 @@ function TeamSelector({
                   setNewTeamDescription("");
                 }}
                 disabled={creating}
-                className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors min-h-11 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                className="bg-neutral-500 hover:bg-neutral-600 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors min-h-11 disabled:bg-neutral-400 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>
@@ -303,8 +303,8 @@ function Navigation({ currentPage, onPageChange, user }) {
         <button
           className={`px-5 py-2 rounded text-sm font-medium transition-colors min-h-11 ${
             currentPage === "super-admin"
-              ? "bg-blue-500 text-white hover:bg-blue-600"
-              : "bg-gray-500 text-white hover:bg-gray-600"
+              ? "bg-primary-600 text-white hover:bg-primary-700"
+              : "bg-neutral-500 text-white hover:bg-neutral-600"
           }`}
           onClick={() => onPageChange("super-admin")}
         >
@@ -316,8 +316,8 @@ function Navigation({ currentPage, onPageChange, user }) {
           <button
             className={`px-5 py-2 rounded text-sm font-medium transition-colors min-h-11 ${
               currentPage === "players"
-                ? "bg-blue-500 text-white hover:bg-blue-600"
-                : "bg-gray-500 text-white hover:bg-gray-600"
+                ? "bg-primary-600 text-white hover:bg-primary-700"
+                : "bg-neutral-500 text-white hover:bg-neutral-600"
             }`}
             onClick={() => onPageChange("players")}
           >
@@ -326,8 +326,8 @@ function Navigation({ currentPage, onPageChange, user }) {
           <button
             className={`px-5 py-2 rounded text-sm font-medium transition-colors min-h-11 ${
               currentPage === "battles"
-                ? "bg-blue-500 text-white hover:bg-blue-600"
-                : "bg-gray-500 text-white hover:bg-gray-600"
+                ? "bg-primary-600 text-white hover:bg-primary-700"
+                : "bg-neutral-500 text-white hover:bg-neutral-600"
             }`}
             onClick={() => onPageChange("battles")}
           >
@@ -336,8 +336,8 @@ function Navigation({ currentPage, onPageChange, user }) {
           <button
             className={`px-5 py-2 rounded text-sm font-medium transition-colors min-h-11 ${
               currentPage === "manage"
-                ? "bg-blue-500 text-white hover:bg-blue-600"
-                : "bg-gray-500 text-white hover:bg-gray-600"
+                ? "bg-primary-600 text-white hover:bg-primary-700"
+                : "bg-neutral-500 text-white hover:bg-neutral-600"
             }`}
             onClick={() => onPageChange("manage")}
           >
@@ -460,7 +460,7 @@ function ActiveRoster({
                     </div>
                   )}
                   <button
-                    className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded cursor-pointer text-xs font-medium transition-colors"
+                    className="bg-secondary-800 hover:bg-secondary-900 text-white px-2 py-1 rounded cursor-pointer text-xs font-medium transition-colors"
                     onClick={() => onRemoveFromRoster(player.id)}
                   >
                     Remove
@@ -527,7 +527,7 @@ function PlayerForm({ onPlayerAdded, currentSeason, currentTeam }) {
   };
 
   return (
-    <div className="bg-gray-50 p-5 rounded-md mb-8">
+    <div className="bg-secondary-100 p-5 rounded-md mb-8">
       <h2 className="text-xl font-semibold text-gray-800 mb-4">Add New Player</h2>
       {error && <div className="error">{error}</div>}
       <form onSubmit={handleSubmit}>
@@ -556,7 +556,7 @@ function PlayerForm({ onPlayerAdded, currentSeason, currentTeam }) {
             className="w-full px-3 py-2 border border-gray-300 rounded text-sm box-border md:px-3 md:py-3 md:text-base sm:px-4 sm:py-4"
           />
         </div>
-        <button type="submit" disabled={loading} className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded cursor-pointer text-sm font-medium mr-3 min-h-11 min-w-11 transition-colors md:px-4 md:py-3 md:text-base md:mr-2 sm:px-5 sm:py-4 sm:mr-1 sm:mb-1">
+        <button type="submit" disabled={loading} className="bg-primary-600 hover:bg-primary-700 text-white px-5 py-2 rounded cursor-pointer text-sm font-medium mr-3 min-h-11 min-w-11 transition-colors md:px-4 md:py-3 md:text-base md:mr-2 sm:px-5 sm:py-4 sm:mr-1 sm:mb-1">
           {loading ? "Adding..." : "Add Player"}
         </button>
       </form>
@@ -636,7 +636,7 @@ function PlayerList({ players, onPlayerDeleted, onAddToRoster, roster, showModal
             </div>
             <div className="player-actions">
               <button
-                className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                className="bg-primary-600 hover:bg-primary-700 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed"
                 onClick={() => handleAddToRoster(player.id)}
                 disabled={roster.length >= 20}
               >
@@ -829,7 +829,7 @@ function BattleForm({ roster, onBattleAdded, currentSeason, currentTeam }) {
           )}
         </div>
 
-        <button type="submit" disabled={loading || roster.length === 0} className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded cursor-pointer text-sm font-medium transition-colors min-h-11 disabled:bg-gray-400 disabled:cursor-not-allowed">
+        <button type="submit" disabled={loading || roster.length === 0} className="bg-primary-600 hover:bg-primary-700 text-white px-5 py-2 rounded cursor-pointer text-sm font-medium transition-colors min-h-11 disabled:bg-neutral-400 disabled:cursor-not-allowed">
           {loading ? "Recording..." : "Record Battle"}
         </button>
       </form>
@@ -1023,10 +1023,10 @@ function BattleEdit({ battle, onBattleUpdated, onCancel, currentSeason }) {
         </div>
 
         <div style={{ display: "flex", gap: "10px" }}>
-          <button type="submit" disabled={loading} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors min-h-11 disabled:bg-gray-400 disabled:cursor-not-allowed">
+          <button type="submit" disabled={loading} className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors min-h-11 disabled:bg-neutral-400 disabled:cursor-not-allowed">
             {loading ? "Updating..." : "Update Battle"}
           </button>
-          <button type="button" onClick={onCancel} disabled={loading} className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors min-h-11 disabled:bg-gray-400 disabled:cursor-not-allowed">
+          <button type="button" onClick={onCancel} disabled={loading} className="bg-neutral-500 hover:bg-neutral-600 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors min-h-11 disabled:bg-neutral-400 disabled:cursor-not-allowed">
             Cancel
           </button>
         </div>
@@ -1134,13 +1134,13 @@ function BattleList({ battles, onBattleDeleted, onBattleUpdated, currentSeason, 
               </div>
               <div>
                 <button
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors"
+                  className="bg-primary-600 hover:bg-primary-700 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors"
                   onClick={() => handleEdit(battle)}
                 >
                   Edit
                 </button>
                 <button
-                  className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  className="bg-secondary-800 hover:bg-secondary-900 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed"
                   onClick={() => handleDelete(battle.id)}
                   disabled={deletingId === battle.id}
                 >
@@ -1411,7 +1411,7 @@ function AdminDashboard({
                           />
                           <div className="season-name-actions">
                             <button
-                              className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed mr-2"
+                              className="bg-primary-600 hover:bg-primary-700 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed mr-2"
                               onClick={() => handleSeasonNameSave(season.id)}
                               disabled={updatingSeasonId === season.id}
                             >
@@ -1420,7 +1420,7 @@ function AdminDashboard({
                                 : "Save"}
                             </button>
                             <button
-                              className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                              className="bg-neutral-500 hover:bg-neutral-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed"
                               onClick={handleSeasonNameCancel}
                               disabled={updatingSeasonId === season.id}
                             >
@@ -1439,7 +1439,7 @@ function AdminDashboard({
                       {editingSeasonId === season.id ? null : (
                         <>
                           <button
-                            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors mr-2"
+                            className="bg-primary-600 hover:bg-primary-700 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors mr-2"
                             onClick={() =>
                               handleSeasonRename(season.id, season.name)
                             }
@@ -1447,7 +1447,7 @@ function AdminDashboard({
                             Rename
                           </button>
                           <button
-                            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                            className="bg-secondary-800 hover:bg-secondary-900 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed"
                             onClick={() => handleSeasonDelete(season.id)}
                             disabled={deletingSeasonId === season.id}
                           >
@@ -1519,14 +1519,14 @@ function AdminDashboard({
                           <button
                             onClick={() => handleGameIdSave(player.id)}
                             disabled={updatingId === player.id}
-                            className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed mr-2"
+                            className="bg-primary-600 hover:bg-primary-700 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed mr-2"
                           >
                             {updatingId === player.id ? "Saving..." : "Save"}
                           </button>
                           <button
                             onClick={handleGameIdCancel}
                             disabled={updatingId === player.id}
-                            className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                            className="bg-neutral-500 hover:bg-neutral-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed"
                           >
                             Cancel
                           </button>
@@ -1539,7 +1539,7 @@ function AdminDashboard({
                               handleGameIdEdit(player.id, player.game_id)
                             }
                             disabled={updatingId === player.id}
-                            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors"
+                            className="bg-primary-600 hover:bg-primary-700 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors"
                           >
                             Edit
                           </button>
@@ -1570,8 +1570,8 @@ function AdminDashboard({
                     </div>
                     <div className="player-actions">
                       <button
-                        className={`px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed mr-2 ${
-                          player.status === "active" ? "bg-orange-500 hover:bg-orange-600 text-white" : "bg-green-500 hover:bg-green-600 text-white"
+                        className={`px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed mr-2 ${
+                          player.status === "active" ? "bg-secondary-700 hover:bg-secondary-800 text-white" : "bg-primary-600 hover:bg-primary-700 text-white"
                         }`}
                         onClick={() =>
                           handleStatusChange(
@@ -1588,7 +1588,7 @@ function AdminDashboard({
                           : "Activate"}
                       </button>
                       <button
-                        className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        className="bg-secondary-800 hover:bg-secondary-900 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed"
                         onClick={() => handleDelete(player.id)}
                         disabled={updatingId === player.id}
                       >
@@ -1909,7 +1909,7 @@ function SuperAdminPanel({ showModal }) {
         <div className="section-header">
           <h3>User Management</h3>
           <button 
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors"
+            className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors"
             onClick={() => setShowCreateForm(!showCreateForm)}
           >
             {showCreateForm ? "Cancel" : "Create New User"}
@@ -1939,7 +1939,7 @@ function SuperAdminPanel({ showModal }) {
               />
             </div>
             <div className="form-actions">
-              <button type="submit" disabled={creating} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
+              <button type="submit" disabled={creating} className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed">
                 {creating ? "Creating..." : "Create User"}
               </button>
             </div>
@@ -2026,14 +2026,14 @@ function SuperAdminPanel({ showModal }) {
                       {editingUser === user.id ? (
                         <div className="edit-actions">
                           <button 
-                            className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed mr-2"
+                            className="bg-primary-600 hover:bg-primary-700 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed mr-2"
                             onClick={() => handleUpdateUser(user.id)}
                             disabled={updating}
                           >
                             {updating ? "Saving..." : "Save"}
                           </button>
                           <button 
-                            className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                            className="bg-neutral-500 hover:bg-neutral-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed"
                             onClick={handleCancelEdit}
                             disabled={updating}
                           >
@@ -2043,13 +2043,13 @@ function SuperAdminPanel({ showModal }) {
                       ) : (
                         <div className="user-actions">
                           <button 
-                            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors mr-2"
+                            className="bg-primary-600 hover:bg-primary-700 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors mr-2"
                             onClick={() => handleEditUser(user)}
                           >
                             Edit
                           </button>
                           <button 
-                            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors"
+                            className="bg-secondary-800 hover:bg-secondary-900 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors"
                             onClick={() => handleDeleteUser(user.id)}
                           >
                             Delete
@@ -2069,7 +2069,7 @@ function SuperAdminPanel({ showModal }) {
         <div className="section-header">
           <h3>Team Management</h3>
           <button 
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors"
+            className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors"
             onClick={() => setShowCreateTeamForm(!showCreateTeamForm)}
           >
             {showCreateTeamForm ? "Cancel" : "Create New Team"}
@@ -2098,7 +2098,7 @@ function SuperAdminPanel({ showModal }) {
               />
             </div>
             <div className="form-actions">
-              <button type="submit" disabled={creatingTeam} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
+              <button type="submit" disabled={creatingTeam} className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed">
                 {creatingTeam ? "Creating..." : "Create Team"}
               </button>
             </div>
@@ -2155,14 +2155,14 @@ function SuperAdminPanel({ showModal }) {
                       {editingTeam === team.id ? (
                         <div className="edit-actions">
                           <button 
-                            className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed mr-2"
+                            className="bg-primary-600 hover:bg-primary-700 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed mr-2"
                             onClick={() => handleUpdateTeam(team.id)}
                             disabled={updatingTeam}
                           >
                             {updatingTeam ? "Saving..." : "Save"}
                           </button>
                           <button 
-                            className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                            className="bg-neutral-500 hover:bg-neutral-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed"
                             onClick={handleCancelTeamEdit}
                             disabled={updatingTeam}
                           >
@@ -2172,13 +2172,13 @@ function SuperAdminPanel({ showModal }) {
                       ) : (
                         <div className="team-actions">
                           <button 
-                            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors mr-2"
+                            className="bg-primary-600 hover:bg-primary-700 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors mr-2"
                             onClick={() => handleEditTeam(team)}
                           >
                             Edit
                           </button>
                           <button 
-                            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors"
+                            className="bg-secondary-800 hover:bg-secondary-900 text-white px-3 py-1 rounded cursor-pointer text-sm font-medium transition-colors"
                             onClick={() => handleDeleteTeam(team.id)}
                           >
                             Delete
@@ -2762,7 +2762,7 @@ function App() {
           <div className="user-info">
             <span>Welcome, {user?.username}</span>
             {user?.is_superadmin && <span className="superadmin-badge">Super Admin</span>}
-            <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors">
+            <button onClick={handleLogout} className="bg-secondary-800 hover:bg-secondary-900 text-white px-4 py-2 rounded cursor-pointer text-sm font-medium transition-colors">
               Logout
             </button>
           </div>

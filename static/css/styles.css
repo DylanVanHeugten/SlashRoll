@@ -35,19 +35,19 @@ body, html {
 }
 
 .modal-btn:hover {
-    background-color: #0056b3;
+    background-color: #072f8a;
 }
 
 .modal-error .modal-title {
-    color: #dc3545;
+    color: #ed3500;
 }
 
 .modal-error .modal-btn {
-    background-color: #dc3545;
+    background-color: #ed3500;
 }
 
 .modal-error .modal-btn:hover {
-    background-color: #c82333;
+    background-color: #c22e00;
 }
 
 .modal-success .modal-title {
@@ -139,7 +139,7 @@ body, html {
 }
 
 .superadmin-badge {
-    background-color: #dc3545;
+    background-color: #ed3500;
     color: white;
     padding: 4px 8px;
     border-radius: 12px;
@@ -151,7 +151,7 @@ body, html {
 }
 
 .logout-btn {
-    background: #dc3545;
+    background: #ed3500;
     color: white;
     border: none;
     padding: 8px 16px;
@@ -162,7 +162,7 @@ body, html {
 }
 
 .logout-btn:hover {
-    background: #c82333;
+    background: #c22e00;
 }
 
 @media (max-width: 768px) {
@@ -220,7 +220,7 @@ input[type="number"]::-webkit-inner-spin-button {
 /* Button styles moved to Tailwind classes */
 
 .players-list {
-    background-color: #f8f9fa;
+    background-color: #fef9f8;
     padding: 20px;
     border-radius: 6px;
 }
@@ -328,8 +328,8 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .error {
-    color: #dc3545;
-    background-color: #f8d7da;
+    color: #ed3500;
+    background-color: #fad8d8;
     padding: 10px;
     border-radius: 4px;
     margin-bottom: 15px;
@@ -341,9 +341,9 @@ input[type="number"]::-webkit-inner-spin-button {
 .season-selector {
     margin-bottom: 30px;
     padding: 20px;
-    background-color: #f8f9fa;
+    background-color: #fef9f8;
     border-radius: 6px;
-    border: 1px solid #dee2e6;
+    border: 1px solid #fce8e4;
 }
 
 .season-controls {
@@ -501,7 +501,7 @@ input[type="number"]::-webkit-inner-spin-button {
 
 /* Active Roster */
 .active-roster {
-    background-color: #e9ecef;
+    background-color: #fdf2f0;
     padding: 20px;
     border-radius: 6px;
 }
@@ -560,8 +560,8 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .roster-slot.filled {
-    border: 2px solid #007bff;
-    background-color: #f8f9fa;
+    border: 2px solid #093fb4;
+    background-color: #fef9f8;
 }
 
 .roster-slot.empty {
@@ -569,8 +569,8 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .roster-slot.drag-over {
-    border: 3px solid #007bff;
-    background-color: #e3f2fd;
+    border: 3px solid #093fb4;
+    background-color: #eff6ff;
 }
 
 .roster-slot.drag-over.filled {
@@ -588,7 +588,7 @@ input[type="number"]::-webkit-inner-spin-button {
     position: absolute;
     top: 5px;
     right: 5px;
-    background-color: #007bff;
+    background-color: #093fb4;
     color: white;
     width: 20px;
     height: 20px;
@@ -636,7 +636,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .remove-btn {
-    background-color: #dc3545;
+    background-color: #ed3500;
     padding: 3px 6px;
     font-size: 10px;
     margin-top: auto;
@@ -661,7 +661,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .remove-btn:hover {
-    background-color: #c82333;
+    background-color: #c22e00;
 }
 
 .empty-slot {
@@ -675,7 +675,7 @@ input[type="number"]::-webkit-inner-spin-button {
 
 /* Admin Dashboard */
 .admin-dashboard {
-    background-color: #f8f9fa;
+    background-color: #fef9f8;
     padding: 20px;
     border-radius: 6px;
 }
@@ -717,7 +717,7 @@ input[type="number"]::-webkit-inner-spin-button {
     margin-top: 0;
     margin-bottom: 20px;
     color: #333;
-    border-bottom: 2px solid #007bff;
+    border-bottom: 2px solid #093fb4;
     padding-bottom: 10px;
 }
 
@@ -735,7 +735,7 @@ input[type="number"]::-webkit-inner-spin-button {
 .seasons-table .table-header {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr;
-    background-color: #28a745;
+    background-color: #093fb4;
     color: white;
     padding: 15px;
     font-weight: bold;
@@ -794,7 +794,7 @@ input[type="number"]::-webkit-inner-spin-button {
 .players-table .table-header {
     display: grid;
     grid-template-columns: 2fr 1.5fr 2fr 1fr 2fr;
-    background-color: #007bff;
+    background-color: #093fb4;
     color: white;
     padding: 15px;
     font-weight: bold;
@@ -1045,7 +1045,7 @@ input[type="number"]::-webkit-inner-spin-button {
 .participant-stats {
     margin-top: 20px;
     padding: 20px;
-    background-color: #f8f9fa;
+    background-color: #fef9f8;
     border-radius: 6px;
 }
 
@@ -1103,7 +1103,7 @@ input[type="number"]::-webkit-inner-spin-button {
 .battles-table .table-header {
     display: grid;
     grid-template-columns: 1fr 2fr 1fr 1fr 1fr 1fr 1fr;
-    background-color: #007bff;
+    background-color: #093fb4;
     color: white;
     padding: 15px;
     font-weight: bold;
@@ -1167,7 +1167,7 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .total-damage {
     font-weight: bold;
-    color: #dc3545;
+    color: #ed3500;
     text-align: center;
 }
 
@@ -1279,7 +1279,7 @@ input[type="number"]::-webkit-inner-spin-button {
 
 /* Statistics Page */
 .statistics-content {
-    background-color: #f8f9fa;
+    background-color: #fef9f8;
     padding: 20px;
     border-radius: 6px;
 }
@@ -1346,7 +1346,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .stat-value.losses {
-    color: #dc3545;
+    color: #ed3500;
 }
 
 
@@ -1360,7 +1360,7 @@ input[type="number"]::-webkit-inner-spin-button {
 .players-stats-table .table-header {
     display: grid;
     grid-template-columns: 60px 2fr 1.5fr 1.5fr 1fr 1.5fr;
-    background-color: #007bff;
+    background-color: #093fb4;
     color: white;
     padding: 15px;
     font-weight: bold;
@@ -1382,7 +1382,7 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .rank {
     font-weight: bold;
-    color: #007bff;
+    color: #093fb4;
     text-align: center;
 }
 
@@ -1413,12 +1413,12 @@ input[type="number"]::-webkit-inner-spin-button {
 
 /* EXPERIMENTAL GRAPHS SECTION - CAN BE EASILY REMOVED */
 .experimental-graphs {
-    border: 2px dashed #007bff;
-    background-color: #f8f9ff;
+    border: 2px dashed #093fb4;
+    background-color: #eff6ff;
 }
 
 .experimental-badge {
-    background-color: #007bff;
+    background-color: #093fb4;
     color: white;
     padding: 2px 8px;
     border-radius: 12px;
@@ -1611,7 +1611,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .user-management {
-    background-color: #f8f9fa;
+    background-color: #fef9f8;
     padding: 30px;
     border-radius: 8px;
     margin-bottom: 30px;
@@ -1658,8 +1658,8 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .form-group input:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    border-color: #093fb4;
+    box-shadow: 0 0 0 2px rgba(9, 63, 180, 0.25);
 }
 
 .form-actions {
@@ -1730,12 +1730,12 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .btn-primary {
-    background-color: #007bff;
+    background-color: #093fb4;
     color: white;
 }
 
 .btn-danger {
-    background-color: #dc3545;
+    background-color: #ed3500;
     color: white;
 }
 
@@ -1788,8 +1788,8 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .edit-input:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    border-color: #093fb4;
+    box-shadow: 0 0 0 2px rgba(9, 63, 180, 0.25);
 }
 
 .password-edit {
@@ -1862,7 +1862,7 @@ input[type="number"]::-webkit-inner-spin-button {
 
 /* Team Management Styles */
 .team-management {
-    background-color: #f8f9fa;
+    background-color: #fef9f8;
     padding: 30px;
     border-radius: 8px;
     margin-top: 30px;
@@ -1888,8 +1888,8 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .create-team-form textarea:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    border-color: #093fb4;
+    box-shadow: 0 0 0 2px rgba(9, 63, 180, 0.25);
 }
 
 .teams-list h4 {
@@ -1940,8 +1940,8 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .edit-input textarea:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    border-color: #093fb4;
+    box-shadow: 0 0 0 2px rgba(9, 63, 180, 0.25);
 }
 
 .team-actions {
@@ -2044,7 +2044,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .team-badge {
-    background-color: #007bff;
+    background-color: #093fb4;
     color: white;
     padding: 2px 8px;
     border-radius: 12px;
@@ -2099,9 +2099,9 @@ input[type="number"]::-webkit-inner-spin-button {
 .team-selector {
     margin-bottom: 20px;
     padding: 15px;
-    background: #f8f9fa;
+    background: #fef9f8;
     border-radius: 8px;
-    border: 1px solid #dee2e6;
+    border: 1px solid #fce8e4;
 }
 
 /* Header Team Selector - when used in header */
@@ -2184,12 +2184,12 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .create-team-form .form-actions button[type="submit"] {
-    background: #007bff;
+    background: #093fb4;
     color: white;
 }
 
 .create-team-form .form-actions button[type="submit"]:hover {
-    background: #0056b3;
+    background: #072f8a;
 }
 
 .create-team-form .form-actions button[type="button"] {

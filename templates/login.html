@@ -23,6 +23,60 @@
           extend: {
             fontFamily: {
               'sans': ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            },
+            colors: {
+              primary: {
+                50: '#eff6ff',
+                100: '#dbeafe',
+                200: '#bfdbfe',
+                300: '#93c5fd',
+                400: '#60a5fa',
+                500: '#3b82f6',
+                600: '#093fb4', // rgb(9, 63, 180)
+                700: '#072f8a',
+                800: '#06256f',
+                900: '#051d59',
+                950: '#041247',
+              },
+              secondary: {
+                50: '#fffcfb', // rgb(255, 252, 251)
+                100: '#fef9f8',
+                200: '#fdf2f0',
+                300: '#fce8e4',
+                400: '#fad8d8', // rgb(255, 216, 216)
+                500: '#f8c4c4',
+                600: '#f5a1a1',
+                700: '#f17e7e',
+                800: '#ed3500', // rgb(237, 53, 0)
+                900: '#c22e00',
+                950: '#9f2600',
+              },
+              accent: {
+                50: '#fffcfb',
+                100: '#fef9f8',
+                200: '#fdf2f0',
+                300: '#fce8e4',
+                400: '#fad8d8',
+                500: '#f8c4c4',
+                600: '#f5a1a1',
+                700: '#f17e7e',
+                800: '#ed3500',
+                900: '#c22e00',
+                950: '#9f2600',
+              },
+              neutral: {
+                50: '#fafafa',
+                100: '#f5f5f5',
+                200: '#e5e5e5',
+                300: '#d4d4d4',
+                400: '#a3a3a3',
+                500: '#737373',
+                600: '#525252',
+                700: '#404040',
+                800: '#262626',
+                900: '#171717',
+                950: '#0a0a0a',
+              }
             }
           }
         }
@@ -60,7 +114,7 @@
         justify-content: center;
         align-items: center;
         min-height: 100vh;
-        background: #f5f5f5;
+        background: #fffcfb;
         padding: 20px;
         font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
       }
@@ -103,13 +157,13 @@
       
       .form-group input:focus {
         outline: none;
-        border-color: #667eea;
+        border-color: #093fb4;
       }
       
       .login-button {
         width: 100%;
         padding: 12px;
-        background: #667eea;
+        background: #093fb4;
         color: white;
         border: none;
         border-radius: 5px;
@@ -119,7 +173,7 @@
       }
       
       .login-button:hover {
-        background: #5a6fd8;
+        background: #072f8a;
       }
       
       .login-button:disabled {
@@ -128,8 +182,8 @@
       }
       
       .error-message {
-        background: #f8d7da;
-        color: #721c24;
+        background: #fad8d8;
+        color: #ed3500;
         padding: 10px;
         border-radius: 5px;
         margin-bottom: 20px;
