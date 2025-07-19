@@ -27,6 +27,12 @@ body, html {
 .modal-fade-in {
     animation: modalFadeIn 0.3s ease-out;
 }
+
+.modal-btn {
+    background-color: #093fb4;
+    color: white;
+    border: none;
+    padding: 10px 20px;
     border-radius: 4px;
     cursor: pointer;
     font-size: 14px;
@@ -95,11 +101,6 @@ body, html {
 }
 
 /* Mobile-first approach */
-@media (max-width: 480px) {
-    body {
-        padding: 10px;
-    }
-}
 
 .container {
     background-color: white;
@@ -207,6 +208,7 @@ h1 {
 
 input[type="number"] {
     -moz-appearance: textfield;
+    appearance: textfield;
 }
 
 input[type="number"]::-webkit-outer-spin-button,
@@ -1253,6 +1255,7 @@ input[type="number"]::-webkit-inner-spin-button {
     }
 }
 
+@media (max-width: 768px) {
     .stats-grid {
         grid-template-columns: 1fr;
     }
