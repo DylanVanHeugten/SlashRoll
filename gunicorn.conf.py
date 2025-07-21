@@ -1,6 +1,5 @@
 # Gunicorn configuration file
 import multiprocessing
-import os
 
 # Server socket
 backlog = 2048
@@ -32,14 +31,18 @@ pidfile = "/tmp/slashroll.pid"
 # keyfile = "/path/to/private.key"
 # certfile = "/path/to/certificate.crt"
 
+
 def when_ready(server):
     server.log.info("SlashRoll server is ready. Listening on: %s", server.address)
+
 
 def worker_int(worker):
     worker.log.info("worker received INT or QUIT signal")
 
+
 def pre_fork(server, worker):
     server.log.info("Worker spawned (pid: %s)", worker.pid)
 
+
 def post_fork(server, worker):
-    server.log.info("Worker spawned (pid: %s)", worker.pid)    server.log.info("Worker spawned (pid: %s)", worker.pid)
+    server.log.info("Worker spawned (pid: %s)", worker.pid)
