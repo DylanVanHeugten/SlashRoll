@@ -4,6 +4,7 @@
   "description": "Multi-user team-based player management system",
   "scripts": {
     "build": "npm run build:css && npm run build:js",
+    "heroku-postbuild": "npm run build",
     "postinstall": "npx update-browserslist-db@latest || true",
     "build:css": "tailwindcss -i ./static/css/styles.css -o ./static/css/styles.min.css --minify",
     "build:js": "babel static/js/app.js --out-file static/js/app.min.js --presets=@babel/preset-react && babel static/js/login.js --out-file static/js/login.min.js --presets=@babel/preset-react",
