@@ -2,8 +2,12 @@
 import multiprocessing
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 # Server socket
-bind = "0.0.0.0:8000"
+bind = f"0.0.0.0:{os.getenv('PORT', '5000')}"
 backlog = 2048
 
 # Worker processes
@@ -43,4 +47,4 @@ def pre_fork(server, worker):
     server.log.info("Worker spawned (pid: %s)", worker.pid)
 
 def post_fork(server, worker):
-    server.log.info("Worker spawned (pid: %s)", worker.pid)
+    server.log.info("Worker spawned (pid: %s)", worker.pid)    server.log.info("Worker spawned (pid: %s)", worker.pid)
