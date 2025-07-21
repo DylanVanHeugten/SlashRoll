@@ -1836,6 +1836,7 @@ button {
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 14px;
+    box-sizing: border-box;
 }
 
 .form-group input:focus {
@@ -1966,6 +1967,7 @@ button {
     border-radius: 4px;
     font-size: 14px;
     background-color: #fff;
+    box-sizing: border-box;
 }
 
 .edit-input:focus {
@@ -2066,6 +2068,7 @@ button {
     font-size: 14px;
     resize: vertical;
     font-family: Arial, sans-serif;
+    box-sizing: border-box;
 }
 
 .create-team-form textarea:focus {
@@ -2118,6 +2121,7 @@ button {
     font-size: 14px;
     resize: vertical;
     font-family: Arial, sans-serif;
+    box-sizing: border-box;
 }
 
 .edit-input textarea:focus {
@@ -2477,6 +2481,7 @@ button {
     border-radius: 5px;
     font-size: 16px;
     transition: border-color 0.3s;
+    box-sizing: border-box;
 }
 
 .form-group input:focus {
