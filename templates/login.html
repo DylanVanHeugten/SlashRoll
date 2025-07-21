@@ -108,95 +108,8 @@
       sizes="180x180"
       href="{{ url_for('static', filename='apple-touch-icon.png') }}"
     />
-    <style>
-      .login-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        background: #fffcfb;
-        padding: 20px;
-        font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      }
-      
-      .login-form {
-        background: white;
-        padding: 40px;
-        border-radius: 10px;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-        width: 100%;
-        max-width: 400px;
-        font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      }
-      
-      .login-form h1 {
-        text-align: center;
-        margin-bottom: 30px;
-        color: #333;
-      }
-      
-      .form-group {
-        margin-bottom: 20px;
-      }
-      
-      .form-group label {
-        display: block;
-        margin-bottom: 5px;
-        color: #555;
-        font-weight: 500;
-      }
-      
-      .form-group input {
-        width: 100%;
-        padding: 12px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        font-size: 16px;
-        transition: border-color 0.3s;
-      }
-      
-      .form-group input:focus {
-        outline: none;
-        border-color: #093fb4;
-      }
-      
-      .login-button {
-        width: 100%;
-        padding: 12px;
-        background: #093fb4;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        font-size: 16px;
-        cursor: pointer;
-        transition: background 0.3s;
-      }
-      
-      .login-button:hover {
-        background: #072f8a;
-      }
-      
-      .login-button:disabled {
-        background: #ccc;
-        cursor: not-allowed;
-      }
-      
-      .error-message {
-        background: #fad8d8;
-        color: #ed3500;
-        padding: 10px;
-        border-radius: 5px;
-        margin-bottom: 20px;
-        text-align: center;
-      }
-      
-      .loading {
-        text-align: center;
-        margin-top: 10px;
-      }
-    </style>
   </head>
-  <body>
+  <body class="bg-secondary-50" style="font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;">
     <div id="root"></div>
     
     <script type="text/babel">
@@ -237,50 +150,58 @@
         };
         
         return (
-          <div className="login-container">
-            <form className="login-form" onSubmit={handleSubmit}>
-              <h1>Login</h1>
+          <div className="flex justify-center items-center min-h-screen p-5">
+            <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md">
+              <h1 className="text-2xl font-semibold text-center mb-8 text-gray-800">SlashRoll Login</h1>
               
               {error && (
-                <div className="error-message">
+                <div className="bg-secondary-400 text-secondary-800 p-3 rounded mb-5 text-center">
                   {error}
                 </div>
               )}
               
-              <div className="form-group">
-                <label htmlFor="username">Username</label>
-                <input
-                  type="text"
-                  id="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                  disabled={loading}
-                />
-              </div>
-              
-              <div className="form-group">
-                <label htmlFor="password">Password</label>
-                <input
-                  type="password"
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  disabled={loading}
-                />
-              </div>
-              
-              <button type="submit" className="login-button" disabled={loading}>
-                {loading ? 'Logging in...' : 'Login'}
-              </button>
-              
-              {loading && (
-                <div className="loading">
-                  Please wait...
+              <form onSubmit={handleSubmit}>
+                <div className="mb-5">
+                  <label htmlFor="username" className="block mb-2 font-medium text-gray-600">Username</label>
+                  <input
+                    type="text"
+                    id="username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                    disabled={loading}
+                    className="w-full px-4 py-3 border border-gray-300 rounded text-base box-border focus:outline-none focus:border-primary-600 focus:ring-2 focus:ring-primary-600 focus:ring-opacity-25"
+                  />
                 </div>
-              )}
-            </form>
+                
+                <div className="mb-6">
+                  <label htmlFor="password" className="block mb-2 font-medium text-gray-600">Password</label>
+                  <input
+                    type="password"
+                    id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    disabled={loading}
+                    className="w-full px-4 py-3 border border-gray-300 rounded text-base box-border focus:outline-none focus:border-primary-600 focus:ring-2 focus:ring-primary-600 focus:ring-opacity-25"
+                  />
+                </div>
+                
+                <button 
+                  type="submit" 
+                  disabled={loading}
+                  className="w-full bg-primary-600 hover:bg-primary-700 text-white px-5 py-3 rounded cursor-pointer text-base font-medium transition-colors disabled:bg-neutral-400 disabled:cursor-not-allowed"
+                >
+                  {loading ? 'Logging in...' : 'Login'}
+                </button>
+                
+                {loading && (
+                  <div className="text-center mt-3 text-gray-600">
+                    Please wait...
+                  </div>
+                )}
+              </form>
+            </div>
           </div>
         );
       }
