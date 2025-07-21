@@ -1795,10 +1795,12 @@ def set_security_headers(response):
     return response
 
 
+# Initialize database when app starts (for Heroku and other WSGI deployments)
+with app.app_context():
+    db.create_all()
+    run_migrations()
+
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
-        run_migrations()
     # Security fix: Debug mode from environment variable
     debug_mode = os.getenv("FLASK_DEBUG", "False").lower() == "true"
     app.run(debug=debug_mode)
