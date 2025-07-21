@@ -1778,6 +1778,10 @@ def run_migrations():
 # Security fix: Add generic error handler to prevent information disclosure
 @app.errorhandler(Exception)
 def handle_exception(e):
+    # Don't handle static file errors - let Flask handle them normally
+    if request and request.path.startswith('/static/'):
+        raise e
+    
     # Log the actual error for debugging
     app.logger.error(f"Unhandled exception: {str(e)}")
     # Return generic error message to user
