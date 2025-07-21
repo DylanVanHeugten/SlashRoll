@@ -2,12 +2,7 @@
 import multiprocessing
 import os
 
-from dotenv import load_dotenv
-
-load_dotenv()
-
 # Server socket
-bind = f"0.0.0.0:{os.getenv('PORT', '5000')}"
 backlog = 2048
 
 # Worker processes
