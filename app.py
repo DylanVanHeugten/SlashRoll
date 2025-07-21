@@ -37,7 +37,14 @@ PRODUCTION_MODE = os.getenv("PRODUCTION_MODE", "false").lower() == "true"
 app.permanent_session_lifetime = timedelta(hours=2)
 
 # Security fix: Restrict CORS to specific origins
-CORS(app, origins=["http://localhost:5000"], methods=["GET", "POST", "PUT", "DELETE"])
+if PRODUCTION_MODE:
+    # In production, CORS should be same-origin only (no explicit origins needed)
+    CORS(app, methods=["GET", "POST", "PUT", "DELETE"])
+else:
+    # In development, allow localhost
+    CORS(
+        app, origins=["http://localhost:5000"], methods=["GET", "POST", "PUT", "DELETE"]
+    )
 
 # Security fix: Add CSRF protection with API exemption
 csrf = CSRFProtect(app)
@@ -1673,7 +1680,6 @@ def run_migrations():
         db.session.commit()
         print("Team table created successfully!")
 
-
     # Check and create UserTeam table
     try:
         db.session.execute(text("SELECT id FROM user_team LIMIT 1"))
@@ -1751,9 +1757,7 @@ def run_migrations():
         su_password = os.getenv("su_password")
 
         if not su_password:
-            raise ValueError(
-                "su_password environment variable is required"
-            )
+            raise ValueError("su_password environment variable is required")
 
         admin_user = AdminUser.query.filter_by(username=su_username).first()
         if not admin_user:
