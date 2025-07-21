@@ -216,5 +216,5 @@ yarn-debug.log*
 yarn-error.log*
 
 # Built assets
-static/css/*.min.css
-static/js/*.min.js
+# static/css/*.min.css
+# static/js/*.min.js
